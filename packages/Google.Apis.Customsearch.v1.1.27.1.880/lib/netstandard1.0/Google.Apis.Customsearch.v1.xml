@@ -1,0 +1,476 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Google.Apis.Customsearch.v1</name>
+    </assembly>
+    <members>
+        <member name="T:Google.Apis.Customsearch.v1.CustomsearchService">
+            <summary>The Customsearch Service.</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CustomsearchService.Version">
+            <summary>The API version.</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CustomsearchService.DiscoveryVersionUsed">
+            <summary>The discovery version used to generate this service.</summary>
+        </member>
+        <member name="M:Google.Apis.Customsearch.v1.CustomsearchService.#ctor">
+            <summary>Constructs a new service.</summary>
+        </member>
+        <member name="M:Google.Apis.Customsearch.v1.CustomsearchService.#ctor(Google.Apis.Services.BaseClientService.Initializer)">
+            <summary>Constructs a new service.</summary>
+            <param name="initializer">The service initializer.</param>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.CustomsearchService.Features">
+            <summary>Gets the service supported features.</summary>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.CustomsearchService.Name">
+            <summary>Gets the service name.</summary>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.CustomsearchService.BaseUri">
+            <summary>Gets the service base URI.</summary>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.CustomsearchService.BasePath">
+            <summary>Gets the service base path.</summary>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.CustomsearchService.BatchUri">
+            <summary>Gets the batch base URI; <c>null</c> if unspecified.</summary>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.CustomsearchService.BatchPath">
+            <summary>Gets the batch base path; <c>null</c> if unspecified.</summary>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.CustomsearchService.Cse">
+            <summary>Gets the Cse resource.</summary>
+        </member>
+        <member name="T:Google.Apis.Customsearch.v1.CustomsearchBaseServiceRequest`1">
+            <summary>A base abstract class for Customsearch requests.</summary>
+        </member>
+        <member name="M:Google.Apis.Customsearch.v1.CustomsearchBaseServiceRequest`1.#ctor(Google.Apis.Services.IClientService)">
+            <summary>Constructs a new CustomsearchBaseServiceRequest instance.</summary>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.CustomsearchBaseServiceRequest`1.Alt">
+            <summary>Data format for the response.</summary>
+            [default: json]
+        </member>
+        <member name="T:Google.Apis.Customsearch.v1.CustomsearchBaseServiceRequest`1.AltEnum">
+            <summary>Data format for the response.</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CustomsearchBaseServiceRequest`1.AltEnum.Atom">
+            <summary>Responses with Content-Type of application/atom+xml</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CustomsearchBaseServiceRequest`1.AltEnum.Json">
+            <summary>Responses with Content-Type of application/json</summary>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.CustomsearchBaseServiceRequest`1.Fields">
+            <summary>Selector specifying which fields to include in a partial response.</summary>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.CustomsearchBaseServiceRequest`1.Key">
+            <summary>API key. Your API key identifies your project and provides you with API access, quota, and reports.
+            Required unless you provide an OAuth 2.0 token.</summary>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.CustomsearchBaseServiceRequest`1.OauthToken">
+            <summary>OAuth 2.0 token for the current user.</summary>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.CustomsearchBaseServiceRequest`1.PrettyPrint">
+            <summary>Returns response with indentations and line breaks.</summary>
+            [default: true]
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.CustomsearchBaseServiceRequest`1.QuotaUser">
+            <summary>Available to use for quota purposes for server-side applications. Can be any arbitrary string
+            assigned to a user, but should not exceed 40 characters. Overrides userIp if both are provided.</summary>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.CustomsearchBaseServiceRequest`1.UserIp">
+            <summary>IP address of the site where the request originates. Use this if you want to enforce per-user
+            limits.</summary>
+        </member>
+        <member name="M:Google.Apis.Customsearch.v1.CustomsearchBaseServiceRequest`1.InitParameters">
+            <summary>Initializes Customsearch parameter list.</summary>
+        </member>
+        <member name="T:Google.Apis.Customsearch.v1.CseResource">
+            <summary>The "cse" collection of methods.</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.service">
+            <summary>The service which this resource belongs to.</summary>
+        </member>
+        <member name="M:Google.Apis.Customsearch.v1.CseResource.#ctor(Google.Apis.Services.IClientService)">
+            <summary>Constructs a new resource.</summary>
+        </member>
+        <member name="M:Google.Apis.Customsearch.v1.CseResource.List(System.String)">
+            <summary>Returns metadata about the search performed, metadata about the custom search engine used for the
+            search, and the search results.</summary>
+            <param name="q">Query</param>
+        </member>
+        <member name="T:Google.Apis.Customsearch.v1.CseResource.ListRequest">
+            <summary>Returns metadata about the search performed, metadata about the custom search engine used for the
+            search, and the search results.</summary>
+        </member>
+        <member name="M:Google.Apis.Customsearch.v1.CseResource.ListRequest.#ctor(Google.Apis.Services.IClientService,System.String)">
+            <summary>Constructs a new List request.</summary>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.CseResource.ListRequest.Q">
+            <summary>Query</summary>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.CseResource.ListRequest.C2coff">
+            <summary>Turns off the translation between zh-CN and zh-TW.</summary>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.CseResource.ListRequest.Cr">
+            <summary>Country restrict(s).</summary>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.CseResource.ListRequest.Cx">
+            <summary>The custom search engine ID to scope this search query</summary>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.CseResource.ListRequest.DateRestrict">
+            <summary>Specifies all search results are from a time period</summary>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.CseResource.ListRequest.ExactTerms">
+            <summary>Identifies a phrase that all documents in the search results must contain</summary>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.CseResource.ListRequest.ExcludeTerms">
+            <summary>Identifies a word or phrase that should not appear in any documents in the search
+            results</summary>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.CseResource.ListRequest.FileType">
+            <summary>Returns images of a specified type. Some of the allowed values are: bmp, gif, png, jpg, svg,
+            pdf, ...</summary>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.CseResource.ListRequest.Filter">
+            <summary>Controls turning on or off the duplicate content filter.</summary>
+        </member>
+        <member name="T:Google.Apis.Customsearch.v1.CseResource.ListRequest.FilterEnum">
+            <summary>Controls turning on or off the duplicate content filter.</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.FilterEnum.Value0">
+            <summary>Turns off duplicate content filter.</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.FilterEnum.Value1">
+            <summary>Turns on duplicate content filter.</summary>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.CseResource.ListRequest.Gl">
+            <summary>Geolocation of end user.</summary>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.CseResource.ListRequest.Googlehost">
+            <summary>The local Google domain to use to perform the search.</summary>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.CseResource.ListRequest.HighRange">
+            <summary>Creates a range in form as_nlo value..as_nhi value and attempts to append it to query</summary>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.CseResource.ListRequest.Hl">
+            <summary>Sets the user interface language.</summary>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.CseResource.ListRequest.Hq">
+            <summary>Appends the extra query terms to the query.</summary>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.CseResource.ListRequest.ImgColorType">
+            <summary>Returns black and white, grayscale, or color images: mono, gray, and color.</summary>
+        </member>
+        <member name="T:Google.Apis.Customsearch.v1.CseResource.ListRequest.ImgColorTypeEnum">
+            <summary>Returns black and white, grayscale, or color images: mono, gray, and color.</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.ImgColorTypeEnum.Color">
+            <summary>color</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.ImgColorTypeEnum.Gray">
+            <summary>gray</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.ImgColorTypeEnum.Mono">
+            <summary>mono</summary>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.CseResource.ListRequest.ImgDominantColor">
+            <summary>Returns images of a specific dominant color: yellow, green, teal, blue, purple, pink, white,
+            gray, black and brown.</summary>
+        </member>
+        <member name="T:Google.Apis.Customsearch.v1.CseResource.ListRequest.ImgDominantColorEnum">
+            <summary>Returns images of a specific dominant color: yellow, green, teal, blue, purple, pink, white,
+            gray, black and brown.</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.ImgDominantColorEnum.Black">
+            <summary>black</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.ImgDominantColorEnum.Blue">
+            <summary>blue</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.ImgDominantColorEnum.Brown">
+            <summary>brown</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.ImgDominantColorEnum.Gray">
+            <summary>gray</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.ImgDominantColorEnum.Green">
+            <summary>green</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.ImgDominantColorEnum.Pink">
+            <summary>pink</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.ImgDominantColorEnum.Purple">
+            <summary>purple</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.ImgDominantColorEnum.Teal">
+            <summary>teal</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.ImgDominantColorEnum.White">
+            <summary>white</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.ImgDominantColorEnum.Yellow">
+            <summary>yellow</summary>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.CseResource.ListRequest.ImgSize">
+            <summary>Returns images of a specified size, where size can be one of: icon, small, medium, large,
+            xlarge, xxlarge, and huge.</summary>
+        </member>
+        <member name="T:Google.Apis.Customsearch.v1.CseResource.ListRequest.ImgSizeEnum">
+            <summary>Returns images of a specified size, where size can be one of: icon, small, medium, large,
+            xlarge, xxlarge, and huge.</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.ImgSizeEnum.Huge">
+            <summary>huge</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.ImgSizeEnum.Icon">
+            <summary>icon</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.ImgSizeEnum.Large">
+            <summary>large</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.ImgSizeEnum.Medium">
+            <summary>medium</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.ImgSizeEnum.Small">
+            <summary>small</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.ImgSizeEnum.Xlarge">
+            <summary>xlarge</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.ImgSizeEnum.Xxlarge">
+            <summary>xxlarge</summary>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.CseResource.ListRequest.ImgType">
+            <summary>Returns images of a type, which can be one of: clipart, face, lineart, news, and
+            photo.</summary>
+        </member>
+        <member name="T:Google.Apis.Customsearch.v1.CseResource.ListRequest.ImgTypeEnum">
+            <summary>Returns images of a type, which can be one of: clipart, face, lineart, news, and
+            photo.</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.ImgTypeEnum.Clipart">
+            <summary>clipart</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.ImgTypeEnum.Face">
+            <summary>face</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.ImgTypeEnum.Lineart">
+            <summary>lineart</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.ImgTypeEnum.News">
+            <summary>news</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.ImgTypeEnum.Photo">
+            <summary>photo</summary>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.CseResource.ListRequest.LinkSite">
+            <summary>Specifies that all search results should contain a link to a particular URL</summary>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.CseResource.ListRequest.LowRange">
+            <summary>Creates a range in form as_nlo value..as_nhi value and attempts to append it to query</summary>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.CseResource.ListRequest.Lr">
+            <summary>The language restriction for the search results</summary>
+        </member>
+        <member name="T:Google.Apis.Customsearch.v1.CseResource.ListRequest.LrEnum">
+            <summary>The language restriction for the search results</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.LrEnum.LangAr">
+            <summary>Arabic</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.LrEnum.LangBg">
+            <summary>Bulgarian</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.LrEnum.LangCa">
+            <summary>Catalan</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.LrEnum.LangCs">
+            <summary>Czech</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.LrEnum.LangDa">
+            <summary>Danish</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.LrEnum.LangDe">
+            <summary>German</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.LrEnum.LangEl">
+            <summary>Greek</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.LrEnum.LangEn">
+            <summary>English</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.LrEnum.LangEs">
+            <summary>Spanish</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.LrEnum.LangEt">
+            <summary>Estonian</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.LrEnum.LangFi">
+            <summary>Finnish</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.LrEnum.LangFr">
+            <summary>French</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.LrEnum.LangHr">
+            <summary>Croatian</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.LrEnum.LangHu">
+            <summary>Hungarian</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.LrEnum.LangId">
+            <summary>Indonesian</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.LrEnum.LangIs">
+            <summary>Icelandic</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.LrEnum.LangIt">
+            <summary>Italian</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.LrEnum.LangIw">
+            <summary>Hebrew</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.LrEnum.LangJa">
+            <summary>Japanese</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.LrEnum.LangKo">
+            <summary>Korean</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.LrEnum.LangLt">
+            <summary>Lithuanian</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.LrEnum.LangLv">
+            <summary>Latvian</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.LrEnum.LangNl">
+            <summary>Dutch</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.LrEnum.LangNo">
+            <summary>Norwegian</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.LrEnum.LangPl">
+            <summary>Polish</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.LrEnum.LangPt">
+            <summary>Portuguese</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.LrEnum.LangRo">
+            <summary>Romanian</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.LrEnum.LangRu">
+            <summary>Russian</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.LrEnum.LangSk">
+            <summary>Slovak</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.LrEnum.LangSl">
+            <summary>Slovenian</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.LrEnum.LangSr">
+            <summary>Serbian</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.LrEnum.LangSv">
+            <summary>Swedish</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.LrEnum.LangTr">
+            <summary>Turkish</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.LrEnum.LangZhCN">
+            <summary>Chinese (Simplified)</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.LrEnum.LangZhTW">
+            <summary>Chinese (Traditional)</summary>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.CseResource.ListRequest.Num">
+            <summary>Number of search results to return</summary>
+            [default: 10]
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.CseResource.ListRequest.OrTerms">
+            <summary>Provides additional search terms to check for in a document, where each document in the search
+            results must contain at least one of the additional search terms</summary>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.CseResource.ListRequest.RelatedSite">
+            <summary>Specifies that all search results should be pages that are related to the specified
+            URL</summary>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.CseResource.ListRequest.Rights">
+            <summary>Filters based on licensing. Supported values include: cc_publicdomain, cc_attribute,
+            cc_sharealike, cc_noncommercial, cc_nonderived and combinations of these.</summary>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.CseResource.ListRequest.Safe">
+            <summary>Search safety level</summary>
+            [default: off]
+        </member>
+        <member name="T:Google.Apis.Customsearch.v1.CseResource.ListRequest.SafeEnum">
+            <summary>Search safety level</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.SafeEnum.High">
+            <summary>Enables highest level of safe search filtering.</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.SafeEnum.Medium">
+            <summary>Enables moderate safe search filtering.</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.SafeEnum.Off">
+            <summary>Disables safe search filtering.</summary>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.CseResource.ListRequest.SearchType">
+            <summary>Specifies the search type: image.</summary>
+        </member>
+        <member name="T:Google.Apis.Customsearch.v1.CseResource.ListRequest.SearchTypeEnum">
+            <summary>Specifies the search type: image.</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.SearchTypeEnum.Image">
+            <summary>custom image search</summary>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.CseResource.ListRequest.SiteSearch">
+            <summary>Specifies all search results should be pages from a given site</summary>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.CseResource.ListRequest.SiteSearchFilter">
+            <summary>Controls whether to include or exclude results from the site named in the as_sitesearch
+            parameter</summary>
+        </member>
+        <member name="T:Google.Apis.Customsearch.v1.CseResource.ListRequest.SiteSearchFilterEnum">
+            <summary>Controls whether to include or exclude results from the site named in the as_sitesearch
+            parameter</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.SiteSearchFilterEnum.E">
+            <summary>exclude</summary>
+        </member>
+        <member name="F:Google.Apis.Customsearch.v1.CseResource.ListRequest.SiteSearchFilterEnum.I">
+            <summary>include</summary>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.CseResource.ListRequest.Sort">
+            <summary>The sort expression to apply to the results</summary>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.CseResource.ListRequest.Start">
+            <summary>The index of the first result to return</summary>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.CseResource.ListRequest.MethodName">
+            <summary>Gets the method name.</summary>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.CseResource.ListRequest.HttpMethod">
+            <summary>Gets the HTTP method.</summary>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.CseResource.ListRequest.RestPath">
+            <summary>Gets the REST path.</summary>
+        </member>
+        <member name="M:Google.Apis.Customsearch.v1.CseResource.ListRequest.InitParameters">
+            <summary>Initializes List parameter list.</summary>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.Data.Context.ETag">
+            <summary>The ETag of the item.</summary>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.Data.Promotion.ETag">
+            <summary>The ETag of the item.</summary>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.Data.Query.ETag">
+            <summary>The ETag of the item.</summary>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.Data.Result.ETag">
+            <summary>The ETag of the item.</summary>
+        </member>
+        <member name="P:Google.Apis.Customsearch.v1.Data.Search.ETag">
+            <summary>The ETag of the item.</summary>
+        </member>
+    </members>
+</doc>

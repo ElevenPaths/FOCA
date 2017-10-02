@@ -1,0 +1,10 @@
+
+cgi-bin
+images
+admin
+includes
+modules
+templates
+cache
+media
+js

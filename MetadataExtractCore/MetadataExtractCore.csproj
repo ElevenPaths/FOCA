@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{61736B0E-FFE6-45FC-B3F0-8B45F991A772}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MetadataExtractCore</RootNamespace>
+    <AssemblyName>MetadataExtractCore</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+    <StartupObject>
+    </StartupObject>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>PRO</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="HtmlAgilityPack, Version=1.4.9.5, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
+      <HintPath>..\packages\HtmlAgilityPack.1.4.9.5\lib\Net20\HtmlAgilityPack.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Ionic.Zip, Version=1.7.2.12, Culture=neutral, PublicKeyToken=f1a302b3881c2619, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\lib\Ionic.Zip.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.2\lib\net35\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="PdfSharp, Version=1.3.1686.0, Culture=neutral, PublicKeyToken=f94615aa0424f9eb, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\lib\PdfSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Web" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase">
+      <RequiredTargetFramework>3.0</RequiredTargetFramework>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Analysis\ApplicationAnalysis.cs" />
+    <Compile Include="Analysis\PathAnalysis.cs" />
+    <Compile Include="Diagrams\AntiSpoofingPolitics.cs" />
+    <Compile Include="Diagrams\Applications.cs" />
+    <Compile Include="Diagrams\Descriptions.cs" />
+    <Compile Include="Diagrams\Emails.cs" />
+    <Compile Include="Diagrams\Dates.cs" />
+    <Compile Include="Diagrams\History.cs" />
+    <Compile Include="Diagrams\Printers.cs" />
+    <Compile Include="Diagrams\MetaData.cs" />
+    <Compile Include="Diagrams\NetRange.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Diagrams\Passwords.cs" />
+    <Compile Include="Diagrams\Project.cs" />
+    <Compile Include="Diagrams\Paths.cs" />
+    <Compile Include="Diagrams\Servers.cs" />
+    <Compile Include="Diagrams\Users.cs" />
+    <Compile Include="Diagrams\OldVersions.cs" />
+    <Compile Include="Metadata\ICADocument.cs" />
+    <Compile Include="Metadata\InDDDocument.cs" />
+    <Compile Include="Metadata\RDPDocument.cs" />
+    <Compile Include="ThreadSafeList.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utilities\Functions.cs" />
+    <Compile Include="Metadata\EXIFDocument.cs" />
+    <Compile Include="Metadata\EXIF\codec\jpeg\JPEGDecodeParam.cs" />
+    <Compile Include="Metadata\EXIF\codec\jpeg\JPEGHuffmanTable.cs" />
+    <Compile Include="Metadata\EXIF\codec\jpeg\JPEGQTable.cs" />
+    <Compile Include="Metadata\EXIF\drew\imaging\jpg\JpegMetadataReader.cs" />
+    <Compile Include="Metadata\EXIF\drew\imaging\jpg\JpegProcessingException.cs" />
+    <Compile Include="Metadata\EXIF\drew\imaging\jpg\JpegSegmentData.cs" />
+    <Compile Include="Metadata\EXIF\drew\imaging\jpg\JpegSegmentReader.cs" />
+    <Compile Include="Metadata\EXIF\drew\imaging\tiff\TiffMetadataReader.cs" />
+    <Compile Include="Metadata\EXIF\drew\imaging\tiff\TiffProcessingException.cs" />
+    <Compile Include="Metadata\EXIF\drew\lang\CompoundException.cs" />
+    <Compile Include="Metadata\EXIF\drew\lang\Rational.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\AbstractDirectory.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\AbstractMetadataReader.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\AbstractTagDescriptor.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\exif\AbstractCasioTypeDirectory.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\exif\AbstractNikonTypeDirectory.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\exif\CanonDescriptor.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\exif\CanonDirectory.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\exif\CasioType1Descriptor.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\exif\CasioType1Directory.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\exif\CasioType2Descriptor.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\exif\CasioType2Directory.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\exif\ExifDescriptor.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\exif\ExifDirectory.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\exif\ExifInteropDescriptor.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\exif\ExifInteropDirectory.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\exif\ExifProcessingException.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\exif\ExifReader.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\exif\FujifilmDescriptor.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\exif\FujifilmDirectory.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\exif\GpsDescriptor.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\exif\GpsDirectory.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\exif\KodakDescriptor.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\exif\KodakDirectory.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\exif\KyoceraDescriptor.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\exif\KyoceraDirectory.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\exif\NikonType1Descriptor.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\exif\NikonType1Directory.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\exif\NikonType2Descriptor.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\exif\NikonType2Directory.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\exif\OlympusDescriptor.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\exif\OlympusDirectory.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\exif\PanasonicDescriptor.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\exif\PanasonicDirectory.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\exif\PentaxDescriptor.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\exif\PentaxDirectory.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\exif\SonyDescriptor.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\exif\SonyDirectory.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\IMetadataReader.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\iptc\IptcDescriptor.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\iptc\IptcDirectory.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\iptc\IptcProcessingException.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\iptc\IptcReader.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\jpeg\JpegCommentDescriptor.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\jpeg\JpegCommentDirectory.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\jpeg\JpegCommentReader.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\jpeg\JpegComponent.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\jpeg\JpegDescriptor.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\jpeg\JpegDirectory.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\jpeg\JpegReader.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\Metadata.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\MetadataException.cs" />
+    <Compile Include="Metadata\EXIF\drew\metadata\Tag.cs" />
+    <Compile Include="Metadata\EXIF\utils\bundle\AbstractResourceBundle.cs" />
+    <Compile Include="Metadata\EXIF\utils\bundle\IResourceBundle.cs" />
+    <Compile Include="Metadata\EXIF\utils\bundle\MissingResourceException.cs" />
+    <Compile Include="Metadata\EXIF\utils\bundle\ResourceBundle.cs" />
+    <Compile Include="Metadata\EXIF\utils\bundle\ResourceBundleFactory.cs" />
+    <Compile Include="Metadata\EXIF\utils\bundle\ResourceBundleWithManager.cs" />
+    <Compile Include="Metadata\EXIF\utils\bundle\SpecialResourceWriter.cs" />
+    <Compile Include="Metadata\EXIF\utils\Utils.cs" />
+    <Compile Include="Metadata\EXIF\utils\xml\IOutPutTextStreamHandler.cs" />
+    <Compile Include="Metadata\EXIF\utils\xml\TxtOutPutStreamHandler.cs" />
+    <Compile Include="Metadata\EXIF\utils\xml\XmlNewOutPutStreamHandler.cs" />
+    <Compile Include="Metadata\EXIF\utils\xml\XmlOutPutStreamHandler.cs" />
+    <Compile Include="Metadata\IMetaExtractor.cs" />
+    <Compile Include="Metadata\Office972003.cs" />
+    <Compile Include="Metadata\OfficeOpenXML.cs" />
+    <Compile Include="Metadata\OleDocument.cs" />
+    <Compile Include="Metadata\OpenOfficeDocument.cs" />
+    <Compile Include="Metadata\PDFDocument.cs" />
+    <Compile Include="Metadata\SVGDocument.cs" />
+    <Compile Include="Metadata\WPDDocument.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utilities\SerializableDictionary.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\CanonMarkernote.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\CasioMarkernote.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\Commons.txt">
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\ExifInteropMarkernote.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\ExifMarkernote.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\FujiFilmMarkernote.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\GpsMarkernote.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\KyoceraMarkernote.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\JpegMarkernote.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\IptcMarkernote.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\KodakMarkernote.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\NikonTypeMarkernote.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\PanasonicMarkernote.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\OlympusMarkernote.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\PentaxMarkernote.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\SonyMarkernote.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\lib\Ionic.Zip.dll" />
+    <Content Include="..\lib\PdfSharp.dll" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

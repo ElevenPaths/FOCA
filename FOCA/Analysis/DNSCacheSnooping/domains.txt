@@ -1,0 +1,44 @@
+#falsepositive
+thisdomaindoesntexist.foca	#to avoid false positives
+
+#social networks
+www.facebook.com
+facebook.com
+www.tuenti.com
+tuenti.com
+twitter.com
+
+#software
+update.microsoft.com	#windows updates
+greta.lon.spotify.com	#spotify
+versioncheck.acelb.sj.mozilla.com	#firefox update
+
+#banks
+www.cajaespana.es
+www.bbva.es
+www.banesto.es
+www.bancopopular.es
+www.bancopastor.es
+www.bankinter.com
+www.bancaja.es
+www.ingdirect.es
+www.cajasol.es
+
+#news
+elmundo.es
+elpais.es
+marca.com
+mundodeportivo.com
+iblnews.com
+www.periodistadigital.com
+20minutos.es
+
+#tracking
+elladodelmal.blogspot.com
+elladodelmal.com
+informatica64.com
+www.informatica64.com
+
+#others
+megaupload.com
+megavideo.com

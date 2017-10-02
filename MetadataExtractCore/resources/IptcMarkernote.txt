@@ -1,0 +1,27 @@
+# This file contains label of property for MetaDataExtractor
+TEST=For testing. Do not remove
+MARKER_NOTE_NAME=Iptc Makernote
+TAG_BY_LINE=By-line
+TAG_BY_LINE_TITLE=By-line Title
+TAG_CAPTION=Caption/Abstract
+TAG_CATEGORY=Category
+TAG_CITY=City
+TAG_COPYRIGHT_NOTICE=Copyright Notice
+TAG_COUNTRY_OR_PRIMARY_LOCATION=Country/Primary Location
+TAG_CREDIT=Credit
+TAG_DATE_CREATED=Date Created
+TAG_HEADLINE=Headline
+TAG_KEYWORDS=Keywords
+TAG_OBJECT_NAME=Object Name
+TAG_ORIGINAL_TRANSMISSION_REFERENCE=Original Transmission Reference
+TAG_ORIGINATING_PROGRAM=Originating Program
+TAG_PROVINCE_OR_STATE=Province/State
+TAG_RECORD_VERSION=Directory Version
+TAG_RELEASE_DATE=Release Date
+TAG_RELEASE_TIME=Release Time
+TAG_SOURCE=Source
+TAG_SPECIAL_INSTRUCTIONS=Special Instructions
+TAG_SUPPLEMENTAL_CATEGORIES=Supplemental Category(s)
+TAG_TIME_CREATED=Time Created
+TAG_URGENCY=Urgency
+TAG_WRITER=Writer/Editor

@@ -1,0 +1,12 @@
+# This file contains label of property for MetaDataExtractor
+TEST=For testing. Do not remove
+MARKER_NOTE_NAME=Jpeg Makernote
+TAG_JPEG_COMMENT=Jpeg Comment
+TAG_JPEG_COMPONENT_DATA_1=Component 1
+TAG_JPEG_COMPONENT_DATA_2=Component 2
+TAG_JPEG_COMPONENT_DATA_3=Component 3
+TAG_JPEG_COMPONENT_DATA_4=Component 4
+TAG_JPEG_DATA_PRECISION=Data Precision
+TAG_JPEG_IMAGE_HEIGHT=Image Height
+TAG_JPEG_IMAGE_WIDTH=Image Width
+TAG_JPEG_NUMBER_OF_COMPONENTS=Number of Components

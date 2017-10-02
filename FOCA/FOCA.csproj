@@ -1,0 +1,909 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <!--
+    The location where Dotfuscator is installed.
+    -->
+    <DotfuscatorBinPath>$(DevEnvDir)..\..\Application\PreEmptive Solutions\Dotfuscator Community Edition\dotfuscator.exe</DotfuscatorBinPath>
+    <!--
+    The location of your Dotfuscator configuration file.
+     -->
+    <ConfigPath>"$(ProjectDir)foca_dotfuscator.xml"</ConfigPath>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{A0E07F2A-14ED-4460-96E5-2901D2D078A3}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>FOCA</RootNamespace>
+    <AssemblyName>FOCA</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+    <ApplicationIcon>Logo_interfaz.ico</ApplicationIcon>
+    <ManifestCertificateThumbprint>DAD76C8149967FFEFB23DDCD9674B80CD215ED4E</ManifestCertificateThumbprint>
+    <ManifestKeyFile>
+    </ManifestKeyFile>
+    <GenerateManifests>true</GenerateManifests>
+    <TargetZone>LocalIntranet</TargetZone>
+    <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
+    <SignManifests>false</SignManifests>
+    <RunPostBuildEvent>Always</RunPostBuildEvent>
+    <StartupObject>FOCA.Program</StartupObject>
+    <ManifestTimestampUrl>http://timestamp.verisign.com/scripts/timestamp.dll</ManifestTimestampUrl>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
+    <DelaySign>false</DelaySign>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <TargetFrameworkProfile />
+    <PublishUrl>C:\Users\Alekusu\Desktop\Foca Free\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>false</MapFileExtensions>
+    <SupportUrl>https://www.elevenpaths.com/</SupportUrl>
+    <TargetCulture>en</TargetCulture>
+    <ProductName>FOCA Pro</ProductName>
+    <PublisherName>ElevenPaths</PublisherName>
+    <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>2.6.0.0</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <PublishWizardCompleted>true</PublishWizardCompleted>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>PRO, BackUps, PLUGINS, leaks</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>PRO, BackUps, PLUGINS, leaks</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="HtmlAgilityPack, Version=1.4.9.5, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
+      <HintPath>..\packages\HtmlAgilityPack.1.4.9.5\lib\Net20\HtmlAgilityPack.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Ionic.Zip">
+      <HintPath>..\lib\Ionic.Zip.dll</HintPath>
+    </Reference>
+    <Reference Include="DNSLibrary">
+      <HintPath>..\lib\DNSLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.2\lib\net35\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <HintPath>..\packages\NLog.4.4.9\lib\net45\NLog.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="PluginsAPI, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Plugins Release\PluginsAPI.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Runtime.Serialization">
+      <RequiredTargetFramework>3.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Security" />
+    <Reference Include="System.ServiceModel">
+      <RequiredTargetFramework>3.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.ServiceModel.Web">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.ServiceProcess" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Web.Services, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Windows\assembly\GAC_MSIL\System.Web.Services\2.0.0.0__b03f5f7f11d50a3a\System.Web.Services.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase">
+      <RequiredTargetFramework>3.0</RequiredTargetFramework>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Analysis\ApplicationAnalisys.cs" />
+    <Compile Include="Analysis\DNSCacheSnooping\DNSCache.cs" />
+    <Compile Include="Analysis\FingerPrinting\BannerAnalisys.cs" />
+    <Compile Include="Analysis\FingerPrinting\DNS.cs" />
+    <Compile Include="Analysis\FingerPrinting\FingerPrinting.cs" />
+    <Compile Include="Analysis\FingerPrinting\FingerPrintingEventHandler.cs" />
+    <Compile Include="Analysis\FingerPrinting\FTP.cs" />
+    <Compile Include="Analysis\FingerPrinting\HTTP.cs" />
+    <Compile Include="Analysis\FingerPrinting\SMTP.cs" />
+    <Compile Include="Analysis\HttpMap\Fuzzer.cs" />
+    <Compile Include="Analysis\HttpMap\HttpMap.cs" />
+    <Compile Include="Analysis\OperatingSystemUtils.cs" />
+    <Compile Include="Analysis\Pinger\Pinger.cs" />
+    <Compile Include="Analysis\ShodanRecognition.cs" />
+    <Compile Include="Analysis\Technology\TechnologyAnalysis.cs" />
+    <Compile Include="Analysis\Technology\TechnologyAnalysisHandler.cs" />
+    <Compile Include="Controllers\BaseController.cs" />
+    <Compile Include="Controllers\ComputerDomainController.cs" />
+    <Compile Include="Controllers\ComputerIpsController.cs" />
+    <Compile Include="Controllers\ComputersController.cs" />
+    <Compile Include="Controllers\ConfigurationController.cs" />
+    <Compile Include="Controllers\DomainsController.cs" />
+    <Compile Include="Controllers\FilesController.cs" />
+    <Compile Include="Controllers\FocaContextDb.cs" />
+    <Compile Include="Controllers\HttpMapController.cs" />
+    <Compile Include="Controllers\IpsController.cs" />
+    <Compile Include="Controllers\LimitsController.cs" />
+    <Compile Include="Controllers\PluginsController.cs" />
+    <Compile Include="Controllers\ProjectController.cs" />
+    <Compile Include="Controllers\RelationsController.cs" />
+    <Compile Include="Data\ComputerDomains.cs" />
+    <Compile Include="Data\ComputerIPs.cs" />
+    <Compile Include="Data\Computers.cs" />
+    <Compile Include="Data\Data.cs" />
+    <Compile Include="Data\Domains.cs" />
+    <Compile Include="Data\HttpMapTypesFiles.cs" />
+    <Compile Include="Data\Ficheros.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Data\IPs.cs" />
+    <Compile Include="Data\Limits.cs" />
+    <Compile Include="Data\Log.cs" />
+    <Compile Include="Data\OperatingSystem.cs" />
+    <Compile Include="Data\Relations.cs" />
+    <Compile Include="DNSEnumeration\DNSDumpsterParser.cs" />
+    <Compile Include="DNSEnumeration\DNSUtil.cs" />
+    <Compile Include="DNSEnumeration\PanelDNSSearchInformation.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="DNSEnumeration\PanelDNSSearchInformation.Designer.cs">
+      <DependentUpon>PanelDNSSearchInformation.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DNSEnumeration\PanelEngineBingAPIInformation.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="DNSEnumeration\PanelEngineBingAPIInformation.Designer.cs">
+      <DependentUpon>PanelEngineBingAPIInformation.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DNSEnumeration\PanelEngineBingWebInformation.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="DNSEnumeration\PanelEngineBingWebInformation.Designer.cs">
+      <DependentUpon>PanelEngineBingWebInformation.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DNSEnumeration\PanelEngineGoogleAPIInformation.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="DNSEnumeration\PanelEngineGoogleAPIInformation.Designer.cs">
+      <DependentUpon>PanelEngineGoogleAPIInformation.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DNSEnumeration\PanelEngineGoogleWebInformation.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="DNSEnumeration\PanelEngineGoogleWebInformation.Designer.cs">
+      <DependentUpon>PanelEngineGoogleWebInformation.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DNSEnumeration\PanelOptions.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="DNSEnumeration\PanelOptions.Designer.cs">
+      <DependentUpon>PanelOptions.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DNSEnumeration\PanelSearchIPBing.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="DNSEnumeration\PanelSearchIPBing.Designer.cs">
+      <DependentUpon>PanelSearchIPBing.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DNSEnumeration\PanelTryCommonNames.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="DNSEnumeration\PanelTryCommonNames.Designer.cs">
+      <DependentUpon>PanelTryCommonNames.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DNSEnumeration\PanelTryTransferZone.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="DNSEnumeration\PanelTryTransferZone.Designer.cs">
+      <DependentUpon>PanelTryTransferZone.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DNSEnumeration\PanelWebSearcherInformation.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="DNSEnumeration\PanelWebSearcherInformation.Designer.cs">
+      <DependentUpon>PanelWebSearcherInformation.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormAbout.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormAbout.Designer.cs">
+      <DependentUpon>FormAbout.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormAddAltDNSParser.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormAddAltDNSParser.Designer.cs">
+      <DependentUpon>FormAddAltDNSParser.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormAddClient.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormAddClient.Designer.cs">
+      <DependentUpon>FormAddClient.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormAddDomain.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormAddDomain.Designer.cs">
+      <DependentUpon>FormAddDomain.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormAddIP.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormAddIP.Designer.cs">
+      <DependentUpon>FormAddIP.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormAddIpRange.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormAddIpRange.Designer.cs">
+      <DependentUpon>FormAddIpRange.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormAddMultipleDomains.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormAddMultipleDomains.Designer.cs">
+      <DependentUpon>FormAddMultipleDomains.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormAssignIp.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormAssignIp.Designer.cs">
+      <DependentUpon>FormAssignIp.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormBackupsFuzzer.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormBackupsFuzzer.Designer.cs">
+      <DependentUpon>FormBackupsFuzzer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormModifyData.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormModifyData.Designer.cs">
+      <DependentUpon>FormModifyData.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormPlugins.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormPlugins.Designer.cs">
+      <DependentUpon>FormPlugins.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormSelectIPRange.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormSelectIPRange.Designer.cs">
+      <DependentUpon>FormSelectIPRange.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormSplashFOCA.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormSplashFOCA.Designer.cs">
+      <DependentUpon>FormSplashFOCA.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormValueNotes.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormValueNotes.Designer.cs">
+      <DependentUpon>FormValueNotes.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GUI\Contextual.cs" />
+    <Compile Include="GUI\UpdateGUI.cs" />
+    <Compile Include="Migrations\201708141321589_Initial.cs" />
+    <Compile Include="Migrations\201708141321589_Initial.Designer.cs">
+      <DependentUpon>201708141321589_Initial.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="ModifiedComponents\CheckedButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ModifiedComponents\CookieAwareWebClient.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ModifiedComponents\ListViewColumnSorter.cs" />
+    <Compile Include="ModifiedComponents\ListViewColumnSorterValues.cs" />
+    <Compile Include="ModifiedComponents\ListViewEx.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ModifiedComponents\ThreadSafeList.cs" />
+    <Compile Include="ModifiedComponents\TreeViewNoFickering.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Net\Request.cs" />
+    <Compile Include="PanelDNSSearch.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="PanelDNSSearch.Designer.cs">
+      <DependentUpon>PanelDNSSearch.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PanelDnsSnooping.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="PanelDnsSnooping.Designer.cs">
+      <DependentUpon>PanelDnsSnooping.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PanelInformation.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="PanelInformation.Designer.cs">
+      <DependentUpon>PanelInformation.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PanelInformationOptions.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="PanelInformationOptions.Designer.cs">
+      <DependentUpon>PanelInformationOptions.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PanelLogs.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="PanelLogs.Designer.cs">
+      <DependentUpon>PanelLogs.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PanelProject.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="PanelProject.Designer.cs">
+      <DependentUpon>PanelProject.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PanelMetadataSearch.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="PanelMetadataSearch.Designer.cs">
+      <DependentUpon>PanelMetadataSearch.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PanelSoftwareSearch.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="PanelSoftwareSearch.Designer.cs">
+      <DependentUpon>PanelSoftwareSearch.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PanelTasks.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="PanelTasks.Designer.cs">
+      <DependentUpon>PanelTasks.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PanelUrlsList.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="PanelUrlsList.Designer.cs">
+      <DependentUpon>PanelUrlsList.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Plugins\ManagePluginCalls.cs" />
+    <Compile Include="Plugins\Plugin.cs" />
+    <Compile Include="Plugins\PluginList.cs" />
+    <Compile Include="ProjectManager.cs" />
+    <Compile Include="FormLoadSave.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormLoadSave.Designer.cs">
+      <DependentUpon>FormLoadSave.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormAddVariable.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormAddVariable.Designer.cs">
+      <DependentUpon>FormAddVariable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormDNSPrediction.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormDNSPrediction.Designer.cs">
+      <DependentUpon>FormDNSPrediction.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormDNSTransferZone.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormDNSTransferZone.Designer.cs">
+      <DependentUpon>FormDNSTransferZone.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormDocumentsSearch.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormDocumentsSearch.Designer.cs">
+      <DependentUpon>FormDocumentsSearch.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Functions.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Searcher\HTTPSizeDaemon.cs" />
+    <Compile Include="Configuration.cs" />
+    <Compile Include="FormOptions.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormOptions.Designer.cs">
+      <DependentUpon>FormOptions.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormMain.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormMain.Designer.cs">
+      <DependentUpon>FormMain.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="FormAddAltDNSParser.resx">
+      <DependentUpon>FormAddAltDNSParser.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormAddMultipleDomains.resx">
+      <DependentUpon>FormAddMultipleDomains.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormBackupsFuzzer.resx">
+      <DependentUpon>FormBackupsFuzzer.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormOptions.resx">
+      <DependentUpon>FormOptions.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormMain.resx">
+      <DependentUpon>FormMain.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormDocumentsSearch.resx">
+      <DependentUpon>FormDocumentsSearch.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormPlugins.resx">
+      <DependentUpon>FormPlugins.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201708141321589_Initial.resx">
+      <DependentUpon>201708141321589_Initial.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <None Include="FOCA_Pro.nrproj" />
+    <Content Include="Icons\bing.png" />
+    <Content Include="Icons\chart_organisation.png" />
+    <Content Include="Icons\Logo_interfaz.ico" />
+    <Content Include="Icons\network.png" />
+    <Content Include="Logo_interfaz.ico" />
+    <Content Include="NLog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <None Include="NLog.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <Compile Include="SubdomainSearcher\DNSUtilities.cs" />
+    <Compile Include="TaskManager\Tasker.cs" />
+    <Compile Include="Win7Integration\CoreErrorHelper.cs" />
+    <Compile Include="Win7Integration\CoreHelpers.cs" />
+    <Compile Include="Win7Integration\TaskbarCOMInterfaces.cs" />
+    <Compile Include="Win7Integration\TaskbarEnums.cs" />
+    <Compile Include="Win7Integration\TaskbarManager.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 2.0 %28x86%29</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.0 %28x86%29</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <Content Include="Analysis\DNSCacheSnooping\domains.txt" />
+    <Content Include="Analysis\DNSCacheSnooping\top500.txt" />
+    <Content Include="Analysis\DNSCacheSnooping\Update servers.txt" />
+    <Content Include="DNSDictionary\hosts.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Include="resources\clipboard_text.png" />
+    <Content Include="resources\computer.png" />
+    <None Include="resources\Money.gif" />
+    <None Include="resources\donate.png" />
+    <None Include="resources\logocontexto_negro.png" />
+    <None Include="resources\foca.png" />
+    <None Include="resources\focaBandera.png" />
+    <None Include="resources\copytToClipboard.png" />
+    <None Include="resources\copytToClipboard1.png" />
+    <Content Include="resources\market.png" />
+    <None Include="resources\NewFoca\Menu principal\options.png" />
+    <Content Include="resources\NewFoca\Arbol lateral\Clients.png" />
+    <Content Include="resources\NewFoca\Arbol lateral\documents.png" />
+    <Content Include="resources\NewFoca\Arbol lateral\domains.png" />
+    <Content Include="resources\NewFoca\Arbol lateral\Emails.png" />
+    <Content Include="resources\NewFoca\Arbol lateral\Folders.png" />
+    <Content Include="resources\NewFoca\Arbol lateral\html.png" />
+    <Content Include="resources\NewFoca\Arbol lateral\MetadaSummary.png" />
+    <Content Include="resources\NewFoca\Arbol lateral\metadata.png" />
+    <Content Include="resources\NewFoca\Arbol lateral\network.png" />
+    <Content Include="resources\NewFoca\Arbol lateral\no_project.png" />
+    <Content Include="resources\NewFoca\Arbol lateral\Passwords.png" />
+    <Content Include="resources\NewFoca\Arbol lateral\pdf.png" />
+    <Content Include="resources\NewFoca\Arbol lateral\Printers.png" />
+    <Content Include="resources\NewFoca\Arbol lateral\Servers.png" />
+    <Content Include="resources\NewFoca\Arbol lateral\Software.png" />
+    <Content Include="resources\NewFoca\Arbol lateral\Unknown.png" />
+    <Content Include="resources\NewFoca\Arbol lateral\UnlocatedServers.png" />
+    <Content Include="resources\NewFoca\Arbol lateral\Users.png" />
+    <Content Include="resources\NewFoca\Arbol lateral\Users01.png" />
+    <Content Include="resources\NewFoca\Arbol lateral\Users02.png" />
+    <Content Include="resources\NewFoca\botones\BingCrawling.png" />
+    <Content Include="resources\NewFoca\botones\Browse.png" />
+    <Content Include="resources\NewFoca\botones\calendar.png" />
+    <Content Include="resources\NewFoca\botones\Cancel.png" />
+    <Content Include="resources\NewFoca\botones\clear.png" />
+    <Content Include="resources\NewFoca\botones\Close.png" />
+    <Content Include="resources\NewFoca\botones\conf.png" />
+    <Content Include="resources\NewFoca\botones\Config.png" />
+    <Content Include="resources\NewFoca\botones\Create.png" />
+    <Content Include="resources\NewFoca\botones\desactive_autoscroll.png" />
+    <Content Include="resources\NewFoca\botones\DNSSnooping.png" />
+    <Content Include="resources\NewFoca\botones\DuckduckgoCrawling.png" />
+    <Content Include="resources\NewFoca\botones\Export.png" />
+    <Content Include="resources\NewFoca\botones\GoogleCrawling.png" />
+    <Content Include="resources\NewFoca\botones\Import.png" />
+    <Content Include="resources\NewFoca\botones\LoadUnloadPlugins.png" />
+    <Content Include="resources\NewFoca\botones\Minimize.png" />
+    <Content Include="resources\NewFoca\botones\save.png" />
+    <Content Include="resources\NewFoca\botones\Search.png" />
+    <Content Include="resources\NewFoca\botones\Searchall.png" />
+    <Content Include="resources\NewFoca\botones\SearchFolder.png" />
+    <Content Include="resources\NewFoca\botones\Skip.png" />
+    <Content Include="resources\NewFoca\botones\Start.png" />
+    <Content Include="resources\NewFoca\contextual\add.png" />
+    <Content Include="resources\NewFoca\contextual\addFile.png" />
+    <Content Include="resources\NewFoca\contextual\addFolder.png" />
+    <Content Include="resources\NewFoca\contextual\addUrlsFromFile.png" />
+    <Content Include="resources\NewFoca\contextual\analyzeMetadata.png" />
+    <Content Include="resources\NewFoca\contextual\copytToClipboard.png" />
+    <Content Include="resources\NewFoca\contextual\delete.png" />
+    <Content Include="resources\NewFoca\contextual\deleteAll.png" />
+    <Content Include="resources\NewFoca\contextual\DNSSnooping.png" />
+    <Content Include="resources\NewFoca\contextual\download.png" />
+    <Content Include="resources\NewFoca\contextual\downloadAll.png" />
+    <Content Include="resources\NewFoca\contextual\exportDataToFile.png" />
+    <Content Include="resources\NewFoca\contextual\exportDomain.png" />
+    <Content Include="resources\NewFoca\contextual\extractMetadata.png" />
+    <Content Include="resources\NewFoca\contextual\importSubdomains.png" />
+    <Content Include="resources\NewFoca\contextual\Link.png" />
+    <Content Include="resources\NewFoca\contextual\LoadUnloadPlugins.png" />
+    <Content Include="resources\NewFoca\contextual\openUrl.png" />
+    <Content Include="resources\NewFoca\contextual\remove.png" />
+    <Content Include="resources\NewFoca\contextual\searchSubdomains.png" />
+    <Content Include="resources\NewFoca\foca_logo.png" />
+    <Content Include="resources\NewFoca\Menu principal\about.png" />
+    <Content Include="resources\NewFoca\Menu principal\Close.png" />
+    <Content Include="resources\NewFoca\Menu principal\market.png" />
+    <Content Include="resources\NewFoca\Menu principal\NewProject.png" />
+    <Content Include="resources\NewFoca\Menu principal\plugins.png" />
+    <Content Include="resources\NewFoca\Menu principal\project.png" />
+    <Content Include="resources\NewFoca\Menu principal\SaveProject.png" />
+    <Content Include="resources\NewFoca\Menu principal\tasklist.png" />
+    <Content Include="resources\NewFoca\options\DNS Search.png" />
+    <Content Include="resources\NewFoca\options\DNScacheSnooping.png" />
+    <Content Include="resources\NewFoca\options\GeneralConfig.png" />
+    <Content Include="resources\NewFoca\options\Metadata.png" />
+    <Content Include="resources\NewFoca\pantalla-bienvenida.jpg" />
+    <Content Include="resources\report_magnify.png" />
+    <None Include="resources\scan.gif" />
+    <None Include="resources\up_down_icon.gif" />
+    <None Include="resources\focasingle.png" />
+    <None Include="resources\plugin.png" />
+    <None Include="resources\Scheduled tasks.png" />
+    <None Include="resources\loading-spiral.gif" />
+    <None Include="Icons\add.png" />
+    <None Include="Icons\computer.png" />
+    <None Include="Icons\door_open.png" />
+    <None Include="Icons\drive_network_magnifier.png" />
+    <None Include="Icons\email.png" />
+    <None Include="Icons\fingerprint.png" />
+    <None Include="Icons\folder.png" />
+    <None Include="Icons\group.png" />
+    <None Include="Icons\link.png" />
+    <None Include="Icons\newlogo.png" />
+    <None Include="Icons\report.png" />
+    <None Include="Icons\report_magnify.png" />
+    <None Include="Icons\server.png" />
+    <None Include="Icons\software-small-icon.png" />
+    <None Include="Icons\user_comment.png" />
+    <None Include="Icons\world_link.png" />
+    <None Include="resources\eye.png" />
+    <None Include="resources\tools.png" />
+    <None Include="resources\skip.png" />
+    <None Include="resources\link.png" />
+    <None Include="resources\panel.png" />
+    <None Include="Icons\page_white_link.png" />
+    <None Include="resources\arrowUp.png" />
+    <None Include="resources\arrowDown.png" />
+    <None Include="resources\folder.png" />
+    <None Include="resources\http.png" />
+    <None Include="resources\smtp.png" />
+    <None Include="resources\tech.png" />
+    <None Include="resources\fingerprint.png" />
+    <None Include="Icons\shodan.png" />
+    <None Include="Icons\page_white_find.png" />
+    <None Include="Icons\tick.png" />
+    <None Include="Icons\delete.png" />
+    <None Include="Icons\database_lightning.png" />
+    <None Include="resources\metashield_es.png" />
+    <None Include="resources\metashield_en.png" />
+    <None Include="Icons\report_add.png" />
+    <None Include="Icons\page_white_edit.png" />
+    <None Include="resources\drive_network_magnifier.png" />
+    <EmbeddedResource Include="DNSEnumeration\PanelDNSSearchInformation.resx">
+      <DependentUpon>PanelDNSSearchInformation.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DNSEnumeration\PanelEngineBingAPIInformation.resx">
+      <DependentUpon>PanelEngineBingAPIInformation.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DNSEnumeration\PanelEngineBingWebInformation.resx">
+      <DependentUpon>PanelEngineBingWebInformation.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DNSEnumeration\PanelEngineGoogleAPIInformation.resx">
+      <DependentUpon>PanelEngineGoogleAPIInformation.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DNSEnumeration\PanelEngineGoogleWebInformation.resx">
+      <DependentUpon>PanelEngineGoogleWebInformation.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DNSEnumeration\PanelOptions.resx">
+      <DependentUpon>PanelOptions.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DNSEnumeration\PanelSearchIPBing.resx">
+      <DependentUpon>PanelSearchIPBing.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DNSEnumeration\PanelTryCommonNames.resx">
+      <DependentUpon>PanelTryCommonNames.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DNSEnumeration\PanelTryTransferZone.resx">
+      <DependentUpon>PanelTryTransferZone.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DNSEnumeration\PanelWebSearcherInformation.resx">
+      <DependentUpon>PanelWebSearcherInformation.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormAbout.resx">
+      <DependentUpon>FormAbout.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormAddClient.resx">
+      <DependentUpon>FormAddClient.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormAddDomain.resx">
+      <DependentUpon>FormAddDomain.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormAddIP.resx">
+      <DependentUpon>FormAddIP.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormAddIpRange.resx">
+      <DependentUpon>FormAddIpRange.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormAssignIp.resx">
+      <DependentUpon>FormAssignIp.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormLoadSave.resx">
+      <DependentUpon>FormLoadSave.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormAddVariable.resx">
+      <DependentUpon>FormAddVariable.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormDNSPrediction.resx">
+      <DependentUpon>FormDNSPrediction.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormDNSTransferZone.resx">
+      <DependentUpon>FormDNSTransferZone.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormModifyData.resx">
+      <DependentUpon>FormModifyData.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormSelectIPRange.resx">
+      <DependentUpon>FormSelectIPRange.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormSplashFOCA.resx">
+      <DependentUpon>FormSplashFOCA.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormValueNotes.resx">
+      <DependentUpon>FormValueNotes.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PanelDNSSearch.resx">
+      <DependentUpon>PanelDNSSearch.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PanelDnsSnooping.resx">
+      <DependentUpon>PanelDnsSnooping.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PanelInformation.resx">
+      <DependentUpon>PanelInformation.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PanelInformationOptions.resx">
+      <DependentUpon>PanelInformationOptions.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PanelLogs.resx">
+      <DependentUpon>PanelLogs.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PanelProject.resx">
+      <DependentUpon>PanelProject.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PanelMetadataSearch.resx">
+      <DependentUpon>PanelMetadataSearch.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PanelSoftwareSearch.resx">
+      <DependentUpon>PanelSoftwareSearch.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PanelTasks.resx">
+      <DependentUpon>PanelTasks.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PanelUrlsList.resx">
+      <DependentUpon>PanelUrlsList.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <None Include="Icons\magnifier.png" />
+    <None Include="Icons\magnifier_stop.png" />
+    <None Include="Icons\world_search.png" />
+    <None Include="Icons\world_search_stop.png" />
+    <None Include="Icons\page_white_go.png" />
+    <None Include="Icons\page_white_go_stop.png" />
+    <None Include="Icons\page_white_stack_go_stop.png" />
+    <None Include="Properties\app.manifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\MetadataExtractCore\MetadataExtractCore.csproj">
+      <Project>{61736B0E-FFE6-45FC-B3F0-8B45F991A772}</Project>
+      <Name>MetadataExtractCore</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SearcherCore\SearcherCore\SearcherCore.csproj">
+      <Project>{697AF2A1-3FC4-41DD-9798-BB316476275E}</Project>
+      <Name>SearcherCore</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+  </ItemGroup>
+  <ItemGroup>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+    <Service Include="{967B4E0D-AD0C-4609-AB67-0FA40C0206D8}" />
+    <Service Include="{C0C07587-41A7-46C8-8FBD-3F9C8EBE2DDC}" />
+  </ItemGroup>
+  <ItemGroup>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  <Target Name="BeforeRebuild">
+  </Target>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties Reactor_Enabled="1" Reactor_Commands="" Reactor_Project="C:\Users\Alekusu\Documents\Visual Studio 2008\Projects\FOCANormal\FOCA\FOCA.nrproj" Reactor_Configuration="Release Pro" Reactor_Output="&lt;AssemblyLocation&gt;\&lt;AssemblyName&gt;_Secure\&lt;AssemblyFileName&gt;" Reactor_Deploy="0" />
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>

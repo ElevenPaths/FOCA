@@ -1,0 +1,8 @@
+TEST=For testing. Do not remove
+# This file contains label of property for MetaDataExtractor
+MARKER_NOTE_NAME=Exif Interoperability Makernote
+TAG_INTEROP_INDEX=Interoperability Index
+TAG_INTEROP_VERSION=Interoperability Version
+TAG_RELATED_IMAGE_FILE_FORMAT=Related Image File Format
+TAG_RELATED_IMAGE_LENGTH=Related Image Length
+TAG_RELATED_IMAGE_WIDTH=Related Image Width

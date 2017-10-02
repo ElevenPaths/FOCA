@@ -1,0 +1,8 @@
+# This file contains label of property for MetaDataExtractor
+TEST=For testing. Do not remove
+MARKER_NOTE_NAME=Panasonic Makernote
+TAG_PANASONIC_MACRO_MODE=Macro Mode
+TAG_PANASONIC_PRINT_IMAGE_MATCHING_INFO=Print Image Matching (PIM) Info
+TAG_PANASONIC_QUALITY_MODE=Quality Mode
+TAG_PANASONIC_RECORD_MODE=Record Mode
+TAG_PANASONIC_VERSION=Version
