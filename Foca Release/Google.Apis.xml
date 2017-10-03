@@ -1,0 +1,1446 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Google.Apis</name>
+    </assembly>
+    <members>
+        <member name="T:Google.Apis.Download.DownloadStatus">
+            <summary>Enum which represents the status of the current download.</summary>
+        </member>
+        <member name="F:Google.Apis.Download.DownloadStatus.NotStarted">
+            <summary>The download has not started.</summary>
+        </member>
+        <member name="F:Google.Apis.Download.DownloadStatus.Downloading">
+            <summary>Data is being downloaded.</summary>
+        </member>
+        <member name="F:Google.Apis.Download.DownloadStatus.Completed">
+            <summary>The download was completed successfully.</summary>
+        </member>
+        <member name="F:Google.Apis.Download.DownloadStatus.Failed">
+            <summary>The download failed.</summary>
+        </member>
+        <member name="T:Google.Apis.Download.IDownloadProgress">
+            <summary>Reports download progress.</summary>
+        </member>
+        <member name="P:Google.Apis.Download.IDownloadProgress.Status">
+            <summary>Gets the current status of the upload.</summary>
+        </member>
+        <member name="P:Google.Apis.Download.IDownloadProgress.BytesDownloaded">
+            <summary>Gets the number of bytes received from the server.</summary>
+        </member>
+        <member name="P:Google.Apis.Download.IDownloadProgress.Exception">
+            <summary>Gets an exception if one occurred.</summary>
+        </member>
+        <member name="T:Google.Apis.Download.IMediaDownloader">
+            <summary>Media download which uses download file part by part, by <see cref="P:Google.Apis.Download.IMediaDownloader.ChunkSize"/>.</summary>
+        </member>
+        <member name="E:Google.Apis.Download.IMediaDownloader.ProgressChanged">
+            <summary>An event which notifies when the download status has been changed.</summary>
+        </member>
+        <member name="P:Google.Apis.Download.IMediaDownloader.ChunkSize">
+            <summary>Gets or sets the chunk size to download, it defines the size of each part.</summary>
+        </member>
+        <member name="M:Google.Apis.Download.IMediaDownloader.Download(System.String,System.IO.Stream)">
+            <summary>Downloads synchronously the given URL to the given stream.</summary>
+        </member>
+        <member name="M:Google.Apis.Download.IMediaDownloader.DownloadAsync(System.String,System.IO.Stream)">
+            <summary>Downloads asynchronously the given URL to the given stream.</summary>
+        </member>
+        <member name="M:Google.Apis.Download.IMediaDownloader.DownloadAsync(System.String,System.IO.Stream,System.Threading.CancellationToken)">
+            <summary>
+            Downloads asynchronously the given URL to the given stream. This download method supports a cancellation 
+            token to cancel a request before it was completed.
+            </summary>
+            <remarks>
+            In case the download fails <see cref="P:Google.Apis.Download.IDownloadProgress.Exception"/> will contain the exception that
+            cause the failure. The only exception which will be thrown is 
+            <see cref="T:System.Threading.Tasks.TaskCanceledException"/> which indicates that the task was canceled.
+            </remarks>
+        </member>
+        <member name="T:Google.Apis.Download.MediaDownloader">
+            <summary>
+            A media downloader implementation which handles media downloads.
+            </summary>
+        </member>
+        <member name="F:Google.Apis.Download.MediaDownloader.service">
+            <summary>The service which this downloader belongs to.</summary>
+        </member>
+        <member name="F:Google.Apis.Download.MediaDownloader.MaximumChunkSize">
+            <summary>Maximum chunk size. Default value is 10*MB.</summary>
+        </member>
+        <member name="P:Google.Apis.Download.MediaDownloader.ChunkSize">
+            <summary>
+            Gets or sets the amount of data that will be downloaded before notifying the caller of
+            the download's progress.
+            Must not exceed <see cref="F:Google.Apis.Download.MediaDownloader.MaximumChunkSize"/>.
+            Default value is <see cref="F:Google.Apis.Download.MediaDownloader.MaximumChunkSize"/>.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Download.MediaDownloader.Range">
+            <summary>
+            The range header for the request, if any. This can be used to download specific parts
+            of the requested media.
+            </summary>
+        </member>
+        <member name="T:Google.Apis.Download.MediaDownloader.DownloadProgress">
+            <summary>
+            Download progress model, which contains the status of the download, the amount of bytes whose where 
+            downloaded so far, and an exception in case an error had occurred.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Download.MediaDownloader.DownloadProgress.#ctor(Google.Apis.Download.DownloadStatus,System.Int64)">
+            <summary>Constructs a new progress instance.</summary>
+            <param name="status">The status of the download.</param>
+            <param name="bytes">The number of bytes received so far.</param>
+        </member>
+        <member name="M:Google.Apis.Download.MediaDownloader.DownloadProgress.#ctor(System.Exception,System.Int64)">
+            <summary>Constructs a new progress instance.</summary>
+            <param name="exception">An exception which occurred during the download.</param>
+            <param name="bytes">The number of bytes received before the exception occurred.</param>
+        </member>
+        <member name="P:Google.Apis.Download.MediaDownloader.DownloadProgress.Status">
+            <summary>Gets or sets the status of the download.</summary>
+        </member>
+        <member name="P:Google.Apis.Download.MediaDownloader.DownloadProgress.BytesDownloaded">
+            <summary>Gets or sets the amount of bytes that have been downloaded so far.</summary>
+        </member>
+        <member name="P:Google.Apis.Download.MediaDownloader.DownloadProgress.Exception">
+            <summary>Gets or sets the exception which occurred during the download or <c>null</c>.</summary>
+        </member>
+        <member name="M:Google.Apis.Download.MediaDownloader.UpdateProgress(Google.Apis.Download.IDownloadProgress)">
+            <summary>
+            Updates the current progress and call the <see cref="E:Google.Apis.Download.MediaDownloader.ProgressChanged"/> event to notify listeners.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Download.MediaDownloader.#ctor(Google.Apis.Services.IClientService)">
+            <summary>Constructs a new downloader with the given client service.</summary>
+        </member>
+        <member name="P:Google.Apis.Download.MediaDownloader.ModifyRequest">
+            <summary>
+            Gets or sets the callback for modifying requests made when downloading.
+            </summary>
+        </member>
+        <member name="E:Google.Apis.Download.MediaDownloader.ProgressChanged">
+            <inheritdoc/>
+        </member>
+        <member name="M:Google.Apis.Download.MediaDownloader.Download(System.String,System.IO.Stream)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Google.Apis.Download.MediaDownloader.DownloadAsync(System.String,System.IO.Stream)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Google.Apis.Download.MediaDownloader.DownloadAsync(System.String,System.IO.Stream,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Google.Apis.Download.MediaDownloader.CountedBuffer">
+            <summary>
+            CountedBuffer bundles together a byte buffer and a count of valid bytes.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Download.MediaDownloader.CountedBuffer.Count">
+            <summary>
+            How many bytes at the beginning of Data are valid.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Download.MediaDownloader.CountedBuffer.IsEmpty">
+            <summary>
+            Returns true if the buffer contains no data.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Download.MediaDownloader.CountedBuffer.Fill(System.IO.Stream,System.Threading.CancellationToken)">
+            <summary>
+            Read data from stream until the stream is empty or the buffer is full.
+            </summary>
+            <param name="stream">Stream from which to read.</param>
+            <param name="cancellationToken">Cancellation token for the operation.</param>
+        </member>
+        <member name="M:Google.Apis.Download.MediaDownloader.CountedBuffer.RemoveFromFront(System.Int32)">
+            <summary>
+            Remove the first n bytes of the buffer. Move any remaining valid bytes to the beginning.
+            Trying to remove more bytes than the buffer contains just clears the buffer.
+            </summary>
+            <param name="n">The number of bytes to remove.</param>
+        </member>
+        <member name="M:Google.Apis.Download.MediaDownloader.DownloadCoreAsync(System.String,System.IO.Stream,System.Threading.CancellationToken)">
+            <summary>
+            The core download logic. We download the media and write it to an output stream
+            ChunkSize bytes at a time, raising the ProgressChanged event after each chunk.
+            
+            The chunking behavior is largely a historical artifact: a previous implementation
+            issued multiple web requests, each for ChunkSize bytes. Now we do everything in
+            one request, but the API and client-visible behavior are retained for compatibility.
+            </summary>
+            <param name="url">The URL of the resource to download.</param>
+            <param name="stream">The download will download the resource into this stream.</param>
+            <param name="cancellationToken">A cancellation token to cancel this download in the middle.</param>
+            <returns>A task with the download progress object. If an exception occurred during the download, its 
+            <see cref="P:Google.Apis.Download.IDownloadProgress.Exception"/> property will contain the exception.</returns>
+        </member>
+        <member name="M:Google.Apis.Download.MediaDownloader.OnResponseReceived(System.Net.Http.HttpResponseMessage)">
+            <summary>
+            Called when a successful HTTP response is received, allowing subclasses to examine headers.
+            </summary>
+            <remarks>
+            For unsuccessful responses, an appropriate exception is thrown immediately, without this method
+            being called.
+            </remarks>
+            <param name="response">HTTP response received.</param>
+        </member>
+        <member name="M:Google.Apis.Download.MediaDownloader.OnDataReceived(System.Byte[],System.Int32)">
+            <summary>
+            Called when an HTTP response is received, allowing subclasses to examine data before it's
+            written to the client stream.
+            </summary>
+            <param name="data">Byte array containing the data downloaded.</param>
+            <param name="length">Length of data downloaded in this chunk, in bytes.</param>
+        </member>
+        <member name="M:Google.Apis.Download.MediaDownloader.OnDownloadCompleted">
+            <summary>
+            Called when a download has completed, allowing subclasses to perform any final validation
+            or transformation.
+            </summary>
+        </member>
+        <member name="T:Google.Apis.ETagAction">
+            <summary>
+            Defines the behaviour/header used for sending an etag along with a request.
+            </summary>
+        </member>
+        <member name="F:Google.Apis.ETagAction.Default">
+            <summary>
+            The default etag behaviour will be determined by the type of the request.
+            </summary>
+        </member>
+        <member name="F:Google.Apis.ETagAction.Ignore">
+            <summary>
+            The ETag won't be added to the header of the request.
+            </summary>
+        </member>
+        <member name="F:Google.Apis.ETagAction.IfMatch">
+            <summary>
+            The ETag will be added as an "If-Match" header.
+            A request sent with an "If-Match" header will only succeed if both ETags are identical.
+            </summary>
+        </member>
+        <member name="F:Google.Apis.ETagAction.IfNoneMatch">
+            <summary>
+            The ETag will be added as an "If-None-Match" header.
+            A request sent with an "If-Match" header will only succeed if both ETags are not identical.
+            </summary>
+        </member>
+        <member name="T:Google.Apis.Media.MediaApiErrorHandling">
+            <summary>
+            Common error handling code for the Media API.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Media.MediaApiErrorHandling.ExceptionForResponseAsync(Google.Apis.Services.IClientService,System.Net.Http.HttpResponseMessage)">
+            <summary>
+            Creates a suitable exception for an HTTP response, attempting to parse the body as
+            JSON but falling back to just using the text as the message.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Media.MediaApiErrorHandling.ExceptionForResponseAsync(Google.Apis.ISerializer,System.String,System.Net.Http.HttpResponseMessage)">
+            <summary>
+            Creates a suitable exception for an HTTP response, attempting to parse the body as
+            JSON but falling back to just using the text as the message.
+            </summary>
+        </member>
+        <member name="T:Google.Apis.Requests.BatchRequest">
+            <summary>
+            A batch request which represents individual requests to Google servers. You should add a single service 
+            request using the <see cref="M:Google.Apis.Requests.BatchRequest.Queue``1(Google.Apis.Requests.IClientServiceRequest,Google.Apis.Requests.BatchRequest.OnResponse{``0})"/> method and execute all individual requests using 
+            <see cref="M:Google.Apis.Requests.BatchRequest.ExecuteAsync"/>. More information about the batch protocol is available in 
+            https://developers.google.com/storage/docs/json_api/v1/how-tos/batch.
+            <remarks>
+            Current implementation doesn't retry on unsuccessful individual response and doesn't support requests with 
+            different access tokens (different users or scopes).
+            </remarks>
+            </summary>
+        </member>
+        <member name="T:Google.Apis.Requests.BatchRequest.OnResponse`1">
+            <summary>A concrete type callback for an individual response.</summary>
+            <typeparam name="TResponse">The response type.</typeparam>
+            <param name="content">The content response or <c>null</c> if the request failed.</param>
+            <param name="error">Error or <c>null</c> if the request succeeded.</param>
+            <param name="index">The request index.</param>
+            <param name="message">The HTTP individual response.</param>
+        </member>
+        <member name="T:Google.Apis.Requests.BatchRequest.InnerRequest">
+            <summary>This inner class represents an individual inner request.</summary>
+        </member>
+        <member name="P:Google.Apis.Requests.BatchRequest.InnerRequest.ClientRequest">
+            <summary>Gets or sets the client service request.</summary>
+        </member>
+        <member name="P:Google.Apis.Requests.BatchRequest.InnerRequest.ResponseType">
+            <summary>Gets or sets the response class type.</summary>
+        </member>
+        <member name="M:Google.Apis.Requests.BatchRequest.InnerRequest.OnResponse(System.Object,Google.Apis.Requests.RequestError,System.Int32,System.Net.Http.HttpResponseMessage)">
+            <summary>A callback method which will be called after an individual response was parsed.</summary>
+            <param name="content">The content response or <c>null</c> if the request failed.</param>
+            <param name="error">Error or <c>null</c> if the request succeeded.</param>
+            <param name="index">The request index.</param>
+            <param name="message">The HTTP individual response.</param>
+        </member>
+        <member name="T:Google.Apis.Requests.BatchRequest.InnerRequest`1">
+            <summary>
+            This generic inner class represents an individual inner request with a generic response type.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Requests.BatchRequest.InnerRequest`1.OnResponseCallback">
+            <summary>Gets or sets a concrete type callback for an individual response. </summary>
+        </member>
+        <member name="M:Google.Apis.Requests.BatchRequest.#ctor(Google.Apis.Services.IClientService)">
+            <summary>
+            Constructs a new batch request using the given service. See 
+            <see cref="M:Google.Apis.Requests.BatchRequest.#ctor(Google.Apis.Services.IClientService,System.String)"/> for more information.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Requests.BatchRequest.#ctor(Google.Apis.Services.IClientService,System.String)">
+            <summary>
+            Constructs a new batch request using the given service. The service's HTTP client is used to create a 
+            request to the given server URL and its serializer members are used to serialize the request and 
+            deserialize the response.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Requests.BatchRequest.Count">
+            <summary>Gets the count of all queued requests.</summary>
+        </member>
+        <member name="M:Google.Apis.Requests.BatchRequest.Queue``1(Google.Apis.Requests.IClientServiceRequest,Google.Apis.Requests.BatchRequest.OnResponse{``0})">
+            <summary>Queues an individual request.</summary>
+            <typeparam name="TResponse">The response's type.</typeparam>
+            <param name="request">The individual request.</param>
+            <param name="callback">A callback which will be called after a response was parsed.</param>
+        </member>
+        <member name="M:Google.Apis.Requests.BatchRequest.ExecuteAsync">
+            <summary>Asynchronously executes the batch request.</summary>
+        </member>
+        <member name="M:Google.Apis.Requests.BatchRequest.ExecuteAsync(System.Threading.CancellationToken)">
+            <summary>Asynchronously executes the batch request.</summary>
+            <param name="cancellationToken">Cancellation token to cancel operation.</param>
+        </member>
+        <member name="M:Google.Apis.Requests.BatchRequest.ParseAsHttpResponse(System.String)">
+            <summary>Parses the given string content to a HTTP response.</summary>
+        </member>
+        <member name="M:Google.Apis.Requests.BatchRequest.CreateOuterRequestContent(System.Collections.Generic.IEnumerable{Google.Apis.Requests.IClientServiceRequest})">
+            <summary>
+            Creates the batch outer request content which includes all the individual requests to Google servers.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Requests.BatchRequest.CreateIndividualRequest(Google.Apis.Requests.IClientServiceRequest)">
+            <summary>Creates the individual server request.</summary>
+        </member>
+        <member name="M:Google.Apis.Requests.BatchRequest.CreateRequestContentString(System.Net.Http.HttpRequestMessage)">
+            <summary>
+            Creates a string representation that includes the request's headers and content based on the input HTTP 
+            request message.
+            </summary>
+        </member>
+        <member name="T:Google.Apis.Requests.ClientServiceRequest`1">
+            <summary>
+            Represents an abstract, strongly typed request base class to make requests to a service.
+            Supports a strongly typed response.
+            </summary>
+            <typeparam name="TResponse">The type of the response object</typeparam>
+        </member>
+        <member name="F:Google.Apis.Requests.ClientServiceRequest`1.Logger">
+            <summary>The class logger.</summary>
+        </member>
+        <member name="F:Google.Apis.Requests.ClientServiceRequest`1.service">
+            <summary>The service on which this request will be executed.</summary>
+        </member>
+        <member name="P:Google.Apis.Requests.ClientServiceRequest`1.ETagAction">
+            <summary>Defines whether the E-Tag will be used in a specified way or be ignored.</summary>
+        </member>
+        <member name="P:Google.Apis.Requests.ClientServiceRequest`1.ModifyRequest">
+            <summary>
+            Gets or sets the callback for modifying HTTP requests made by this service request.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Requests.ClientServiceRequest`1.MethodName">
+            <inheritdoc/>
+        </member>
+        <member name="P:Google.Apis.Requests.ClientServiceRequest`1.RestPath">
+            <inheritdoc/>
+        </member>
+        <member name="P:Google.Apis.Requests.ClientServiceRequest`1.HttpMethod">
+            <inheritdoc/>
+        </member>
+        <member name="P:Google.Apis.Requests.ClientServiceRequest`1.RequestParameters">
+            <inheritdoc/>
+        </member>
+        <member name="P:Google.Apis.Requests.ClientServiceRequest`1.Service">
+            <inheritdoc/>
+        </member>
+        <member name="M:Google.Apis.Requests.ClientServiceRequest`1.#ctor(Google.Apis.Services.IClientService)">
+            <summary>Creates a new service request.</summary>
+        </member>
+        <member name="M:Google.Apis.Requests.ClientServiceRequest`1.InitParameters">
+            <summary>
+            Initializes request's parameters. Inherited classes MUST override this method to add parameters to the
+            <see cref="P:Google.Apis.Requests.ClientServiceRequest`1.RequestParameters"/> dictionary.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Requests.ClientServiceRequest`1.Execute">
+            <inheritdoc/>
+        </member>
+        <member name="M:Google.Apis.Requests.ClientServiceRequest`1.ExecuteAsStream">
+            <inheritdoc/>
+        </member>
+        <member name="M:Google.Apis.Requests.ClientServiceRequest`1.ExecuteAsync">
+            <inheritdoc/>
+        </member>
+        <member name="M:Google.Apis.Requests.ClientServiceRequest`1.ExecuteAsync(System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Google.Apis.Requests.ClientServiceRequest`1.ExecuteAsStreamAsync">
+            <inheritdoc/>
+        </member>
+        <member name="M:Google.Apis.Requests.ClientServiceRequest`1.ExecuteAsStreamAsync(System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Google.Apis.Requests.ClientServiceRequest`1.ExecuteUnparsedAsync(System.Threading.CancellationToken)">
+            <summary>Sync executes the request without parsing the result. </summary>
+        </member>
+        <member name="M:Google.Apis.Requests.ClientServiceRequest`1.ParseResponse(System.Net.Http.HttpResponseMessage)">
+            <summary>Parses the response and deserialize the content into the requested response object. </summary>
+        </member>
+        <member name="M:Google.Apis.Requests.ClientServiceRequest`1.CreateRequest(System.Nullable{System.Boolean})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Google.Apis.Requests.ClientServiceRequest`1.CreateBuilder">
+            <summary>
+            Creates the <see cref="T:Google.Apis.Requests.RequestBuilder"/> which is used to generate a request.
+            </summary>
+            <returns>
+            A new builder instance which contains the HTTP method and the right Uri with its path and query parameters.
+            </returns>
+        </member>
+        <member name="M:Google.Apis.Requests.ClientServiceRequest`1.GenerateRequestUri">
+            <summary>Generates the right URL for this request.</summary>
+        </member>
+        <member name="M:Google.Apis.Requests.ClientServiceRequest`1.GetBody">
+            <summary>Returns the body of this request.</summary>
+            <returns>The body of this request.</returns>
+        </member>
+        <member name="M:Google.Apis.Requests.ClientServiceRequest`1.AddETag(System.Net.Http.HttpRequestMessage)">
+            <summary>
+            Adds the right ETag action (e.g. If-Match) header to the given HTTP request if the body contains ETag.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Requests.ClientServiceRequest`1.GetDefaultETagAction(System.String)">
+            <summary>Returns the default ETagAction for a specific HTTP verb.</summary>
+        </member>
+        <member name="M:Google.Apis.Requests.ClientServiceRequest`1.AddParameters(Google.Apis.Requests.RequestBuilder,Google.Apis.Requests.Parameters.ParameterCollection)">
+            <summary>Adds path and query parameters to the given <c>requestBuilder</c>.</summary>
+        </member>
+        <member name="T:Google.Apis.Requests.HttpRequestMessageExtenstions">
+            <summary>Extension methods to <see cref="T:System.Net.Http.HttpRequestMessage"/>.</summary>
+        </member>
+        <member name="M:Google.Apis.Requests.HttpRequestMessageExtenstions.SetRequestSerailizedContent(System.Net.Http.HttpRequestMessage,Google.Apis.Services.IClientService,System.Object,System.Boolean)">
+            <summary>
+            Sets the content of the request by the given body and the the required GZip configuration.
+            </summary>
+            <param name="request">The request.</param>
+            <param name="service">The service.</param>
+            <param name="body">The body of the future request. If <c>null</c> do nothing.</param>
+            <param name="gzipEnabled">
+            Indicates if the content will be wrapped in a GZip stream, or a regular string stream will be used.
+            </param>
+        </member>
+        <member name="M:Google.Apis.Requests.HttpRequestMessageExtenstions.CreateZipContent(System.String)">
+            <summary>Creates a GZip content based on the given content.</summary>
+            <param name="content">Content to GZip.</param>
+            <returns>GZiped HTTP content.</returns>
+        </member>
+        <member name="M:Google.Apis.Requests.HttpRequestMessageExtenstions.CreateGZipStream(System.String)">
+            <summary>Creates a GZip stream by the given serialized object.</summary>
+        </member>
+        <member name="T:Google.Apis.Requests.IClientServiceRequest">
+            <summary>A client service request which supports both sync and async execution to get the stream.</summary>
+        </member>
+        <member name="P:Google.Apis.Requests.IClientServiceRequest.MethodName">
+            <summary>Gets the name of the method to which this request belongs.</summary>
+        </member>
+        <member name="P:Google.Apis.Requests.IClientServiceRequest.RestPath">
+            <summary>Gets the rest path of this request.</summary>
+        </member>
+        <member name="P:Google.Apis.Requests.IClientServiceRequest.HttpMethod">
+            <summary>Gets the HTTP method of this request.</summary>
+        </member>
+        <member name="P:Google.Apis.Requests.IClientServiceRequest.RequestParameters">
+            <summary>Gets the parameters information for this specific request.</summary>
+        </member>
+        <member name="P:Google.Apis.Requests.IClientServiceRequest.Service">
+            <summary>Gets the service which is related to this request.</summary>
+        </member>
+        <member name="M:Google.Apis.Requests.IClientServiceRequest.CreateRequest(System.Nullable{System.Boolean})">
+            <summary>Creates a HTTP request message with all path and query parameters, ETag, etc.</summary>
+            <param name="overrideGZipEnabled">
+            If <c>null</c> use the service default GZip behavior. Otherwise indicates if GZip is enabled or disabled.
+            </param>
+        </member>
+        <member name="M:Google.Apis.Requests.IClientServiceRequest.ExecuteAsStreamAsync">
+            <summary>Executes the request asynchronously and returns the result stream.</summary>
+        </member>
+        <member name="M:Google.Apis.Requests.IClientServiceRequest.ExecuteAsStreamAsync(System.Threading.CancellationToken)">
+            <summary>Executes the request asynchronously and returns the result stream.</summary>
+            <param name="cancellationToken">A cancellation token to cancel operation.</param>
+        </member>
+        <member name="M:Google.Apis.Requests.IClientServiceRequest.ExecuteAsStream">
+            <summary>Executes the request and returns the result stream.</summary>
+        </member>
+        <member name="T:Google.Apis.Requests.IClientServiceRequest`1">
+            <summary>
+            A client service request which inherits from <see cref="T:Google.Apis.Requests.IClientServiceRequest"/> and represents a specific 
+            service request with the given response type. It supports both sync and async execution to get the response.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Requests.IClientServiceRequest`1.ExecuteAsync">
+            <summary>Executes the request asynchronously and returns the result object.</summary>
+        </member>
+        <member name="M:Google.Apis.Requests.IClientServiceRequest`1.ExecuteAsync(System.Threading.CancellationToken)">
+            <summary>Executes the request asynchronously and returns the result object.</summary>
+            <param name="cancellationToken">A cancellation token to cancel operation.</param>
+        </member>
+        <member name="M:Google.Apis.Requests.IClientServiceRequest`1.Execute">
+            <summary>Executes the request and returns the result object.</summary>
+        </member>
+        <member name="T:Google.Apis.Requests.IDirectResponseSchema">
+            <summary>
+            Interface containing additional response-properties which will be added to every schema type which is 
+            a direct response to a request.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Requests.IDirectResponseSchema.ETag">
+            <summary>
+            The e-tag of this response.
+            </summary>
+            <remarks>
+            Will be set by the service deserialization method, 
+            or the by json response parser if implemented on service.
+            </remarks>
+        </member>
+        <member name="T:Google.Apis.Requests.PageStreamer`4">
+            <summary>
+            A page streamer is a helper to provide both synchronous and asynchronous page streaming
+            of a listable or queryable resource.
+            </summary>
+            <remarks>
+            <para>
+            The expected usage pattern is to create a single paginator for a resource collection,
+            and then use the instance methods to obtain paginated results.
+            </para>
+            </remarks>
+            <example>
+            To construct a page streamer to return snippets from the YouTube v3 Data API, you might use code
+            such as the following. The pattern for other APIs would be very similar, with the <c>request.PageToken</c>,
+            <c>response.NextPageToken</c> and <c>response.Items</c> properties potentially having different names. Constructing
+            the page streamer doesn't require any service references or authentication, so it's completely safe to perform this
+            in a type initializer.
+            <code><![CDATA[
+            using Google.Apis.YouTube.v3;
+            using Google.Apis.YouTube.v3.Data;
+            ...
+            private static readonly snippetPageStreamer = new PageStreamer<SearchResult, SearchResource.ListRequest, SearchListResponse, string>(
+                (request, token) => request.PageToken = token,
+                response => response.NextPageToken,
+                response => response.Items);
+            ]]></code>
+            </example>
+            <typeparam name="TResource">The type of resource being paginated</typeparam>
+            <typeparam name="TRequest">The type of request used to fetch pages</typeparam>
+            <typeparam name="TResponse">The type of response obtained when fetching pages</typeparam>
+            <typeparam name="TToken">The type of the "next page token", which must be a reference type;
+            a null reference for a token indicates the end of a stream of pages.</typeparam>
+        </member>
+        <member name="M:Google.Apis.Requests.PageStreamer`4.#ctor(System.Action{`1,`3},System.Func{`2,`3},System.Func{`2,System.Collections.Generic.IEnumerable{`0}})">
+            <summary>
+            Creates a paginator for later use.
+            </summary>
+            <param name="requestModifier">Action to modify a request to include the specified page token.
+            Must not be null.</param>
+            <param name="tokenExtractor">Function to extract the next page token from a response.
+            Must not be null.</param>
+            <param name="resourceExtractor">Function to extract a sequence of resources from a response.
+            Must not be null, although it can return null if it is passed a response which contains no
+            resources.</param>
+        </member>
+        <member name="M:Google.Apis.Requests.PageStreamer`4.Fetch(`1)">
+            <summary>
+            Lazily fetches resources a page at a time.
+            </summary>
+            <param name="request">The initial request to send. If this contains a page token,
+            that token is maintained. This will be modified with new page tokens over time, and should not
+            be changed by the caller. (The caller should clone the request if they want an independent object
+            to use in other calls or to modify.) Must not be null.</param>
+            <returns>A sequence of resources, which are fetched a page at a time. Must not be null.</returns>
+        </member>
+        <member name="M:Google.Apis.Requests.PageStreamer`4.FetchAllAsync(`1,System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously (but eagerly) fetches a complete set of resources, potentially making multiple requests.
+            </summary>
+            <param name="request">The initial request to send. If this contains a page token,
+            that token is maintained. This will be modified with new page tokens over time, and should not
+            be changed by the caller. (The caller should clone the request if they want an independent object
+            to use in other calls or to modify.) Must not be null.</param>
+            <returns>A sequence of resources, which are fetched asynchronously and a page at a time.</returns>
+            <param name="cancellationToken"></param>
+            <returns>A task whose result (when complete) is the complete set of results fetched starting with the given
+            request, and continuing to make further requests until a response has no "next page" token.</returns>
+        </member>
+        <member name="T:Google.Apis.Services.BaseClientService">
+            <summary>
+            A base class for a client service which provides common mechanism for all services, like 
+            serialization and GZip support.  It should be safe to use a single service instance to make server requests
+            concurrently from multiple threads. 
+            This class adds a special <see cref="T:Google.Apis.Http.IHttpExecuteInterceptor"/> to the 
+            <see cref="T:Google.Apis.Http.ConfigurableMessageHandler"/> execute interceptor list, which uses the given 
+            Authenticator. It calls to its applying authentication method, and injects the "Authorization" header in the 
+            request.
+            If the given Authenticator implements <see cref="T:Google.Apis.Http.IHttpUnsuccessfulResponseHandler"/>, this 
+            class adds the Authenticator to the <see cref="T:Google.Apis.Http.ConfigurableMessageHandler"/>'s unsuccessful 
+            response handler list.
+            </summary>
+        </member>
+        <member name="F:Google.Apis.Services.BaseClientService.Logger">
+            <summary>The class logger.</summary>
+        </member>
+        <member name="F:Google.Apis.Services.BaseClientService.DefaultMaxUrlLength">
+            <summary>The default maximum allowed length of a URL string for GET requests.</summary>
+        </member>
+        <member name="T:Google.Apis.Services.BaseClientService.Initializer">
+            <summary>An initializer class for the client service.</summary>
+        </member>
+        <member name="P:Google.Apis.Services.BaseClientService.Initializer.HttpClientFactory">
+            <summary>
+            Gets or sets the factory for creating <see cref="T:System.Net.Http.HttpClient"/> instance. If this 
+            property is not set the service uses a new <see cref="T:Google.Apis.Http.HttpClientFactory"/> instance.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Services.BaseClientService.Initializer.HttpClientInitializer">
+            <summary>
+            Gets or sets a HTTP client initializer which is able to customize properties on 
+            <see cref="T:Google.Apis.Http.ConfigurableHttpClient"/> and 
+            <see cref="T:Google.Apis.Http.ConfigurableMessageHandler"/>.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Services.BaseClientService.Initializer.DefaultExponentialBackOffPolicy">
+            <summary>
+            Get or sets the exponential back-off policy used by the service. Default value is 
+            <c>UnsuccessfulResponse503</c>, which means that exponential back-off is used on 503 abnormal HTTP
+            response.
+            If the value is set to <c>None</c>, no exponential back-off policy is used, and it's up to the user to
+            configure the <see cref="T:Google.Apis.Http.ConfigurableMessageHandler"/> in an
+            <see cref="T:Google.Apis.Http.IConfigurableHttpClientInitializer"/> to set a specific back-off
+            implementation (using <see cref="T:Google.Apis.Http.BackOffHandler"/>).
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Services.BaseClientService.Initializer.GZipEnabled">
+            <summary>Gets or sets whether this service supports GZip. Default value is <c>true</c>.</summary>
+        </member>
+        <member name="P:Google.Apis.Services.BaseClientService.Initializer.Serializer">
+            <summary>
+            Gets or sets the serializer. Default value is <see cref="T:Google.Apis.Json.NewtonsoftJsonSerializer"/>.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Services.BaseClientService.Initializer.ApiKey">
+            <summary>Gets or sets the API Key. Default value is <c>null</c>.</summary>
+        </member>
+        <member name="P:Google.Apis.Services.BaseClientService.Initializer.ApplicationName">
+            <summary>
+            Gets or sets Application name to be used in the User-Agent header. Default value is <c>null</c>. 
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Services.BaseClientService.Initializer.MaxUrlLength">
+            <summary>
+            Maximum allowed length of a URL string for GET requests. Default value is <c>2048</c>. If the value is
+            set to <c>0</c>, requests will never be modified due to URL string length.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Services.BaseClientService.Initializer.#ctor">
+            <summary>Constructs a new initializer with default values.</summary>
+        </member>
+        <member name="M:Google.Apis.Services.BaseClientService.#ctor(Google.Apis.Services.BaseClientService.Initializer)">
+            <summary>Constructs a new base client with the specified initializer.</summary>
+        </member>
+        <member name="M:Google.Apis.Services.BaseClientService.HasFeature(Google.Apis.Discovery.Features)">
+            <summary>Returns <c>true</c> if this service contains the specified feature.</summary>
+        </member>
+        <member name="M:Google.Apis.Services.BaseClientService.CreateBackOffHandler">
+            <summary>
+            Creates the back-off handler with <see cref="T:Google.Apis.Util.ExponentialBackOff"/>. 
+            Overrides this method to change the default behavior of back-off handler (e.g. you can change the maximum
+            waited request's time span, or create a back-off handler with you own implementation of 
+            <see cref="T:Google.Apis.Util.IBackOff"/>).
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Services.BaseClientService.HttpClient">
+            <inheritdoc/>
+        </member>
+        <member name="P:Google.Apis.Services.BaseClientService.HttpClientInitializer">
+            <inheritdoc/>
+        </member>
+        <member name="P:Google.Apis.Services.BaseClientService.GZipEnabled">
+            <inheritdoc/>
+        </member>
+        <member name="P:Google.Apis.Services.BaseClientService.ApiKey">
+            <inheritdoc/>
+        </member>
+        <member name="P:Google.Apis.Services.BaseClientService.ApplicationName">
+            <inheritdoc/>
+        </member>
+        <member name="M:Google.Apis.Services.BaseClientService.SetRequestSerailizedContent(System.Net.Http.HttpRequestMessage,System.Object)">
+            <inheritdoc/>
+        </member>
+        <member name="P:Google.Apis.Services.BaseClientService.Serializer">
+            <inheritdoc/>
+        </member>
+        <member name="M:Google.Apis.Services.BaseClientService.SerializeObject(System.Object)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Google.Apis.Services.BaseClientService.DeserializeResponse``1(System.Net.Http.HttpResponseMessage)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Google.Apis.Services.BaseClientService.DeserializeError(System.Net.Http.HttpResponseMessage)">
+            <inheritdoc/>
+        </member>
+        <member name="P:Google.Apis.Services.BaseClientService.Name">
+            <inheritdoc/>
+        </member>
+        <member name="P:Google.Apis.Services.BaseClientService.BaseUri">
+            <inheritdoc/>
+        </member>
+        <member name="P:Google.Apis.Services.BaseClientService.BasePath">
+            <inheritdoc/>
+        </member>
+        <member name="P:Google.Apis.Services.BaseClientService.BatchUri">
+            <summary>The URI used for batch operations.</summary>
+        </member>
+        <member name="P:Google.Apis.Services.BaseClientService.BatchPath">
+            <summary>The path used for batch operations.</summary>
+        </member>
+        <member name="P:Google.Apis.Services.BaseClientService.Features">
+            <inheritdoc/>
+        </member>
+        <member name="M:Google.Apis.Services.BaseClientService.Dispose">
+            <inheritdoc/>
+        </member>
+        <member name="T:Google.Apis.Services.IClientService">
+            <summary>
+            Client service contains all the necessary information a Google service requires. 
+            Each concrete <see cref="T:Google.Apis.Requests.IClientServiceRequest"/> has a reference to a service for 
+            important properties like API key, application name, base Uri, etc.
+            This service interface also contains serialization methods to serialize an object to stream and deserialize a 
+            stream into an object.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Services.IClientService.HttpClient">
+            <summary>Gets the HTTP client which is used to create requests.</summary>
+        </member>
+        <member name="P:Google.Apis.Services.IClientService.HttpClientInitializer">
+            <summary>
+            Gets a HTTP client initializer which is able to custom properties on 
+            <see cref="T:Google.Apis.Http.ConfigurableHttpClient"/> and 
+            <see cref="T:Google.Apis.Http.ConfigurableMessageHandler"/>.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Services.IClientService.Name">
+            <summary>Gets the service name.</summary>
+        </member>
+        <member name="P:Google.Apis.Services.IClientService.BaseUri">
+            <summary>Gets the BaseUri of the service. All request paths should be relative to this URI.</summary>
+        </member>
+        <member name="P:Google.Apis.Services.IClientService.BasePath">
+            <summary>Gets the BasePath of the service.</summary>
+        </member>
+        <member name="P:Google.Apis.Services.IClientService.Features">
+            <summary>Gets the supported features by this service.</summary>
+        </member>
+        <member name="P:Google.Apis.Services.IClientService.GZipEnabled">
+            <summary>Gets or sets whether this service supports GZip.</summary>
+        </member>
+        <member name="P:Google.Apis.Services.IClientService.ApiKey">
+            <summary>Gets the API-Key (DeveloperKey) which this service uses for all requests.</summary>
+        </member>
+        <member name="P:Google.Apis.Services.IClientService.ApplicationName">
+            <summary>Gets the application name to be used in the User-Agent header.</summary>
+        </member>
+        <member name="M:Google.Apis.Services.IClientService.SetRequestSerailizedContent(System.Net.Http.HttpRequestMessage,System.Object)">
+            <summary>
+            Sets the content of the request by the given body and the this service's configuration. 
+            First the body object is serialized by the Serializer and then, if GZip is enabled, the content will be
+            wrapped in a GZip stream, otherwise a regular string stream will be used.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Services.IClientService.Serializer">
+            <summary>Gets the Serializer used by this service.</summary>
+        </member>
+        <member name="M:Google.Apis.Services.IClientService.SerializeObject(System.Object)">
+            <summary>Serializes an object into a string representation.</summary>
+        </member>
+        <member name="M:Google.Apis.Services.IClientService.DeserializeResponse``1(System.Net.Http.HttpResponseMessage)">
+            <summary>Deserializes a response into the specified object.</summary>
+        </member>
+        <member name="M:Google.Apis.Services.IClientService.DeserializeError(System.Net.Http.HttpResponseMessage)">
+            <summary>Deserializes an error response into a <see cref="T:Google.Apis.Requests.RequestError"/> object.</summary>
+            <exception cref="T:Google.GoogleApiException">If no error is found in the response.</exception>
+        </member>
+        <member name="T:Google.Apis.Upload.UploadStatus">
+            <summary>
+            Enum to communicate the status of an upload for progress reporting.
+            </summary>
+        </member>
+        <member name="F:Google.Apis.Upload.UploadStatus.NotStarted">
+            <summary>
+            The upload has not started.
+            </summary>
+        </member>
+        <member name="F:Google.Apis.Upload.UploadStatus.Starting">
+            <summary>
+            The upload is initializing.
+            </summary>
+        </member>
+        <member name="F:Google.Apis.Upload.UploadStatus.Uploading">
+            <summary>
+            Data is being uploaded.
+            </summary>
+        </member>
+        <member name="F:Google.Apis.Upload.UploadStatus.Completed">
+            <summary>
+            The upload completed successfully.
+            </summary>
+        </member>
+        <member name="F:Google.Apis.Upload.UploadStatus.Failed">
+            <summary>
+            The upload failed.
+            </summary>
+        </member>
+        <member name="T:Google.Apis.Upload.IUploadProgress">
+            <summary>
+            Interface reporting upload progress.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Upload.IUploadProgress.Status">
+            <summary>
+            Gets the current status of the upload
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Upload.IUploadProgress.BytesSent">
+            <summary>
+            Gets the approximate number of bytes sent to the server.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Upload.IUploadProgress.Exception">
+            <summary>
+            Gets an exception if one occurred.
+            </summary>
+        </member>
+        <member name="T:Google.Apis.Upload.IUploadSessionData">
+            <summary>
+            Interface IUploadSessionData: Provides UploadUri for client to persist. Allows resuming an upload after a program restart for seekable ContentStreams.
+            </summary>
+            <remarks>
+            Defines the data passed from the ResumeableUpload class upon initiation of an upload.
+            When the client application adds an event handler for the UploadSessionData event, the data
+            defined in this interface (currently the UploadURI) is passed as a parameter to the event handler procedure.
+            An event handler for the UploadSessionData event is only required if the application will support resuming the
+            upload after a program restart.
+            </remarks>
+        </member>
+        <member name="P:Google.Apis.Upload.IUploadSessionData.UploadUri">
+            <summary>
+            The resumable session URI (UploadUri)
+            </summary>
+        </member>
+        <member name="T:Google.Apis.Upload.ResumableUpload">
+            <summary>
+            Media upload which uses Google's resumable media upload protocol to upload data.
+            </summary>
+            <remarks>
+            See: https://developers.google.com/drive/manage-uploads#resumable for more information on the protocol.
+            </remarks>
+        </member>
+        <member name="F:Google.Apis.Upload.ResumableUpload.Logger">
+            <summary>The class logger.</summary>
+        </member>
+        <member name="F:Google.Apis.Upload.ResumableUpload.MinimumChunkSize">
+            <summary>Minimum chunk size (except the last one). Default value is 256*KB.</summary>
+        </member>
+        <member name="F:Google.Apis.Upload.ResumableUpload.DefaultChunkSize">
+            <summary>Default chunk size. Default value is 10*MB.</summary>
+        </member>
+        <member name="F:Google.Apis.Upload.ResumableUpload.BufferSize">
+            <summary>
+            Defines how many bytes are read from the input stream in each stream read action. 
+            The read will continue until we read <see cref="F:Google.Apis.Upload.ResumableUpload.MinimumChunkSize"/> or we reached the end of the stream.
+            </summary>
+        </member>
+        <member name="F:Google.Apis.Upload.ResumableUpload.UnknownSize">
+            <summary>Indicates the stream's size is unknown.</summary>
+        </member>
+        <member name="F:Google.Apis.Upload.ResumableUpload.ZeroByteContentRangeHeader">
+            <summary>Content-Range header value for the body upload of zero length files.</summary>
+        </member>
+        <member name="M:Google.Apis.Upload.ResumableUpload.#ctor(System.IO.Stream,Google.Apis.Upload.ResumableUploadOptions)">
+            <summary>
+            Creates a <see cref="T:Google.Apis.Upload.ResumableUpload"/> instance.
+            </summary>
+            <param name="contentStream">The data to be uploaded. Must not be null.</param>
+            <param name="options">The options for the upload operation. May be null.</param>
+        </member>
+        <member name="M:Google.Apis.Upload.ResumableUpload.CreateFromUploadUri(System.Uri,System.IO.Stream,Google.Apis.Upload.ResumableUploadOptions)">
+            <summary>
+            Creates a <see cref="T:Google.Apis.Upload.ResumableUpload"/> instance for a resumable upload session which has already been initiated.
+            </summary>
+            <remarks>
+            See https://cloud.google.com/storage/docs/json_api/v1/how-tos/resumable-upload#start-resumable for more information about initiating
+            resumable upload sessions and saving the session URI, or upload URI.
+            </remarks>
+            <param name="uploadUri">The session URI of the resumable upload session. Must not be null.</param>
+            <param name="contentStream">The data to be uploaded. Must not be null.</param>
+            <param name="options">The options for the upload operation. May be null.</param>
+            <returns>The instance which can be used to upload the specified content.</returns>
+        </member>
+        <member name="P:Google.Apis.Upload.ResumableUpload.Options">
+            <summary>
+            Gets the options used to control the resumable upload.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Upload.ResumableUpload.HttpClient">
+            <summary>
+            Gets the HTTP client to use to make requests.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Upload.ResumableUpload.ContentStream">
+            <summary>Gets or sets the stream to upload.</summary>
+        </member>
+        <member name="P:Google.Apis.Upload.ResumableUpload.StreamLength">
+            <summary>
+            Gets or sets the length of the steam. Will be <see cref="F:Google.Apis.Upload.ResumableUpload.UnknownSize" /> if the media content length is 
+            unknown. 
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Upload.ResumableUpload.LastMediaRequest">
+            <summary>
+            Gets or sets the content of the last buffer request to the server or <c>null</c>. It is used when the media
+            content length is unknown, for resending it in case of server error.
+            Only used with a non-seekable stream.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Upload.ResumableUpload.LastMediaLength">
+            <summary>
+            Gets or sets the last request length.
+            Only used with a non-seekable stream.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Upload.ResumableUpload.UploadUri">
+            <summary>
+            Gets or sets the resumable session URI. 
+            See https://developers.google.com/drive/manage-uploads#save-session-uri" for more details.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Upload.ResumableUpload.BytesServerReceived">
+            <summary>Gets or sets the amount of bytes the server had received so far.</summary>
+        </member>
+        <member name="P:Google.Apis.Upload.ResumableUpload.BytesClientSent">
+            <summary>Gets or sets the amount of bytes the client had sent so far.</summary>
+        </member>
+        <member name="F:Google.Apis.Upload.ResumableUpload.chunkSize">
+            <summary>Change this value ONLY for testing purposes!</summary>
+        </member>
+        <member name="P:Google.Apis.Upload.ResumableUpload.ChunkSize">
+            <summary>
+            Gets or sets the size of each chunk sent to the server.
+            Chunks (except the last chunk) must be a multiple of <see cref="F:Google.Apis.Upload.ResumableUpload.MinimumChunkSize"/> to be compatible with 
+            Google upload servers.
+            </summary>
+        </member>
+        <member name="E:Google.Apis.Upload.ResumableUpload.ProgressChanged">
+            <summary>Event called whenever the progress of the upload changes.</summary>
+        </member>
+        <member name="T:Google.Apis.Upload.ResumableUpload.ServerErrorCallback">
+            <summary>
+            Callback class that is invoked on abnormal response or an exception.
+            This class changes the request to query the current status of the upload in order to find how many bytes  
+            were successfully uploaded before the error occurred.
+            See https://developers.google.com/drive/manage-uploads#resume-upload for more details.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Upload.ResumableUpload.ServerErrorCallback.#ctor(Google.Apis.Upload.ResumableUpload)">
+            <summary>
+            Constructs a new callback and register it as unsuccessful response handler and exception handler on the 
+            configurable message handler.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Upload.ResumableUpload.ServerErrorCallback.OnServerError(System.Net.Http.HttpRequestMessage)">
+            <summary>Changes the request in order to resume the interrupted upload.</summary>
+        </member>
+        <member name="T:Google.Apis.Upload.ResumableUpload.ResumableUploadProgress">
+            <summary>Class that communicates the progress of resumable uploads to a container.</summary>
+        </member>
+        <member name="M:Google.Apis.Upload.ResumableUpload.ResumableUploadProgress.#ctor(Google.Apis.Upload.UploadStatus,System.Int64)">
+            <summary>
+            Create a ResumableUploadProgress instance.
+            </summary>
+            <param name="status">The status of the upload.</param>
+            <param name="bytesSent">The number of bytes sent so far.</param>
+        </member>
+        <member name="M:Google.Apis.Upload.ResumableUpload.ResumableUploadProgress.#ctor(System.Exception,System.Int64)">
+            <summary>
+            Create a ResumableUploadProgress instance.
+            </summary>
+            <param name="exception">An exception that occurred during the upload.</param>
+            <param name="bytesSent">The number of bytes sent before this exception occurred.</param>
+        </member>
+        <member name="P:Google.Apis.Upload.ResumableUpload.Progress">
+            <summary>
+            Current state of progress of the upload.
+            </summary>
+            <seealso cref="E:Google.Apis.Upload.ResumableUpload.ProgressChanged"/>
+        </member>
+        <member name="M:Google.Apis.Upload.ResumableUpload.UpdateProgress(Google.Apis.Upload.ResumableUpload.ResumableUploadProgress)">
+            <summary>
+            Updates the current progress and call the <see cref="E:Google.Apis.Upload.ResumableUpload.ProgressChanged"/> event to notify listeners.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Upload.ResumableUpload.GetProgress">
+            <summary>
+            Get the current progress state.
+            </summary>
+            <returns>An IUploadProgress describing the current progress of the upload.</returns>
+            <seealso cref="E:Google.Apis.Upload.ResumableUpload.ProgressChanged"/>
+        </member>
+        <member name="E:Google.Apis.Upload.ResumableUpload.UploadSessionData">
+            <summary>
+            Event called when an UploadUri is created. 
+            Not needed if the application program will not support resuming after a program restart.
+            </summary>
+            <remarks>
+            Within the event, persist the UploadUri to storage.
+            It is strongly recommended that the full path filename (or other media identifier) is also stored so that it can be compared to the current open filename (media) upon restart.
+            </remarks>
+        </member>
+        <member name="T:Google.Apis.Upload.ResumableUpload.ResumeableUploadSessionData">
+            <summary>
+            Data to be passed to the application program to allow resuming an upload after a program restart.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Upload.ResumableUpload.ResumeableUploadSessionData.#ctor(System.Uri)">
+            <summary>
+            Create a ResumeableUploadSessionData instance to pass the UploadUri to the client.
+            </summary>
+            <param name="uploadUri">The resumable session URI.</param>
+        </member>
+        <member name="M:Google.Apis.Upload.ResumableUpload.SendUploadSessionData(Google.Apis.Upload.ResumableUpload.ResumeableUploadSessionData)">
+            <summary>
+            Send data (UploadUri) to application so it can store it to persistent storage.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Upload.ResumableUpload.Upload">
+            <summary>
+            Uploads the content to the server. This method is synchronous and will block until the upload is completed.
+            </summary>
+            <remarks>
+            In case the upload fails the <see cref="P:Google.Apis.Upload.IUploadProgress.Exception"/> will contain the exception that
+            cause the failure.
+            </remarks>
+        </member>
+        <member name="M:Google.Apis.Upload.ResumableUpload.UploadAsync">
+            <summary>Uploads the content asynchronously to the server.</summary>
+        </member>
+        <member name="M:Google.Apis.Upload.ResumableUpload.UploadAsync(System.Threading.CancellationToken)">
+            <summary>Uploads the content to the server using the given cancellation token.</summary>
+            <remarks>
+            In case the upload fails <see cref="P:Google.Apis.Upload.IUploadProgress.Exception"/> will contain the exception that
+            cause the failure. The only exception which will be thrown is 
+            <see cref="T:System.Threading.Tasks.TaskCanceledException"/> which indicates that the task was canceled.
+            </remarks>
+            <param name="cancellationToken">A cancellation token to cancel operation.</param>
+        </member>
+        <member name="M:Google.Apis.Upload.ResumableUpload.Resume">
+            <summary>
+            Resumes the upload from the last point it was interrupted. 
+            Use when resuming and the program was not restarted.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Upload.ResumableUpload.Resume(System.Uri)">
+            <summary>
+            Resumes the upload from the last point it was interrupted. 
+            Use when the program was restarted and you wish to resume the upload that was in progress when the program was halted. 
+            Implemented only for ContentStreams where .CanSeek is True.
+            </summary>
+            <remarks>
+            In your application's UploadSessionData Event Handler, store UploadUri.AbsoluteUri property value (resumable session URI string value)
+            to persistent storage for use with Resume() or ResumeAsync() upon a program restart.
+            It is strongly recommended that the FullPathFilename of the media file that is being uploaded is saved also so that a subsequent execution of the
+            program can compare the saved FullPathFilename value to the FullPathFilename of the media file that it has opened for uploading.
+            You do not need to seek to restart point in the ContentStream file.
+            </remarks>
+            <param name="uploadUri">VideosResource.InsertMediaUpload UploadUri property value that was saved to persistent storage during a prior execution.</param>
+        </member>
+        <member name="M:Google.Apis.Upload.ResumableUpload.ResumeAsync">
+            <summary>
+            Asynchronously resumes the upload from the last point it was interrupted.
+            </summary>
+            <remarks>
+            You do not need to seek to restart point in the ContentStream file.
+            </remarks>
+        </member>
+        <member name="M:Google.Apis.Upload.ResumableUpload.ResumeAsync(System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously resumes the upload from the last point it was interrupted. 
+            Use when resuming and the program was not restarted.
+            </summary>
+            <remarks>
+            You do not need to seek to restart point in the ContentStream file.
+            </remarks>
+            <param name="cancellationToken">A cancellation token to cancel the asynchronous operation.</param>
+        </member>
+        <member name="M:Google.Apis.Upload.ResumableUpload.ResumeAsync(System.Uri)">
+            <summary>
+            Asynchronously resumes the upload from the last point it was interrupted. 
+            Use when resuming and the program was restarted.
+            Implemented only for ContentStreams where .CanSeek is True.
+            </summary>
+            <remarks>
+            In your application's UploadSessionData Event Handler, store UploadUri.AbsoluteUri property value (resumable session URI string value)
+            to persistent storage for use with Resume() or ResumeAsync() upon a program restart.
+            It is strongly recommended that the FullPathFilename of the media file that is being uploaded is saved also so that a subsequent execution of the
+            program can compare the saved FullPathFilename value to the FullPathFilename of the media file that it has opened for uploading.
+            You do not need to seek to restart point in the ContentStream file.
+            </remarks>
+            <param name="uploadUri">VideosResource.InsertMediaUpload UploadUri property value that was saved to persistent storage during a prior execution.</param>
+        </member>
+        <member name="M:Google.Apis.Upload.ResumableUpload.ResumeAsync(System.Uri,System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously resumes the upload from the last point it was interrupted. 
+            Use when the program was restarted and you wish to resume the upload that was in progress when the program was halted.
+            Implemented only for ContentStreams where .CanSeek is True.
+            </summary>
+            <remarks>
+            In your application's UploadSessionData Event Handler, store UploadUri.AbsoluteUri property value (resumable session URI string value)
+            to persistent storage for use with Resume() or ResumeAsync() upon a program restart.
+            It is strongly recommended that the FullPathFilename of the media file that is being uploaded is saved also so that a subsequent execution of the
+            program can compare the saved FullPathFilename value to the FullPathFilename of the media file that it has opened for uploading.
+            You do not need to seek to restart point in the ContentStream file.
+            </remarks>
+            <param name="uploadUri">VideosResource.InsertMediaUpload UploadUri property value that was saved to persistent storage during a prior execution.</param>
+            <param name="cancellationToken">A cancellation token to cancel the asynchronous operation.</param>
+        </member>
+        <member name="M:Google.Apis.Upload.ResumableUpload.UploadCoreAsync(System.Threading.CancellationToken)">
+            <summary>The core logic for uploading a stream. It is used by the upload and resume methods.</summary>
+        </member>
+        <member name="M:Google.Apis.Upload.ResumableUpload.InitiateSessionAsync(System.Threading.CancellationToken)">
+            <summary>
+            Initiates the resumable upload session and returns the session URI, or upload URI.
+            See https://developers.google.com/drive/manage-uploads#start-resumable and
+            https://cloud.google.com/storage/docs/json_api/v1/how-tos/resumable-upload#start-resumable for more information.
+            </summary>
+            <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+            <returns>
+            The task containing the session URI to use for the resumable upload.
+            </returns>
+        </member>
+        <member name="M:Google.Apis.Upload.ResumableUpload.ProcessResponse(System.Net.Http.HttpResponseMessage)">
+            <summary>
+            Process a response from the final upload chunk call.
+            </summary>
+            <param name="httpResponse">The response body from the final uploaded chunk.</param>
+        </member>
+        <member name="M:Google.Apis.Upload.ResumableUpload.SendNextChunkAsync(System.IO.Stream,System.Threading.CancellationToken)">
+            <summary>Uploads the next chunk of data to the server.</summary>
+            <returns><c>True</c> if the entire media has been completely uploaded.</returns>
+        </member>
+        <member name="M:Google.Apis.Upload.ResumableUpload.HandleResponse(System.Net.Http.HttpResponseMessage)">
+            <summary>Handles a media upload HTTP response.</summary>
+            <returns><c>True</c> if the entire media has been completely uploaded.</returns>
+        </member>
+        <member name="M:Google.Apis.Upload.ResumableUpload.ExceptionForResponseAsync(System.Net.Http.HttpResponseMessage)">
+            <summary>
+            Creates a <see cref="T:Google.GoogleApiException"/> instance using the error response from the server.
+            </summary>
+            <param name="response">The error response.</param>
+            <returns>An exception which can be thrown by the caller.</returns>
+        </member>
+        <member name="M:Google.Apis.Upload.ResumableUpload.MediaCompleted(System.Net.Http.HttpResponseMessage)">
+            <summary>A callback when the media was uploaded successfully.</summary>
+        </member>
+        <member name="M:Google.Apis.Upload.ResumableUpload.PrepareNextChunkUnknownSize(System.Net.Http.HttpRequestMessage,System.IO.Stream,System.Threading.CancellationToken)">
+            <summary>Prepares the given request with the next chunk in case the steam length is unknown.</summary>
+        </member>
+        <member name="M:Google.Apis.Upload.ResumableUpload.PrepareNextChunkKnownSize(System.Net.Http.HttpRequestMessage,System.IO.Stream,System.Threading.CancellationToken)">
+            <summary>Prepares the given request with the next chunk in case the steam length is known.</summary>
+        </member>
+        <member name="M:Google.Apis.Upload.ResumableUpload.GetNextByte(System.String)">
+            <summary>Returns the next byte index need to be sent.</summary>
+        </member>
+        <member name="M:Google.Apis.Upload.ResumableUpload.GetContentRangeHeader(System.Int64,System.Int64)">
+            <summary>
+            Build a content range header of the form: "bytes X-Y/T" where:
+            <list type="">
+            <item>X is the first byte being sent.</item>
+            <item>Y is the last byte in the range being sent (inclusive).</item>
+            <item>T is the total number of bytes in the range or * for unknown size.</item>
+            </list>
+            </summary>
+            <remarks>
+            See: RFC2616 HTTP/1.1, Section 14.16 Header Field Definitions, Content-Range
+            http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.16
+            </remarks>
+            <param name="chunkStart">Start of the chunk.</param>
+            <param name="chunkSize">Size of the chunk being sent.</param>
+            <returns>The content range header value.</returns>
+        </member>
+        <member name="T:Google.Apis.Upload.ResumableUpload`1">
+            <summary>
+            Media upload which uses Google's resumable media upload protocol to upload data.
+            </summary>
+            <remarks>
+            See: https://developers.google.com/drive/manage-uploads#resumable for more information on the protocol.
+            </remarks>
+            <typeparam name="TRequest">
+            The type of the body of this request. Generally this should be the metadata related to the content to be 
+            uploaded. Must be serializable to/from JSON.
+            </typeparam>
+        </member>
+        <member name="F:Google.Apis.Upload.ResumableUpload`1.PayloadContentTypeHeader">
+            <summary>Payload description headers, describing the content itself.</summary>
+        </member>
+        <member name="F:Google.Apis.Upload.ResumableUpload`1.PayloadContentLengthHeader">
+            <summary>Payload description headers, describing the content itself.</summary>
+        </member>
+        <member name="F:Google.Apis.Upload.ResumableUpload`1.UploadType">
+            <summary>Specify the type of this upload (this class supports resumable only).</summary>
+        </member>
+        <member name="F:Google.Apis.Upload.ResumableUpload`1.Resumable">
+            <summary>The uploadType parameter value for resumable uploads.</summary>
+        </member>
+        <member name="M:Google.Apis.Upload.ResumableUpload`1.#ctor(Google.Apis.Services.IClientService,System.String,System.String,System.IO.Stream,System.String)">
+            <summary>
+            Create a resumable upload instance with the required parameters.
+            </summary>
+            <param name="service">The client service.</param>
+            <param name="path">The path for this media upload method.</param>
+            <param name="httpMethod">The HTTP method to start this upload.</param>
+            <param name="contentStream">The stream containing the content to upload.</param>
+            <param name="contentType">Content type of the content to be uploaded. Some services
+            may allow this to be null; others require a content type to be specified and will
+            fail when the upload is started if the value is null.</param>
+            <remarks>
+            Caller is responsible for maintaining the <paramref name="contentStream"/> open until the upload is 
+            completed.
+            Caller is responsible for closing the <paramref name="contentStream"/>.
+            </remarks>
+        </member>
+        <member name="P:Google.Apis.Upload.ResumableUpload`1.Service">
+            <summary>Gets or sets the service.</summary>
+        </member>
+        <member name="P:Google.Apis.Upload.ResumableUpload`1.Path">
+            <summary>
+            Gets or sets the path of the method (combined with
+            <see cref="P:Google.Apis.Services.IClientService.BaseUri"/>) to produce 
+            absolute Uri. 
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Upload.ResumableUpload`1.HttpMethod">
+            <summary>Gets or sets the HTTP method of this upload (used to initialize the upload).</summary>
+        </member>
+        <member name="P:Google.Apis.Upload.ResumableUpload`1.ContentType">
+            <summary>Gets or sets the stream's Content-Type.</summary>
+        </member>
+        <member name="P:Google.Apis.Upload.ResumableUpload`1.Body">
+            <summary>Gets or sets the body of this request.</summary>
+        </member>
+        <member name="M:Google.Apis.Upload.ResumableUpload`1.InitiateSessionAsync(System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Google.Apis.Upload.ResumableUpload`1.CreateInitializeRequest">
+            <summary>Creates a request to initialize a request.</summary>
+        </member>
+        <member name="M:Google.Apis.Upload.ResumableUpload`1.SetAllPropertyValues(Google.Apis.Requests.RequestBuilder)">
+            <summary>
+            Reflectively enumerate the properties of this object looking for all properties containing the 
+            RequestParameterAttribute and copy their values into the request builder.
+            </summary>
+        </member>
+        <member name="T:Google.Apis.Upload.ResumableUpload`2">
+            <summary>
+            Media upload which uses Google's resumable media upload protocol to upload data.
+            The version with two types contains both a request object and a response object.
+            </summary>
+            <remarks>
+            See: https://developers.google.com/gdata/docs/resumable_upload for
+            information on the protocol.
+            </remarks>
+            <typeparam name="TRequest">
+            The type of the body of this request. Generally this should be the metadata related 
+            to the content to be uploaded. Must be serializable to/from JSON.
+            </typeparam>
+            <typeparam name="TResponse">
+            The type of the response body.
+            </typeparam>
+        </member>
+        <member name="M:Google.Apis.Upload.ResumableUpload`2.#ctor(Google.Apis.Services.IClientService,System.String,System.String,System.IO.Stream,System.String)">
+            <summary>
+            Create a resumable upload instance with the required parameters.
+            </summary>
+            <param name="service">The client service.</param>
+            <param name="path">The path for this media upload method.</param>
+            <param name="httpMethod">The HTTP method to start this upload.</param>
+            <param name="contentStream">The stream containing the content to upload.</param>
+            <param name="contentType">Content type of the content to be uploaded.</param>
+            <remarks>
+            The stream <paramref name="contentStream"/> must support the "Length" property.
+            Caller is responsible for maintaining the <paramref name="contentStream"/> open until the 
+            upload is completed.
+            Caller is responsible for closing the <paramref name="contentStream"/>.
+            </remarks>
+        </member>
+        <member name="P:Google.Apis.Upload.ResumableUpload`2.ResponseBody">
+            <summary>
+            The response body.
+            </summary>
+            <remarks>
+            This property will be set during upload. The <see cref="E:Google.Apis.Upload.ResumableUpload`2.ResponseReceived"/> event
+            is triggered when this has been set.
+            </remarks>
+        </member>
+        <member name="E:Google.Apis.Upload.ResumableUpload`2.ResponseReceived">
+            <summary>Event which is called when the response metadata is processed.</summary>
+        </member>
+        <member name="M:Google.Apis.Upload.ResumableUpload`2.ProcessResponse(System.Net.Http.HttpResponseMessage)">
+            <summary>Process the response body </summary>
+        </member>
+        <member name="T:Google.Apis.Upload.ResumableUploadOptions">
+            <summary>
+            Options for <see cref="T:Google.Apis.Upload.ResumableUpload"/> operations.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Upload.ResumableUploadOptions.HttpClient">
+            <summary>
+            Gets or sets the HTTP client to use when starting the upload sessions and uploading data.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Upload.ResumableUploadOptions.ModifySessionInitiationRequest">
+            <summary>
+            Gets or sets the callback for modifying the session initiation request.
+            See https://cloud.google.com/storage/docs/json_api/v1/how-tos/resumable-upload#start-resumable for more information.
+            </summary>
+            <remarks>
+            Note: If these options are used with a <see cref="T:Google.Apis.Upload.ResumableUpload"/> created using <see cref="M:Google.Apis.Upload.ResumableUpload.CreateFromUploadUri(System.Uri,System.IO.Stream,Google.Apis.Upload.ResumableUploadOptions)"/>,
+            this property will be ignored as the session has already been initiated.
+            </remarks>
+        </member>
+        <member name="P:Google.Apis.Upload.ResumableUploadOptions.Serializer">
+            <summary>
+            Gets or sets the serializer to use when parsing error responses.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Upload.ResumableUploadOptions.ServiceName">
+            <summary>
+            Gets or sets the name of the service performing the upload.
+            </summary>
+            <remarks>
+            This will be used to set the <see cref="P:Google.GoogleApiException.ServiceName"/> in the event of an error.
+            </remarks>
+        </member>
+        <member name="P:Google.Apis.Upload.ResumableUploadOptions.ConfigurableHttpClient">
+            <summary>
+            Gets the <see cref="P:Google.Apis.Upload.ResumableUploadOptions.HttpClient"/> as a <see cref="T:Google.Apis.Http.ConfigurableHttpClient"/> if it is an instance of one.
+            </summary>
+        </member>
+        <member name="T:Google.Apis.Util.Store.FileDataStore">
+            <summary>
+            File data store that implements <see cref="T:Google.Apis.Util.Store.IDataStore"/>. This store creates a different file for each 
+            combination of type and key. This file data store stores a JSON format of the specified object.
+            </summary>
+        </member>
+        <member name="P:Google.Apis.Util.Store.FileDataStore.FolderPath">
+            <summary>Gets the full folder path.</summary>
+        </member>
+        <member name="M:Google.Apis.Util.Store.FileDataStore.#ctor(System.String,System.Boolean)">
+            <summary>
+            Constructs a new file data store. If <c>fullPath</c> is <c>false</c> the path will be used as relative to 
+            <c>Environment.SpecialFolder.ApplicationData"</c> on Windows, or <c>$HOME</c> on Linux and MacOS,
+            otherwise the input folder will be treated as absolute.
+            The folder is created if it doesn't exist yet.
+            </summary>
+            <param name="folder">Folder path.</param>
+            <param name="fullPath">
+            Defines whether the folder parameter is absolute or relative to
+            <c>Environment.SpecialFolder.ApplicationData</c> on Windows, or<c>$HOME</c> on Linux and MacOS.
+            </param>
+        </member>
+        <member name="M:Google.Apis.Util.Store.FileDataStore.StoreAsync``1(System.String,``0)">
+            <summary>
+            Stores the given value for the given key. It creates a new file (named <see cref="M:Google.Apis.Util.Store.FileDataStore.GenerateStoredKey(System.String,System.Type)"/>) in 
+            <see cref="P:Google.Apis.Util.Store.FileDataStore.FolderPath"/>.
+            </summary>
+            <typeparam name="T">The type to store in the data store.</typeparam>
+            <param name="key">The key.</param>
+            <param name="value">The value to store in the data store.</param>
+        </member>
+        <member name="M:Google.Apis.Util.Store.FileDataStore.DeleteAsync``1(System.String)">
+            <summary>
+            Deletes the given key. It deletes the <see cref="M:Google.Apis.Util.Store.FileDataStore.GenerateStoredKey(System.String,System.Type)"/> named file in 
+            <see cref="P:Google.Apis.Util.Store.FileDataStore.FolderPath"/>.
+            </summary>
+            <param name="key">The key to delete from the data store.</param>
+        </member>
+        <member name="M:Google.Apis.Util.Store.FileDataStore.GetAsync``1(System.String)">
+            <summary>
+            Returns the stored value for the given key or <c>null</c> if the matching file (<see cref="M:Google.Apis.Util.Store.FileDataStore.GenerateStoredKey(System.String,System.Type)"/>
+            in <see cref="P:Google.Apis.Util.Store.FileDataStore.FolderPath"/> doesn't exist.
+            </summary>
+            <typeparam name="T">The type to retrieve.</typeparam>
+            <param name="key">The key to retrieve from the data store.</param>
+            <returns>The stored object.</returns>
+        </member>
+        <member name="M:Google.Apis.Util.Store.FileDataStore.ClearAsync">
+            <summary>
+            Clears all values in the data store. This method deletes all files in <see cref="P:Google.Apis.Util.Store.FileDataStore.FolderPath"/>.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Util.Store.FileDataStore.GenerateStoredKey(System.String,System.Type)">
+            <summary>Creates a unique stored key based on the key and the class type.</summary>
+            <param name="key">The object key.</param>
+            <param name="t">The type to store or retrieve.</param>
+        </member>
+        <member name="T:Google.Apis.Util.Store.NullDataStore">
+            <summary>
+            A null datastore. Nothing is stored, nothing is retrievable.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Util.Store.NullDataStore.#ctor">
+            <summary>
+            Construct a new null datastore, that stores nothing.
+            </summary>
+        </member>
+        <member name="M:Google.Apis.Util.Store.NullDataStore.ClearAsync">
+            <inheritdoc/>
+        </member>
+        <member name="M:Google.Apis.Util.Store.NullDataStore.DeleteAsync``1(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Google.Apis.Util.Store.NullDataStore.GetAsync``1(System.String)">
+            <summary>
+            Asynchronously returns the stored value for the given key or <c>null</c> if not found.
+            This implementation of <see cref="T:Google.Apis.Util.Store.IDataStore"/> will always return a completed task
+            with a result of <c>null</c>. 
+            </summary>
+            <typeparam name="T">The type to retrieve from the data store.</typeparam>
+            <param name="key">The key to retrieve its value.</param>
+            <returns>Always <c>null</c>.</returns>
+        </member>
+        <member name="M:Google.Apis.Util.Store.NullDataStore.StoreAsync``1(System.String,``0)">
+            <summary>
+            Asynchronously stores the given value for the given key (replacing any existing value).
+            This implementation of <see cref="T:Google.Apis.Util.Store.IDataStore"/> does not store the value,
+            and will not return it in future calls to <see cref="M:Google.Apis.Util.Store.NullDataStore.GetAsync``1(System.String)"/>. 
+            </summary>
+            <typeparam name="T">The type to store in the data store.</typeparam>
+            <param name="key">The key.</param>
+            <param name="value">The value.</param>
+            <returns>A task that completes immediately.</returns>
+        </member>
+    </members>
+</doc>
