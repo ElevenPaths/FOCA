@@ -78,8 +78,8 @@ namespace FOCA
             // 
             // panel2
             // 
-            this.panel2.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.panel2.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.panel2.Controls.Add(this.panelInfo);
             this.panel2.Controls.Add(this.textBoxLicence);
@@ -252,9 +252,9 @@ namespace FOCA
             this.linkLabel6.Size = new System.Drawing.Size(157, 20);
             this.linkLabel6.TabIndex = 91;
             this.linkLabel6.TabStop = true;
-            this.linkLabel6.Tag = "plaguna@informatica64.com";
-            this.linkLabel6.Text = "Pedro Laguna Durán";
-            this.linkLabel6.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkContacts_LinkClicked);
+            this.linkLabel6.Tag = "p_laguna";
+            this.linkLabel6.Text = "Pedro Laguna";
+            this.linkLabel6.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkContacts_TwitterClicked);
             // 
             // linkLabel5
             // 
@@ -339,7 +339,7 @@ namespace FOCA
             // 
             // panel3
             // 
-            this.panel3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.panel3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.panel3.AutoSize = true;
             this.panel3.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
@@ -351,8 +351,8 @@ namespace FOCA
             // 
             // textBoxLicence
             // 
-            this.textBoxLicence.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.textBoxLicence.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.textBoxLicence.Location = new System.Drawing.Point(18, 349);
             this.textBoxLicence.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
