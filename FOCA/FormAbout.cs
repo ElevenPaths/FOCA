@@ -64,5 +64,10 @@ namespace FOCA
         {
             OpenLink("mailto:" + (sender as LinkLabel)?.Tag, true);
         }
+
+        private void lnkContacts_TwitterClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            OpenLink("https://twitter.com/" + (sender as LinkLabel)?.Tag, false);
+        }
     }
 }
