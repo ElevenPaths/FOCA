@@ -36,6 +36,11 @@ namespace PluginsAPI
         }
     }
 
+    public static class SharedValues
+    {
+        public static List<string> FocaEmails { get; set; }
+    }
+
     public class Export
     {
         private readonly List<object> _exportItems;

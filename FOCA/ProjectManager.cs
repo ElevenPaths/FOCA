@@ -13,6 +13,7 @@ using FOCA.Controllers;
 using MetadataExtractCore;
 using MetadataExtractCore.Diagrams;
 using MetadataExtractCore.Metadata;
+using PluginsAPI;
 
 namespace FOCA.Core
 {

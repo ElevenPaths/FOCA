@@ -388,23 +388,6 @@ namespace FOCA
                 };
                 Metadata.Start(listlvi);
             }
-            //if (Metadata != null && Metadata.IsAlive)
-            //{
-            //    MessageBox.Show(@"Already extracting metadata", @"Please wait", MessageBoxButtons.OK,
-            //        MessageBoxIcon.Information);
-            //}
-            //else
-            //{
-            //    var listlvi =
-            //        Program.FormMainInstance.panelMetadataSearch.listViewDocuments.Items.Cast<ListViewItem>().ToList();
-            //    Metadata = new Thread(ExtractMetadata)
-            //    {
-            //        // avoid CPU overload
-            //        Priority = ThreadPriority.Lowest,
-            //        IsBackground = true
-            //    };
-            //    Metadata.Start(listlvi);
-            //}
         }
 
         /// <summary>
@@ -771,48 +754,22 @@ namespace FOCA
             var users = (List<UserItem>)Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
                         UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Users"].Tag;
 
-            //SerializableDictionary<string, int>[] users =
-            //{
-            //    (SerializableDictionary<string, int>)
-            //        Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
-            //            UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Users"].Tag
-            //};
-
+           
             var printers = (List<PrintersItem>)Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
                 UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Printers"].Tag;
-            //{
-            //    (SerializableDictionary<string, int>)
-            //        
-            //};
+
             var folders = (List<PathsItem>)Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
                 UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Folders"].Tag;
-            //{
-            //    (SerializableDictionary<string, int>)
-            //        Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
-            //            UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Folders"].Tag
-            //};
+
             var software = (List<ApplicationsItem>)Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
                 UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Software"].Tag;
-            //{
-            //    (SerializableDictionary<string, int>)
-            //        Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
-            //            UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Software"].Tag
-            //};
+
             var emails = (List<EmailsItem>)Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
                 UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Emails"].Tag;
-            //{
-            //    (SerializableDictionary<string, int>)
-            //        Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
-            //            UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Emails"].Tag
-            //};
+
             var operatingsystems = (List<string>)Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
                         UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Operating Systems"].Tag;
-            //{
-            //    (SerializableDictionary<string, int>)
-            //        Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
-            //            UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Operating Systems"
-            //            ].Tag
-            //};
+
             var passwords = (List<PasswordsItem>)
                 Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
                     UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Passwords"].Tag;
@@ -1086,6 +1043,16 @@ namespace FOCA
                     Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
                         UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Emails"].Text =
                         $"Emails ({emails.Count})";
+
+                    if (emails.Count != 0)
+                    {
+                        List<string> emailsValue = emails.Select(x => x.Mail).ToList();
+                        PluginsAPI.SharedValues.FocaEmails = emailsValue;
+                    }
+                    else
+                        PluginsAPI.SharedValues.FocaEmails = new List<string>();
+                
+
                     Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
                         UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Operating Systems"
                         ].Text = $"Operating Systems ({operatingsystems.Count})";

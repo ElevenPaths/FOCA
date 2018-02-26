@@ -20,6 +20,8 @@ namespace FOCA
     [Serializable]
     public class Data : IDisposable
     {
+        public PluginsAPI.Export PluginExport;
+
         public Project Project;
 
         public Ficheros files;
@@ -61,6 +63,7 @@ namespace FOCA
 
         public Data()
         {
+            PluginExport = new PluginsAPI.Export();
             Project = new Project();
             files = new Ficheros();
             Ips = new IPs();
