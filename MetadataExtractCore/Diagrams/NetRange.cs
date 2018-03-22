@@ -92,14 +92,19 @@ namespace MetadataExtractCore.Diagrams
             {
                 // get netrange (if any)
                 JObject json = JObject.Parse(response);
-                string netrange = json["data"]["records"][0][0]["value"].ToString();
+
+                string netrange = json["data"]["records"][0][1]["value"].ToString();
+
+                if (!netrange.Contains("/"))
+                    netrange = json["data"]["records"][0][0]["value"].ToString();
+                
                 var ips = NetRange.GetNetRangeIPs(netrange);
                 return new NetRange(ips[0], ips[1], "netrangeObtainedFromRipe");
             }
             catch (Exception)
             {
                 // if there wasn't any netrange, return whole 0.0.0.0 to 255.255.255.255
-                return new NetRange("0.0.0.0", "255.255.255.255", "ripe_noNetRangeFound");
+                return null;//new NetRange("0.0.0.0", "255.255.255.255", "ripe_noNetRangeFound");
             }
         }
 
@@ -107,7 +112,7 @@ namespace MetadataExtractCore.Diagrams
         {
             List<string> ips = new List<string>(2);
             var direction = netrange.Split('/')[0];
-            var bits = Convert.ToInt32(netrange.Split('/')[1]);
+            var bits = Convert.ToInt32(netrange.Split('/')[1]); //Change / for -
             var stringBytes = direction.Split('.');
             IPAddress ip = new IPAddress(new byte[] {
                             Convert.ToByte(Convert.ToDecimal(stringBytes[0])),
