@@ -1,0 +1,9 @@
+version: 1.0.{build}
+image: Visual Studio 2017
+configuration: release
+build:
+  project: FOCA3_Pro.sln
+  parallel: true
+  verbosity: minimal
+artifacts:
+- path: FOCA\bin\Release\*
