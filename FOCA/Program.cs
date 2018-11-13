@@ -54,26 +54,34 @@ namespace FOCA
             {
             }
         }
-        
+
         /// <summary>
         /// Validate Service Sql.
         /// </summary>
         /// <returns></returns>
         public static bool IsSQLServerRunning()
         {
-            var process = Process.GetProcessesByName("sqlservr");
-            if (process.Length == 0) return false;
+            try
+            {
+                var process = Process.GetProcessesByName("sqlservr");
+                if (process.Length == 0) return false;
 
-            //Validate Sql Express
-            var serviceController = new ServiceController("MSSQL$SQLEXPRESS", Environment.MachineName);
+                //Validate Sql Express
+                var serviceController = new ServiceController("MSSQL$SQLEXPRESS", Environment.MachineName);
 
-            if (serviceController.DisplayName != null)
+                if (serviceController.DisplayName != null)
+                    return serviceController.Status != ServiceControllerStatus.Stopped;
+
+                //Validate Sql Server
+                serviceController = new ServiceController("MSSQLServer", Environment.MachineName);
+
                 return serviceController.Status != ServiceControllerStatus.Stopped;
-            
-            //Validate Sql Server
-            serviceController = new ServiceController("MSSQLServer", Environment.MachineName);
-
-            return serviceController.Status != ServiceControllerStatus.Stopped;
+            }
+            catch (InvalidOperationException e)
+            {
+                //Throwed if you are not running an MSSQL EXPRESS instance on the local machine
+                return false;
+            }
         }
 
         /// <summary>
@@ -87,9 +95,9 @@ namespace FOCA
 
             var fsf = new FormSplashFOCA("Open Source");
             var t = new Thread(new ThreadStart(delegate
-                {
-                    Application.Run(fsf);
-                }));
+            {
+                Application.Run(fsf);
+            }));
             t.Start();
 
             //Load the FOCA
@@ -124,10 +132,10 @@ namespace FOCA
                 try
                 {
                     fsf.Invoke(new MethodInvoker(delegate
-                        {
-                            fsf.Close();
-                            canStart = true;
-                        }));
+                    {
+                        fsf.Close();
+                        canStart = true;
+                    }));
                 }
                 catch
                 {
