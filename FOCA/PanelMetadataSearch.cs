@@ -1,18 +1,4 @@
-using System;
-using System.CodeDom;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Drawing;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using FOCA;
-using FOCA.Core;
 using FOCA.GUI;
 using FOCA.ModifiedComponents;
 using FOCA.Properties;
@@ -24,6 +10,18 @@ using MetadataExtractCore.Analysis;
 using MetadataExtractCore.Diagrams;
 using MetadataExtractCore.Metadata;
 using MetadataExtractCore.Utilities;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Drawing;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 using static FOCA.Functions;
 
 namespace FOCA
@@ -60,7 +58,7 @@ namespace FOCA
         /// <param name="o"></param>
         private void ProcessUrls(object o)
         {
-            var lstUrLs = (List<object>) o;
+            var lstUrLs = (List<object>)o;
             if (lstUrLs != null)
                 HandleLinkFoundEvent(null, new EventsThreads.ThreadListDataFoundEventArgs(lstUrLs));
         }
@@ -75,7 +73,7 @@ namespace FOCA
             if (ofdURLList.ShowDialog() != DialogResult.OK) return;
             var lstUrLs = new List<object>(File.ReadAllLines(ofdURLList.FileName));
 
-            var t = new Thread(ProcessUrls) {IsBackground = true};
+            var t = new Thread(ProcessUrls) { IsBackground = true };
             t.Start(lstUrLs);
         }
 
@@ -169,7 +167,7 @@ namespace FOCA
                                 contextMenuStripLinks.Items["toolStripMenuItemExtractAllMetadata"].Enabled =
                                     contextMenuStripLinks.Items["toolStripMenuItemAddFile"].Enabled =
                                         contextMenuStripLinks.Items["toolStripMenuItemAddFolder"].Enabled = true;
-            var lv = (ListView) ((ContextMenuStrip) sender).SourceControl;
+            var lv = (ListView)((ContextMenuStrip)sender).SourceControl;
             var itemsDownloading =
                 (from ListViewItem lvi in lv.SelectedItems from d in Downloads where d.Lvi.Index == lvi.Index select lvi)
                     .Count();
@@ -225,7 +223,7 @@ namespace FOCA
             if (lv.SelectedItems != null)
             {
                 if (
-                    (from ListViewItem lvi in lv.SelectedItems select (FilesITem) lvi.Tag).Any(
+                    (from ListViewItem lvi in lv.SelectedItems select (FilesITem)lvi.Tag).Any(
                         fi => fi != null && fi.Downloaded))
                 {
                     someFileDownloaded = true;
@@ -235,7 +233,7 @@ namespace FOCA
             if (!someFileDownloaded)
             {
                 if (
-                    (from ListViewItem lvi in lv.Items select (FilesITem) lvi.Tag).Any(
+                    (from ListViewItem lvi in lv.Items select (FilesITem)lvi.Tag).Any(
                         fi => fi != null && fi.Downloaded))
                 {
                     someFileDownloaded = true;
@@ -316,7 +314,7 @@ namespace FOCA
         {
             foreach (ListViewItem lvi in Program.FormMainInstance.panelMetadataSearch.listViewDocuments.SelectedItems)
             {
-                var fi = (FilesITem) lvi.Tag;
+                var fi = (FilesITem)lvi.Tag;
                 if (fi != null)
                 {
                     Program.data.files.Items.Remove(fi);
@@ -338,10 +336,10 @@ namespace FOCA
         {
             foreach (
                 var fi in from ListViewItem lvi in Program.FormMainInstance.panelMetadataSearch.listViewDocuments.Items
-                    select (FilesITem) lvi.Tag
+                          select (FilesITem)lvi.Tag
                     into fi
-                    where fi != null
-                    select fi)
+                          where fi != null
+                          select fi)
             {
                 RemoveFileFromTreeNode(fi);
                 Program.LogThis(new Log(Log.ModuleType.MetadataSearch,
@@ -362,7 +360,7 @@ namespace FOCA
                 Program.FormMainInstance.TreeViewMetadataSearchDocument(fi.Path).Remove();
         }
 
-        
+
         /// <summary>
         ///     Handle extrect metadata from all files button click event
         /// </summary>
@@ -410,7 +408,7 @@ namespace FOCA
         {
             if (fbdMain.ShowDialog() != DialogResult.OK) return;
             var files = Directory.GetFiles(fbdMain.SelectedPath);
-            var lvcs = (ListViewColumnSorter) listViewDocuments.ListViewItemSorter;
+            var lvcs = (ListViewColumnSorter)listViewDocuments.ListViewItemSorter;
             listViewDocuments.ListViewItemSorter = null;
             foreach (var file in files)
                 AddFile(file);
@@ -433,7 +431,7 @@ namespace FOCA
                 Program.LogThis(new Log(Log.ModuleType.MetadataSearch,
                     $"Opening document {lvi.SubItems[2].Text}", Log.LogType.debug));
             }
-        }   
+        }
 
         /// <summary>
         ///     Event called to copy selected items into clipboard
@@ -489,7 +487,7 @@ namespace FOCA
                 Ext = extension,
                 URL = path,
                 Date = DateTime.Now,
-                Size = (int) new FileInfo(path).Length,
+                Size = (int)new FileInfo(path).Length,
                 Downloaded = true,
                 Processed = false,
                 Path = path
@@ -528,7 +526,7 @@ namespace FOCA
 
                     foreach (
                         var lvi in
-                            listViewDocuments.Items.Cast<ListViewItem>().Where(lvi => (FilesITem) lvi.Tag == fi))
+                            listViewDocuments.Items.Cast<ListViewItem>().Where(lvi => (FilesITem)lvi.Tag == fi))
                     {
                         lviCurrent = lvi;
                         break;
@@ -596,7 +594,7 @@ namespace FOCA
         /// <param name="e"></param>
         private void listViewDocuments_ColumnClick(object sender, ColumnClickEventArgs e)
         {
-            var lvwColumnSorter = (ListViewColumnSorter) listViewDocuments.Tag;
+            var lvwColumnSorter = (ListViewColumnSorter)listViewDocuments.Tag;
             if (e.Column == lvwColumnSorter.SortColumn)
             {
                 lvwColumnSorter.Order = lvwColumnSorter.Order == SortOrder.Ascending
@@ -674,7 +672,7 @@ namespace FOCA
             }
             else
             {
-                CurrentSearch = new Thread(CustomSearch) {IsBackground = true};
+                CurrentSearch = new Thread(CustomSearch) { IsBackground = true };
                 CurrentSearch.Start(txtSearch.Text);
             }
         }
@@ -714,7 +712,7 @@ namespace FOCA
                             MessageBoxIcon.Information);
                     else
                     {
-                        CurrentSearch = new Thread(SearchAll) {IsBackground = true};
+                        CurrentSearch = new Thread(SearchAll) { IsBackground = true };
                         CurrentSearch.Start();
                     }
                 }
@@ -751,32 +749,14 @@ namespace FOCA
                 itemsTree.Nodes["Servers"].Tag = new List<ServersItem>();
             }
 
-            var users = (List<UserItem>)Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
-                        UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Users"].Tag;
-
-           
-            var printers = (List<PrintersItem>)Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
-                UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Printers"].Tag;
-
-            var folders = (List<PathsItem>)Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
-                UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Folders"].Tag;
-
-            var software = (List<ApplicationsItem>)Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
-                UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Software"].Tag;
-
-            var emails = (List<EmailsItem>)Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
-                UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Emails"].Tag;
-
-            var operatingsystems = (List<string>)Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
-                        UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Operating Systems"].Tag;
-
-            var passwords = (List<PasswordsItem>)
-                Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
-                    UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Passwords"].Tag;
-
-
-            var servers = (List<ServersItem>)Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
-                    UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Servers"].Tag;
+            var users = (List<UserItem>)itemsTree.Nodes["Users"].Tag;
+            var printers = (List<PrintersItem>)itemsTree.Nodes["Printers"].Tag;
+            var folders = (List<PathsItem>)itemsTree.Nodes["Folders"].Tag;
+            var software = (List<ApplicationsItem>)itemsTree.Nodes["Software"].Tag;
+            var emails = (List<EmailsItem>)itemsTree.Nodes["Emails"].Tag;
+            var operatingsystems = (List<string>)itemsTree.Nodes["Operating Systems"].Tag;
+            var passwords = (List<PasswordsItem>)itemsTree.Nodes["Passwords"].Tag;
+            var servers = (List<ServersItem>)itemsTree.Nodes["Servers"].Tag;
 
             try
             {
@@ -799,14 +779,14 @@ namespace FOCA
                         Program.FormMainInstance.toolStripDropDownButtonStop.Enabled = true;
                     }));
                     var extractedFiles = 0; // counter
-                    var po = new ParallelOptions {MaxDegreeOfParallelism = Environment.ProcessorCount};
-                    Parallel.For(0, listlvi.Count, po, delegate(int i)
+                    var po = new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount };
+                    Parallel.For(0, listlvi.Count, po, delegate (int i)
                     {
                         // Refresh DownloadStatus with the number of documents being analyzed and the current progress
                         var files = extractedFiles;
                         Invoke(new MethodInvoker(delegate
                         {
-                            Program.FormMainInstance.toolStripProgressBarDownload.Value = files*100/
+                            Program.FormMainInstance.toolStripProgressBarDownload.Value = files * 100 /
                                                                                           listlvi.Count;
                             Program.FormMainInstance.toolStripStatusLabelLeft.Text = @"Extracting metadata from " +
                                                                                      files + @"/" +
@@ -815,7 +795,7 @@ namespace FOCA
                             Program.FormMainInstance.ReportProgress(files, listlvi.Count);
                         }));
                         var lvi = listlvi[i];
-                        var fi = (FilesITem) lvi.Tag;
+                        var fi = (FilesITem)lvi.Tag;
                         // Extract metadata only if the file has been downloaded and it is not empty
                         if (fi != null && fi.Downloaded && fi.Size != 0)
                         {
@@ -1051,7 +1031,7 @@ namespace FOCA
                     }
                     else
                         PluginsAPI.SharedValues.FocaEmails = new List<string>();
-                
+
 
                     Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
                         UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Operating Systems"
@@ -1090,61 +1070,58 @@ namespace FOCA
         {
             var s = doc.FoundServers;
             foreach (var si in s.Items.Where(si => si.Name.Trim().Length > 1))
-                if (servers.Count(x=>x.Name == si.Name.Trim())== 0)
+                if (servers.Count(x => x.Name == si.Name.Trim()) == 0)
                     servers.Add(si);
-                //else
-                //    servers[si.Name.Trim()]++;
+            //else
+            //    servers[si.Name.Trim()]++;
 
             var u = doc.FoundUsers;
             foreach (var ui in u.Items.Where(ui => ui.Name.Trim().Length > 1))
-                if (users.Count(x=>x.Name == ui.Name.Trim()) == 0)
+                if (users.Count(x => x.Name == ui.Name.Trim()) == 0)
                     users.Add(ui);
 
             var p = doc.FoundPasswords;
             foreach (var pi in p.Items.Where(pi => pi.Password.Trim().Length > 1))
                 if (passwords.Count(x => x.Password == pi.Password.Trim()) == 0)
                     passwords.Add(pi);
-                //else
-                //    passwords[pi.Password.Trim()]++;
+            //else
+            //    passwords[pi.Password.Trim()]++;
 
             var r = doc.FoundPaths;
             foreach (var ri in r.Items.Where(ri => ri.Path.Trim().Length > 1))
                 if (folders.Count(x => x.Path == ri.Path.Trim()) == 0)
                     folders.Add(ri);
-                //else
-                //    folders[ri.Path.Trim()]++;
+            //else
+            //    folders[ri.Path.Trim()]++;
 
             var im = doc.FoundPrinters;
             foreach (var ii in im.Items.Where(ii => ii.Printer.Trim().Length > 1))
                 if (printers.Count(x => x.Printer == ii.Printer.Trim()) == 0)
                     printers.Add(ii);
-                //else
-                //    printers[ii.Printer.Trim()]++;
+            //else
+            //    printers[ii.Printer.Trim()]++;
 
             var e = doc.FoundEmails;
             foreach (var ei in e.Items.Where(ei => ei.Mail.Trim().Length > 1))
                 if (emails.Count(x => x.Mail == ei.Mail.Trim()) == 0)
                     emails.Add(ei);
-                //else
-                //    emails[ei.Mail.Trim()]++;
+            //else
+            //    emails[ei.Mail.Trim()]++;
 
             foreach (
                 var strSoftware in
                     doc.FoundMetaData.Applications.Items.Select(aplicacion => aplicacion.Name)
                         .Where(strSoftware => strSoftware.Trim().Length > 1))
             {
-                //if (!software.ContainsKey(strSoftware.Trim()))
-                //    software.Add(strSoftware.Trim(), 1);
-                //else
-                //    software[strSoftware.Trim()]++;
+                if (software.Count(x => x.Name == strSoftware.Trim()) == 0)
+                    software.Add(new ApplicationsItem(strSoftware));
             }
+
             var strOs = doc.FoundMetaData.OperativeSystem;
             if (string.IsNullOrEmpty(strOs)) return;
-
-            //if (!operatingsystems.ContainsKey(strOs))
-            //    operatingsystems.Add(strOs, 1);
-            //else
-            //    operatingsystems[strOs]++;
+            strOs = strOs.Trim();
+            if (operatingsystems.Count(i => i == strOs) == 0)
+                operatingsystems.Add(strOs);
         }
 
         /// <summary>
@@ -1346,7 +1323,7 @@ namespace FOCA
             }
             // extract old versions from OpenOffice documents
             if (!(doc is OpenOfficeDocument)) return;
-            var dicOldVersions = ((OpenOfficeDocument) doc).dicOldVersions;
+            var dicOldVersions = ((OpenOfficeDocument)doc).dicOldVersions;
             if (dicOldVersions.Count != 0)
             {
                 Program.FormMainInstance.TreeView.Invoke(new MethodInvoker(() =>
@@ -1496,21 +1473,13 @@ namespace FOCA
                 foreach (var document in ci.SourceDocuments)
                 {
                     var strSourceDocument = document;
-                    FilesITem fi;
-                    try
-                    {
-                        fi = Program.data.files.Items.First(f => f.URL == strSourceDocument);
-                    }
-                    catch
-                    {
-                        fi = null;
-                    }
+                    FilesITem fi = Program.data.files.Items.FirstOrDefault(f => f.URL == strSourceDocument);
                     if (fi?.Metadata?.FoundMetaData == null || fi.Metadata.FoundMetaData.Applications.Items.Count <= 0)
                         continue;
                     foreach (var aplicacion in from aplicacion in fi.Metadata.FoundMetaData.Applications.Items
-                        let strSoftware = aplicacion.Name
-                        where !ci.Software.Items.Any(a => a.Name == strSoftware)
-                        select aplicacion)
+                                               let strSoftware = aplicacion.Name
+                                               where !ci.Software.Items.Any(a => a.Name == strSoftware)
+                                               select aplicacion)
                     {
                         ci.Software.Items.Add(aplicacion);
                     }
@@ -2182,7 +2151,7 @@ namespace FOCA
                 Program.FormMainInstance.toolStripStatusLabelLeft.Text = strMessage;
                 Program.LogThis(new Log(Log.ModuleType.FOCA, strMessage, Log.LogType.debug));
             }));
-            
+
             var lstCi =
                 new List<ComputersItem>(
                     Program.data.computers.Items.Where(
@@ -2364,9 +2333,9 @@ namespace FOCA
                 }
                 // join identified software
                 foreach (var aplicacion in from aplicacion in ciOld.Software.Items
-                    let any = ciNew.Software.Items.Any(a => a.Name.ToLower().Equals(aplicacion.Name.ToLower()))
-                    where !any
-                    select aplicacion)
+                                           let any = ciNew.Software.Items.Any(a => a.Name.ToLower().Equals(aplicacion.Name.ToLower()))
+                                           where !any
+                                           select aplicacion)
                 {
                     ciNew.Software.Items.Add(aplicacion);
                 }
@@ -2499,7 +2468,7 @@ namespace FOCA
             {
                 foreach (int i in checkedListBoxExtensions.CheckedIndices)
                 {
-                    var strExt = (string) checkedListBoxExtensions.Items[i];
+                    var strExt = (string)checkedListBoxExtensions.Items[i];
                     // some extensions are marked as '*', delete them
                     strExt = strExt.Replace("*", string.Empty);
                     wsSearch.AddExtension(strExt);
@@ -2592,7 +2561,7 @@ namespace FOCA
                     if (dominio.techAnalysis.domain == null)
                         dominio.techAnalysis.domain = dominio.Domain;
 
-                    var listaUrl = new List<object> {u};
+                    var listaUrl = new List<object> { u };
                     dominio.techAnalysis.eventLinkFoundDetailed(null,
                         new EventsThreads.ThreadListDataFoundEventArgs(listaUrl));
                 }
@@ -2687,8 +2656,8 @@ namespace FOCA
         {
             Invoke(new MethodInvoker(() =>
             {
-                ((Download) dpce.UserState).Pbar.Value = dpce.ProgressPercentage;
-                ((Download) dpce.UserState).DownloadStatus = Download.Status.Inprogress;
+                ((Download)dpce.UserState).Pbar.Value = dpce.ProgressPercentage;
+                ((Download)dpce.UserState).DownloadStatus = Download.Status.Inprogress;
             }));
         }
 
@@ -2700,10 +2669,10 @@ namespace FOCA
         private void DownloadProgressCompleted(object o, AsyncCompletedEventArgs acea)
         {
             // no data was downloaded, retry 5 times
-            if (((Download) acea.UserState).DownloadStatus == Download.Status.Downloading &&
-                ((Download) acea.UserState).Retries < 3)
+            if (((Download)acea.UserState).DownloadStatus == Download.Status.Downloading &&
+                ((Download)acea.UserState).Retries < 3)
             {
-                var d = ((Download) acea.UserState);
+                var d = ((Download)acea.UserState);
                 d.CaClient = new CookieAwareWebClient();
                 d.CaClient.DownloadFileCompleted += DownloadProgressCompleted;
                 d.CaClient.DownloadProgressChanged += DownloadProgressChanged;
@@ -2719,19 +2688,19 @@ namespace FOCA
             {
                 Invoke(new MethodInvoker(() =>
                 {
-                    ((WebClient) o).Dispose();
+                    ((WebClient)o).Dispose();
                     activeDownloads--;
                     if (acea.Cancelled)
-                        File.Delete(((Download) acea.UserState).PhysicalPath);
-                    var lvi = ((Download) acea.UserState).Lvi;
-                    listViewDocuments.RemoveEmbeddedControl(((Download) acea.UserState).Pbar);
-                    var fi = (FilesITem) lvi.Tag;
+                        File.Delete(((Download)acea.UserState).PhysicalPath);
+                    var lvi = ((Download)acea.UserState).Lvi;
+                    listViewDocuments.RemoveEmbeddedControl(((Download)acea.UserState).Pbar);
+                    var fi = (FilesITem)lvi.Tag;
                     if (fi == null) return;
                     fi.Downloaded = !acea.Cancelled;
                     if (!acea.Cancelled)
                     {
                         fi.Date = DateTime.Now;
-                        fi.Size = (int) new FileInfo(((Download) acea.UserState).PhysicalPath).Length;
+                        fi.Size = (int)new FileInfo(((Download)acea.UserState).PhysicalPath).Length;
                         fi.Ext = Path.GetExtension(new Uri(fi.URL).AbsolutePath).ToLower();
                         var knownExtension =
                             Program.FormMainInstance.AstrSuportedExtensions.Any(ext => "." + ext == fi.Ext);
@@ -2769,12 +2738,12 @@ namespace FOCA
                             Program.FormMainInstance.ReportProgress(DownloadedFiles, enqueuedFiles);
                             Program.FormMainInstance.toolStripProgressBarDownload.Value = DownloadedFiles == 0
                                 ? 0
-                                : DownloadedFiles*100/enqueuedFiles;
+                                : DownloadedFiles * 100 / enqueuedFiles;
                             Program.FormMainInstance.toolStripStatusLabelLeft.Text =
                                 $"Downloading {DownloadedFiles}/{enqueuedFiles}";
                         }
                     }
-                    Downloads.Remove((Download) acea.UserState);
+                    Downloads.Remove((Download)acea.UserState);
                 }));
             }
         }
@@ -2808,7 +2777,7 @@ namespace FOCA
             {
                 enqueuedFiles = urls.Count;
                 DownloadedFiles = 0;
-                CurrentDownloads = new Thread(DownloadQueque) {IsBackground = true};
+                CurrentDownloads = new Thread(DownloadQueque) { IsBackground = true };
                 CurrentDownloads.Start();
             }
             Program.LogThis(new Log(Log.ModuleType.MetadataSearch,
@@ -2817,7 +2786,7 @@ namespace FOCA
             Program.FormMainInstance.ReportProgress(DownloadedFiles, enqueuedFiles);
             Program.FormMainInstance.toolStripProgressBarDownload.Value = DownloadedFiles == 0
                 ? 0
-                : DownloadedFiles*100/enqueuedFiles;
+                : DownloadedFiles * 100 / enqueuedFiles;
             Program.ChangeStatus($"Downloading {DownloadedFiles}/{enqueuedFiles}");
         }
 
@@ -2880,7 +2849,7 @@ namespace FOCA
                         }
 
                         File.Create(downloadPath).Close();
-                        var fi = (FilesITem) d.Lvi.Tag;
+                        var fi = (FilesITem)d.Lvi.Tag;
                         if (fi != null)
                             fi.Path = downloadPath;
                         d.PhysicalPath = downloadPath;
@@ -2915,12 +2884,12 @@ namespace FOCA
                             var location = d.DownloadUrl;
                             do
                             {
-                                req = (HttpWebRequest) WebRequest.Create(location);
+                                req = (HttpWebRequest)WebRequest.Create(location);
                                 req.AllowAutoRedirect = false;
                                 req.CookieContainer = cc;
                                 try
                                 {
-                                    resp = (HttpWebResponse) req.GetResponse();
+                                    resp = (HttpWebResponse)req.GetResponse();
                                 }
                                 catch
                                 {
@@ -2942,7 +2911,7 @@ namespace FOCA
 
                         // 30 delay seconds before retrying the download
                         var killer = new Destructor(d, 30000);
-                        var t = new Thread(killer.Kill) {IsBackground = true};
+                        var t = new Thread(killer.Kill) { IsBackground = true };
                         t.Start();
 
                         d.CaClient.DownloadFileAsync(new Uri(d.DownloadUrl), d.PhysicalPath, d);
