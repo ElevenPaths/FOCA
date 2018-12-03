@@ -1,3 +1,10 @@
+using FOCA.Analysis.FingerPrinting;
+using FOCA.ModifiedComponents;
+using FOCA.Plugins;
+using FOCA.TaskManager;
+using FOCA.Threads;
+using Heijden.DNS;
+using MetadataExtractCore.Diagrams;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,13 +14,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using FOCA.Analysis.FingerPrinting;
-using FOCA.ModifiedComponents;
-using FOCA.Plugins;
-using FOCA.TaskManager;
-using FOCA.Threads;
-using Heijden.DNS;
-using MetadataExtractCore.Diagrams;
 
 namespace FOCA
 {
@@ -73,7 +73,7 @@ namespace FOCA
             computerIPs = new ComputerIPs();
             computerDomains = new ComputerDomains();
             resolver = new Resolver();
- #if PLUGINS
+#if PLUGINS
             plugins = new PluginList();
 #endif
             lstLimits = new ThreadSafeList<Limits>();
@@ -100,11 +100,11 @@ namespace FOCA
 
         public Limits GetLimitFromIp(string ip)
         {
-            var r =  ip.Split(new char[] { '.' })[0] + "." +
+            var r = ip.Split(new char[] { '.' })[0] + "." +
                         ip.Split(new char[] { '.' })[1] + "." +
                         ip.Split(new char[] { '.' })[2];
 
-            return (from t in lstLimits let result = t.Range == r where result select (Limits) t).FirstOrDefault();
+            return (from t in lstLimits let result = t.Range == r where result select t).FirstOrDefault();
         }
 
         public void AddLimit(Limits limit)
@@ -171,7 +171,7 @@ namespace FOCA
             {
                 currentdomain = domainParts[domainParts.Length - i] + "." + currentdomain;
 
-                AddDomain(currentdomain, string.Format("{0} > Infered by {2} [{1}]", GetDomainSource(domain), currentdomain, domain), maxRecursion-1, cfgCurrent);
+                AddDomain(currentdomain, string.Format("{0} > Infered by {2} [{1}]", GetDomainSource(domain), currentdomain, domain), maxRecursion - 1, cfgCurrent);
             }
 
             if (maxRecursion <= 0)
@@ -205,7 +205,7 @@ namespace FOCA
                         Program.data.AddLimit(new Limits(IP.ToString()));
                     else
                     {
-                        var lastOct = int.Parse( IP.ToString().Split(new char[] { '.' })[3] );
+                        var lastOct = int.Parse(IP.ToString().Split(new char[] { '.' })[3]);
 
                         if (lastOct < limit.Lower)
                             limit.Lower = lastOct;
@@ -219,18 +219,18 @@ namespace FOCA
 
             // Fingerprinting HTTP
             if (cfgCurrent.PassiveFingerPrintingHttp && cfgCurrent.FingerPrintingAllHttp)
-            {   
+            {
                 if (NewDomainByHTTPServer != null)
                     NewDomainByHTTPServer(dItem, null);
             }
             else if ((cfgCurrent.PassiveFingerPrintingHttp) && (source.ToLower() == "documents search" || source.ToLower().Contains("websearch") || source.ToLower().Contains("bing ip search") || source.ToLower().Contains("technologyrecognition") || source.ToLower().Contains("fingerprinting") || source.ToLower().Contains("certificate fingerprinting")))
-            {   
+            {
                 if (NewDomainByHTTPServer != null)
                     NewDomainByHTTPServer(dItem, null);
             }
             // Fingerprinting SMTP
             if (cfgCurrent.PasiveFingerPrintingSmtp && cfgCurrent.FingerPrintingAllSmtp)
-            {   
+            {
                 if (NewDomainByMXServer != null)
                     NewDomainByMXServer(dItem, null);
             }
@@ -243,7 +243,7 @@ namespace FOCA
 
             // Fingerprinting FTP
             if (cfgCurrent.FingerPrintingAllFtp)
-            {  
+            {
                 if (NewDomainByFTPServer != null)
                     NewDomainByFTPServer(dItem, null);
             }
@@ -264,20 +264,14 @@ namespace FOCA
 
         public List<RelationsItem> GetRelationsOfIP(string ip)
         {
-            var r = (List<RelationsItem>)relations.Items.Where(R => R.Ip.ToString() == ip).ToList<RelationsItem>();
+            var r = relations.Items.Where(R => R.Ip.ToString() == ip).ToList<RelationsItem>();
             return r;
         }
 
         public DomainsItem GetDomain(string domain)
         {
             domain = domain.Trim();
-            DomainsItem di = null;
-            try
-            {
-                di = domains.Items.First(D => D.Domain.ToLower() == domain.ToLower());
-            }
-            catch {}
-            return di;
+            return domains.Items.FirstOrDefault(D => D.Domain.ToLower() == domain.ToLower());
         }
 
         public List<string> GetDomains()
@@ -307,7 +301,7 @@ namespace FOCA
             var po = new ParallelOptions();
             if (Program.cfgCurrent.ParallelDnsQueries != 0)
                 po.MaxDegreeOfParallelism = Program.cfgCurrent.ParallelDnsQueries;
-            Parallel.For(0, Program.data.computerDomains.Items.Count, po, delegate(int i)
+            Parallel.For(0, Program.data.computerDomains.Items.Count, po, delegate (int i)
                 {
                     if (dominio == computerDomains.Items[i].Domain)
                     {
@@ -339,12 +333,12 @@ namespace FOCA
                 d = domains.Items.First(S => S.Domain.ToLower() == domain.ToLower());
             }
             catch { }
-            return d != null? d.Source: string.Empty;
+            return d != null ? d.Source : string.Empty;
         }
 
         public void AddIP(string ip, string source, int MaxRecursion)
         {
-            AddIP(ip, source, null, MaxRecursion,true);
+            AddIP(ip, source, null, MaxRecursion, true);
         }
 
         public static bool isPrivateIP(IPsItem IPv4)
@@ -451,8 +445,8 @@ namespace FOCA
         {
             try
             {
-                var primerOcteto = int.Parse( IPv4.Split(new char[] { '.' })[0] );
-                var segundoOcteto = int.Parse(  IPv4.Split(new char[] { '.' })[1] );
+                var primerOcteto = int.Parse(IPv4.Split(new char[] { '.' })[0]);
+                var segundoOcteto = int.Parse(IPv4.Split(new char[] { '.' })[1]);
 
                 if (primerOcteto == 10)
                     return false;
@@ -490,7 +484,7 @@ namespace FOCA
 
                     if (!isInNetrange)
                     {
-                        var host = string.Empty ;
+                        var host = string.Empty;
                         try
                         {
                             host = Dns.GetHostEntry(ip).HostName;
@@ -501,7 +495,7 @@ namespace FOCA
                                 {
                                     if (!IsMainDomainOrAlternative(host))
                                     {
-                                        if (Program.data.Project.AlternativeDomains.Select(S => host.Contains(S.ToString())).Count()==0)
+                                        if (Program.data.Project.AlternativeDomains.Select(S => host.Contains(S.ToString())).Count() == 0)
                                         {
                                             string[] arrDom = host.Split(new char[] { '.' });
                                             if (arrDom.Count() > 1)
@@ -526,7 +520,7 @@ namespace FOCA
 
                             if (netrange != null)
                             {
-                                Project.LstNetRange.Add(netrange); 
+                                Project.LstNetRange.Add(netrange);
 #if PLUGINS
                                 Thread tPluginOnNetrange = new Thread(new ParameterizedThreadStart(Program.data.plugins.OnNewNetrange));
                                 tPluginOnNetrange.IsBackground = true;
@@ -637,7 +631,7 @@ namespace FOCA
 
             var ip = objArray[0].ToString();
             var description = objArray[1].ToString();
-            var maxRecursion = int.Parse( objArray[2].ToString() );
+            var maxRecursion = int.Parse(objArray[2].ToString());
 
             Program.data.AddIP(ip, description, maxRecursion);
             Program.LogThis(new Log(Log.ModuleType.IPRangeSearch, "New IP (" + ip + ") found by netrange.", Log.LogType.low));
@@ -710,7 +704,7 @@ namespace FOCA
                     return true;//dominio.com
 
                 if (dom.EndsWith("." + Program.data.Project.Domain))
-                    return true; 
+                    return true;
             }
 
             foreach (var alternativo in Project.AlternativeDomains)
@@ -719,7 +713,7 @@ namespace FOCA
                     return true;//dominio.com
 
                 if (dom.EndsWith("." + alternativo))
-                    return true; 
+                    return true;
             }
             return false;
         }
@@ -728,7 +722,7 @@ namespace FOCA
         {
             ip = ip.Trim();
             var lstIP = new ThreadSafeList<IPsItem>(Ips.Items.Where(I => I.Ip.ToLower() == ip.ToLower()));
-            return lstIP.Count != 0? lstIP[0].Source: null;
+            return lstIP.Count != 0 ? lstIP[0].Source : null;
         }
 
         public void AddResolution(string domain, string IP, string source, int MaxRecursion, Configuration cfgCurrent, bool doptr)
@@ -761,7 +755,7 @@ namespace FOCA
         public ThreadSafeList<IPsItem> GetResolutionIPs(string domain)
         {
             domain = domain.Trim().ToLower();
-            
+
             var lstIPs = new ThreadSafeList<string>(relations.Items.Where(W => W.Domain.Domain.ToLower() == domain.ToLower()).Select(S => S.Ip.Ip));
             return new ThreadSafeList<IPsItem>(Ips.Items.Where(I => lstIPs.Contains(I.Ip)));
         }
@@ -770,7 +764,7 @@ namespace FOCA
         {
             ip = ip.Trim().ToLower();
             var lstDominios = new ThreadSafeList<string>(relations.Items.Where(W => W.Ip.Ip.ToLower() == ip.ToLower()).Select(S => S.Domain.Domain));
- 
+
             return new ThreadSafeList<DomainsItem>(domains.Items.Where(D => lstDominios.Contains(D.Domain)));
         }
 
@@ -787,99 +781,99 @@ namespace FOCA
             var lstIPs = new ThreadSafeList<IPsItem>(Ips.Items.Where(IP => Project.Domain == "*" || relations.Items.Any(R => R.Ip.Ip == IP.Ip && lstDomains.Any(D => R.Domain.Domain.ToLower().EndsWith(D.ToLower())))));
 
             var po = new ParallelOptions();
-                if (Program.cfgCurrent.ParallelDnsQueries != 0)
-                    po.MaxDegreeOfParallelism = Program.cfgCurrent.ParallelDnsQueries;
-                Parallel.ForEach(lstIPs, ip =>
+            if (Program.cfgCurrent.ParallelDnsQueries != 0)
+                po.MaxDegreeOfParallelism = Program.cfgCurrent.ParallelDnsQueries;
+            Parallel.ForEach(lstIPs, ip =>
+                {
+                    try
                     {
-                        try
+                        ComputersItem ci;
+
+                        if (computerIPs.Items.Any(C => C.Ip.Ip == ip.Ip))
                         {
-                            ComputersItem ci;
-                            
-                            if (computerIPs.Items.Any(C => C.Ip.Ip == ip.Ip))
+                            ci = computerIPs.Items.First(C => C.Ip.Ip == ip.Ip).Computer;
+                        }
+
+                        else
+                        {
+                            if (computers.Items.Any(C => relations.Items.Where(R => R.Ip.Ip == ip.Ip).Select(D => D.Domain).Any(D => string.Equals(D.Domain, C.name, StringComparison.OrdinalIgnoreCase))))
                             {
-                                ci = computerIPs.Items.First(C => C.Ip.Ip == ip.Ip).Computer;
+                                ci = computers.Items.First(C => relations.Items.Where(R => R.Ip.Ip == ip.Ip).Select(D => D.Domain).Any(D => string.Equals(D.Domain, C.name, StringComparison.OrdinalIgnoreCase)));
+                                ci.name = string.Format("{0} [{1}]", ci.name, ip.Ip);
+                                computerIPs.Items.Add(new ComputerIPsItem(ci, ip, ip.Source));
                             }
 
                             else
                             {
-                                if (computers.Items.Any(C => relations.Items.Where(R => R.Ip.Ip == ip.Ip).Select(D => D.Domain).Any(D => string.Equals(D.Domain, C.name, StringComparison.OrdinalIgnoreCase))))
+                                ci = new ComputersItem();
+                                computers.Items.Add(ci);
+                                ci.type = ComputersItem.Tipo.Server;
+                                ci.os = OperatingSystem.OS.Unknown;
+
+                                var strFirstDomain = string.Empty;
+
+                                try
                                 {
-                                    ci = computers.Items.First(C => relations.Items.Where(R => R.Ip.Ip == ip.Ip).Select(D => D.Domain).Any(D => string.Equals(D.Domain, C.name, StringComparison.OrdinalIgnoreCase)));
-                                    ci.name = string.Format("{0} [{1}]", ci.name, ip.Ip);
-                                    computerIPs.Items.Add(new ComputerIPsItem(ci, ip, ip.Source));
+                                    strFirstDomain = relations.Items.First(R => R.Ip.Ip == ip.Ip && lstDomains.Any(D => R.Domain.Domain.ToLower().EndsWith(D.ToLower()))).Domain.Domain;
                                 }
-                                
-                                else
+                                catch
                                 {
-                                    ci = new ComputersItem();
-                                    computers.Items.Add(ci);
-                                    ci.type = ComputersItem.Tipo.Server;
-                                    ci.os = OperatingSystem.OS.Unknown;
-
-                                    var strFirstDomain = string.Empty;
-
-                                    try
-                                    {
-                                        strFirstDomain = relations.Items.First(R => R.Ip.Ip == ip.Ip && lstDomains.Any(D => R.Domain.Domain.ToLower().EndsWith(D.ToLower()))).Domain.Domain;
-                                    }
-                                    catch
-                                    {
-                                        strFirstDomain = "*";
-                                    }
-
-                                    ci.name = string.Format("{0} [{1}]", strFirstDomain, ip.Ip);
-                                    
-                                    computerIPs.Items.Add(new ComputerIPsItem(ci, ip, ip.Source));
-                                }
-                            }
-
-                            foreach (DomainsItem di in relations.Items.Where(R => R.Ip.Ip == ip.Ip).Select(D => D.Domain))
-                            {
-                                if (!computerDomains.Items.Any(C => C.Computer.name == ci.name && C.Domain.Domain == di.Domain))
-                                    computerDomains.Items.Add(new ComputerDomainsItem(ci, di, di.Source));
-                             
-                                for (var fpI = 0; fpI < di.fingerPrinting.Count(); fpI++)
-                                {
-                                    var fp = di.fingerPrinting[fpI];
-
-                                    if ((fp.os != OperatingSystem.OS.Unknown))
-                                    {
-                                        ci.os = fp.os;
-                                    }
-                                   
-                                    foreach (var software in BannerAnalysis.GetSoftwareFromBanner(fp.Version).Where(software => !ci.Software.Items.Any(A => A.Name.ToLower() == software.ToLower())))
-                                    {
-                                        ci.Software.Items.Add(new ApplicationsItem(software, string.Format("{0} FingerPrinting Banner: {1}", di.Domain, fp.Version)));
-                                    }
-                                }
-                            }
-                            if (ip.Information != null)
-                            {
-                                if (!string.IsNullOrEmpty(ip.Information.OS))
-                                {
-                                    var os = OperatingSystemUtils.StringToOS(ip.Information.OS);
-                                    
-                                    if (ci.os == OperatingSystem.OS.Unknown && os != OperatingSystem.OS.Unknown)
-                                        ci.os = os;
+                                    strFirstDomain = "*";
                                 }
 
-                                if (!string.IsNullOrEmpty(ip.Information.ServerBanner))
-                                {
-                                    var os = OperatingSystemUtils.StringToOS(ip.Information.ServerBanner);
-                                    if (ci.os == OperatingSystem.OS.Unknown && os != OperatingSystem.OS.Unknown)
-                                        ci.os = os;
-                                    
-                                    foreach (var software in BannerAnalysis.GetSoftwareFromBanner(ip.Information.ServerBanner).Where(software => !ci.Software.Items.Any(A => A.Name.ToLower() == software.ToLower())))
-                                    {
-                                        ci.Software.Items.Add(new ApplicationsItem(software, string.Format("{0} Shodan Banner: {1}", ip, ip.Information.ServerBanner)));
-                                    }
-                                }
+                                ci.name = string.Format("{0} [{1}]", strFirstDomain, ip.Ip);
+
+                                computerIPs.Items.Add(new ComputerIPsItem(ci, ip, ip.Source));
                             }
                         }
-                        catch
+
+                        foreach (DomainsItem di in relations.Items.Where(R => R.Ip.Ip == ip.Ip).Select(D => D.Domain))
                         {
+                            if (!computerDomains.Items.Any(C => C.Computer.name == ci.name && C.Domain.Domain == di.Domain))
+                                computerDomains.Items.Add(new ComputerDomainsItem(ci, di, di.Source));
+
+                            for (var fpI = 0; fpI < di.fingerPrinting.Count(); fpI++)
+                            {
+                                var fp = di.fingerPrinting[fpI];
+
+                                if ((fp.os != OperatingSystem.OS.Unknown))
+                                {
+                                    ci.os = fp.os;
+                                }
+
+                                foreach (var software in BannerAnalysis.GetSoftwareFromBanner(fp.Version).Where(software => !ci.Software.Items.Any(A => A.Name.ToLower() == software.ToLower())))
+                                {
+                                    ci.Software.Items.Add(new ApplicationsItem(software, string.Format("{0} FingerPrinting Banner: {1}", di.Domain, fp.Version)));
+                                }
+                            }
                         }
-                    });
+                        if (ip.Information != null)
+                        {
+                            if (!string.IsNullOrEmpty(ip.Information.OS))
+                            {
+                                var os = OperatingSystemUtils.StringToOS(ip.Information.OS);
+
+                                if (ci.os == OperatingSystem.OS.Unknown && os != OperatingSystem.OS.Unknown)
+                                    ci.os = os;
+                            }
+
+                            if (!string.IsNullOrEmpty(ip.Information.ServerBanner))
+                            {
+                                var os = OperatingSystemUtils.StringToOS(ip.Information.ServerBanner);
+                                if (ci.os == OperatingSystem.OS.Unknown && os != OperatingSystem.OS.Unknown)
+                                    ci.os = os;
+
+                                foreach (var software in BannerAnalysis.GetSoftwareFromBanner(ip.Information.ServerBanner).Where(software => !ci.Software.Items.Any(A => A.Name.ToLower() == software.ToLower())))
+                                {
+                                    ci.Software.Items.Add(new ApplicationsItem(software, string.Format("{0} Shodan Banner: {1}", ip, ip.Information.ServerBanner)));
+                                }
+                            }
+                        }
+                    }
+                    catch
+                    {
+                    }
+                });
             OnChangeEvent(null);
         }
 

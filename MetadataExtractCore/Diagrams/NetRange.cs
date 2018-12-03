@@ -1,13 +1,10 @@
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Net;
 using System.IO;
-using System.Net.Sockets;
-using HtmlAgilityPack;
-using Newtonsoft.Json.Linq;
-using System.Windows.Forms;
+using System.Linq;
+using System.Net;
+using System.Text;
 
 namespace MetadataExtractCore.Diagrams
 {
@@ -74,32 +71,35 @@ namespace MetadataExtractCore.Diagrams
 
         private static NetRange API(string ip)
         {
-            // send request to json endpoint
-            HttpWebRequest r = (HttpWebRequest)HttpWebRequest.Create("https://stat.ripe.net/data/whois/data.json?resource=" + ip.ToString());
-            r.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:54.0) Gecko/20100101 Firefox/54.0";
-            r.Headers.Add("Upgrade-Insecure-Requests: 1");
-            r.Method = "GET";
-            r.Headers.Add(HttpRequestHeader.Cookie, "serverid=www-plone-3; path=/");
-            // parse response
-            HttpWebResponse resp = (HttpWebResponse)r.GetResponse();
-
-            string response;
-            using (var sr = new StreamReader(resp.GetResponseStream())) {
-                response = sr.ReadToEnd();
-            }
-
             try
             {
-                // get netrange (if any)
-                JObject json = JObject.Parse(response);
+                // send request to json endpoint
+                HttpWebRequest r = (HttpWebRequest)HttpWebRequest.Create("https://stat.ripe.net/data/whois/data.json?resource=" + ip.ToString());
+                r.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:54.0) Gecko/20100101 Firefox/54.0";
+                r.Headers.Add("Upgrade-Insecure-Requests: 1");
+                r.Method = "GET";
+                r.Headers.Add(HttpRequestHeader.Cookie, "serverid=www-plone-3; path=/");
+                // parse response
+                using (HttpWebResponse resp = (HttpWebResponse)r.GetResponse())
+                {
 
-                string netrange = json["data"]["records"][0][1]["value"].ToString();
+                    string response;
+                    using (var sr = new StreamReader(resp.GetResponseStream()))
+                    {
+                        response = sr.ReadToEnd();
+                    }
 
-                if (!netrange.Contains("/"))
-                    netrange = json["data"]["records"][0][0]["value"].ToString();
-                
-                var ips = NetRange.GetNetRangeIPs(netrange);
-                return new NetRange(ips[0], ips[1], "netrangeObtainedFromRipe");
+                    // get netrange (if any)
+                    JObject json = JObject.Parse(response);
+
+                    string netrange = json["data"]["records"][0][1]["value"].ToString();
+
+                    if (!netrange.Contains("/"))
+                        netrange = json["data"]["records"][0][0]["value"].ToString();
+
+                    var ips = NetRange.GetNetRangeIPs(netrange);
+                    return new NetRange(ips[0], ips[1], "netrangeObtainedFromRipe");
+                }
             }
             catch (Exception)
             {
@@ -201,7 +201,7 @@ namespace MetadataExtractCore.Diagrams
             httpWebRequest.ContentType = "application/x-www-form-urlencoded";
 
             httpWebRequest.CookieContainer = GetCookies();
-            httpWebRequest.ContentLength = (long)bytes.Length;
+            httpWebRequest.ContentLength = bytes.Length;
             httpWebRequest.Headers.Add(HttpRequestHeader.Pragma, "no-cache");
             httpWebRequest.Timeout = 30000;
             httpWebRequest.AutomaticDecompression = DecompressionMethods.GZip;

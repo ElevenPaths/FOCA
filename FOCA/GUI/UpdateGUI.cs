@@ -1,10 +1,9 @@
-﻿using System;
+﻿using FOCA.ModifiedComponents;
+using MetadataExtractCore.Diagrams;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
-using FOCA.ModifiedComponents;
-using MetadataExtractCore.Diagrams;
-using MetadataExtractCore.Utilities;
 
 namespace FOCA.GUI
 {
@@ -341,7 +340,7 @@ namespace FOCA.GUI
                         tn.Tag = computer;
 
 
-                         if (computer.os != OperatingSystem.OS.Unknown)
+                        if (computer.os != OperatingSystem.OS.Unknown)
                             tn.ImageIndex = tn.SelectedImageIndex = OperatingSystemUtils.OSToIconNumber(computer.os);
                         else
                         {
@@ -350,7 +349,7 @@ namespace FOCA.GUI
 
                         var computersDomain = Program.data.computerDomains.Items;
 
-                         foreach (var cdi in computersDomain.Where(x => x.Computer == computer))
+                        foreach (var cdi in computersDomain.Where(x => x.Computer == computer))
                         {
                             if (cdi.Domain == null)
                                 continue;
@@ -376,7 +375,7 @@ namespace FOCA.GUI
                             if (cdi.Domain == null)
                                 return;
 
-                           var oldTn = tn.Nodes[cdi.Domain.Domain];
+                            var oldTn = tn.Nodes[cdi.Domain.Domain];
 
                             if (oldTn == null)
                                 continue;
@@ -406,7 +405,7 @@ namespace FOCA.GUI
                                 tn.ImageIndex = tn.SelectedImageIndex = 100;
                             else
                                 if (lastOsDom != OperatingSystem.OS.Unknown)
-                                    tn.ImageIndex = tn.SelectedImageIndex = OperatingSystemUtils.OSToIconNumber(lastOsDom);
+                                tn.ImageIndex = tn.SelectedImageIndex = OperatingSystemUtils.OSToIconNumber(lastOsDom);
                         }
 
                         if (computer.Users.Items.Count > 0)
@@ -570,10 +569,10 @@ namespace FOCA.GUI
                         if (domainParts.Length <= 1)
                             continue;
 
-                        if (domainParts.Length >= 2) 
+                        if (domainParts.Length >= 2)
                         {
                             var mainDomain = domainParts[domainParts.Length - 2] + "." + domainParts[domainParts.Length - 1];
-                        
+
                             TreeNode tnDomain = null;
 
                             var dominioDoble = false;
@@ -654,13 +653,13 @@ namespace FOCA.GUI
                     }
                     else
                     {
-                
+
                         var domainParts = domain.Split('.');
 
                         if (domainParts.Length <= 1)
                             continue;
 
-                        if (domainParts.Length >= 2) 
+                        if (domainParts.Length >= 2)
                         {
                             var mainDomain = domainParts[domainParts.Length - 2] + "." + domainParts[domainParts.Length - 1];
 
@@ -678,7 +677,7 @@ namespace FOCA.GUI
                     }
                 }
             }
-            catch(Exception)
+            catch (Exception)
             {
 
             }
@@ -689,17 +688,17 @@ namespace FOCA.GUI
         /// </summary>
         static private void NodeMetadataProcess()
         {
-             var users = (List<UserItem>)Program.FormMainInstance.TreeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Users"].Tag;
+            var users = (List<UserItem>)Program.FormMainInstance.TreeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Users"].Tag;
 
-             var printers = (List<Printers>)Program.FormMainInstance.TreeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Printers"].Tag;
+            var printers = (List<PrintersItem>)Program.FormMainInstance.TreeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Printers"].Tag;
 
             var folders = (List<PathsItem>)Program.FormMainInstance.TreeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Folders"].Tag;
 
             var software = (List<ApplicationsItem>)Program.FormMainInstance.TreeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Software"].Tag;
 
-            var emails = (SerializableDictionary<String, int>)Program.FormMainInstance.TreeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Emails"].Tag;
+            var emails = (List<EmailsItem>)Program.FormMainInstance.TreeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Emails"].Tag;
 
-            SerializableDictionary<String, int> operatingsystems = (SerializableDictionary<String, int>)Program.FormMainInstance.TreeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Operating Systems"].Tag;
+            var operatingsystems = (List<string>)Program.FormMainInstance.TreeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Operating Systems"].Tag;
 
             var passwords = (List<PasswordsItem>)Program.FormMainInstance.TreeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Passwords"].Tag;
 
