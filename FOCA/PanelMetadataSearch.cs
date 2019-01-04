@@ -44,9 +44,6 @@ namespace FOCA
         public PanelMetadataSearch()
         {
             InitializeComponent();
-            // Accept all certificates so that there're no problems
-            // with invalid certificates
-            CookieAwareWebClient.AcceptAllCertificates();
             // Create pending downloads list
             Downloads = new ThreadSafeList<Download>();
             HttpSizeDaemonInst = new HTTPSizeDaemon();

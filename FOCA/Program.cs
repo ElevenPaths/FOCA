@@ -3,6 +3,7 @@ using FOCA.Controllers;
 using System;
 using System.Configuration;
 using System.Data.SqlClient;
+using System.Net;
 using System.Windows.Forms;
 
 namespace FOCA
@@ -106,6 +107,8 @@ namespace FOCA
             splashScreen.Close();
             splashScreen.Dispose();
 
+            InitializeServicePointManager();
+
             Application.Run(FormMainInstance);
         }
 
@@ -123,6 +126,13 @@ namespace FOCA
             {
                 MessageBox.Show("The database connection string could not be saved to the config file.", "Unsaved connection string", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
+        }
+
+        private static void InitializeServicePointManager()
+        {
+            ServicePointManager.ServerCertificateValidationCallback += (s, c, ch, ssl) => true;
+
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
         }
     }
 }

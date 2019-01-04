@@ -1,3 +1,9 @@
+using FOCA.Analysis.FingerPrinting;
+using FOCA.Analysis.Technology;
+using FOCA.ModifiedComponents;
+using FOCA.TaskManager;
+using MetadataExtractCore.Diagrams;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -6,13 +12,6 @@ using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Web;
-using FOCA.Analysis.FingerPrinting;
-using FOCA.Analysis.Technology;
-using FOCA.ModifiedComponents;
-using FOCA.Net;
-using FOCA.TaskManager;
-using MetadataExtractCore.Diagrams;
-using Newtonsoft.Json;
 
 namespace FOCA.Analysis.HttpMap
 {
@@ -162,36 +161,51 @@ namespace FOCA.Analysis.HttpMap
                     return;
                 domain.robotsAnalyzed = true;
 
-                var r = new Request();
                 var protocol = ((port == 443) ? "https://" : "http://");
 
-                var robotspath = protocol + host + ":" + port + "/robots.txt";
-                int respCode;
-                var sRobots = r.DoGet(robotspath, out respCode);
+                string robotspath = protocol + host + ":" + port + "/robots.txt";
+                string sRobots = String.Empty;
 
-                if (respCode != 200)
-                    return;
-
-                var sr = new StringReader(sRobots);
-                string line;
-                while ((line = sr.ReadLine()) != null)
+                try
                 {
-                    if (line.Split(' ').Count() <= 1)
-                        continue;
-                    var path = line.Split(' ')[1];
-                    if (path.Contains("*"))
-                        continue;
-                    path = path.Replace("$", "");
+                    HttpWebRequest robotsRequest = HttpWebRequest.CreateHttp(robotspath);
+                    robotsRequest.AllowAutoRedirect = false;
+                    using (HttpWebResponse response = (HttpWebResponse)robotsRequest.GetResponse())
+                    {
+                        if (response.StatusCode != HttpStatusCode.OK)
+                            return;
 
-                    if (!path.StartsWith("/"))
-                        continue;
-                    var url = protocol + host + path;
-                    Program.LogThis(new Log(Log.ModuleType.Fuzzer,
-                        "[robots.txt] File found on " + robotspath + ": " + url,
-                        Log.LogType.medium));
-                    domain.map.AddUrl(url);
+                        using (var reader = new StreamReader(response.GetResponseStream()))
+                        {
+                            sRobots = reader.ReadToEnd();
+                        }
+                    }
                 }
-                sr.Close();
+                catch (Exception)
+                {
+                }
+
+                using (var sr = new StringReader(sRobots))
+                {
+                    string line;
+                    while ((line = sr.ReadLine()) != null)
+                    {
+                        if (line.Split(' ').Count() <= 1)
+                            continue;
+                        var path = line.Split(' ')[1];
+                        if (path.Contains("*"))
+                            continue;
+                        path = path.Replace("$", "");
+
+                        if (!path.StartsWith("/"))
+                            continue;
+                        var url = protocol + host + path;
+                        Program.LogThis(new Log(Log.ModuleType.Fuzzer,
+                            "[robots.txt] File found on " + robotspath + ": " + url,
+                            Log.LogType.medium));
+                        domain.map.AddUrl(url);
+                    }
+                }
             }
             catch (Exception)
             {

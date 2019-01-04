@@ -1,21 +1,20 @@
+using MetadataExtractCore.Diagrams;
 using System;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Security;
-using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
-using MetadataExtractCore.Diagrams;
 
 namespace FOCA.Analysis.FingerPrinting
 {
     [Serializable]
     public class HTTP : FingerPrinting
     {
+        private const string CertificatesFolderName = "certificates";
         private readonly string path = "/";
         private readonly bool ssl;
-        private string aux_certName = string.Empty;
         public string Title = string.Empty;
 
         public HTTP()
@@ -27,8 +26,6 @@ namespace FOCA.Analysis.FingerPrinting
             this.path = path;
             this.ssl = ssl;
 
-            ServicePointManager.ServerCertificateValidationCallback =
-                VerifyServerCertificate;
         }
 
         public override event EventHandler FingerPrintingError;
@@ -41,10 +38,10 @@ namespace FOCA.Analysis.FingerPrinting
             WebResponse response;
             try
             {
-                var request = (HttpWebRequest) WebRequest.Create(httpProtocol + Host + ":" + Port + "/");
+                var request = (HttpWebRequest)WebRequest.Create(httpProtocol + Host + ":" + Port + "/");
                 request.KeepAlive = false;
                 request.AllowAutoRedirect = false;
-                request.Timeout = 3*1000; // 3 seconds
+                request.Timeout = 3 * 1000; // 3 seconds
                 response = request.GetResponse();
 
                 Program.LogThis(new Log(Log.ModuleType.FingingerPrinting,
@@ -192,10 +189,10 @@ namespace FOCA.Analysis.FingerPrinting
             WebResponse response = null;
             try
             {
-                var request = (HttpWebRequest) WebRequest.Create(httpProtocol + Host + ":" + Port + file);
+                var request = (HttpWebRequest)WebRequest.Create(httpProtocol + Host + ":" + Port + file);
                 request.KeepAlive = false;
                 request.AllowAutoRedirect = false;
-                request.Timeout = 5*1000; // 5 seconds
+                request.Timeout = 5 * 1000; // 5 seconds
                 Program.LogThis(new Log(Log.ModuleType.FingingerPrinting,
                     "HTTP Fingerprinting ASPX on " + httpProtocol + Host + ":" + Port + file, Log.LogType.debug));
                 response = request.GetResponse();
@@ -228,10 +225,10 @@ namespace FOCA.Analysis.FingerPrinting
             var file = "/.htF0C4_" + new Random().Next(0, 999);
             try
             {
-                var request = (HttpWebRequest) WebRequest.Create(httpProtocol + Host + ":" + Port + file);
+                var request = (HttpWebRequest)WebRequest.Create(httpProtocol + Host + ":" + Port + file);
                 request.KeepAlive = false;
                 request.AllowAutoRedirect = false;
-                request.Timeout = 5*1000; // 5 seconds
+                request.Timeout = 5 * 1000; // 5 seconds
                 Program.LogThis(new Log(Log.ModuleType.FingingerPrinting,
                     "HTTP Fingerprinting 404 on " + httpProtocol + Host + ":" + Port + file, Log.LogType.debug));
                 response = request.GetResponse();
@@ -260,10 +257,10 @@ namespace FOCA.Analysis.FingerPrinting
             var file = "/F0C4_" + new Random().Next(0, 999);
             try
             {
-                var request = (HttpWebRequest) WebRequest.Create(httpProtocol + Host + ":" + Port + file);
+                var request = (HttpWebRequest)WebRequest.Create(httpProtocol + Host + ":" + Port + file);
                 request.KeepAlive = false;
                 request.AllowAutoRedirect = false;
-                request.Timeout = 5*1000; // 5 seconds
+                request.Timeout = 5 * 1000; // 5 seconds
                 Program.LogThis(new Log(Log.ModuleType.FingingerPrinting,
                     "HTTP Fingerprinting 404 on " + httpProtocol + Host + ":" + Port + file, Log.LogType.debug));
                 response = request.GetResponse();
@@ -294,10 +291,10 @@ namespace FOCA.Analysis.FingerPrinting
 
             try
             {
-                var request = (HttpWebRequest) WebRequest.Create(httpProtocol + Host + ":" + Port + file);
+                var request = (HttpWebRequest)WebRequest.Create(httpProtocol + Host + ":" + Port + file);
                 request.KeepAlive = false;
                 request.AllowAutoRedirect = false;
-                request.Timeout = 8*1000; // 8 seconds
+                request.Timeout = 8 * 1000; // 8 seconds
                 Program.LogThis(new Log(Log.ModuleType.FingingerPrinting,
                     "HTTP Fingerprinting JSP error on " + httpProtocol + Host + ":" + Port + file, Log.LogType.debug));
                 response = request.GetResponse();
@@ -361,10 +358,10 @@ namespace FOCA.Analysis.FingerPrinting
 
             try
             {
-                var request = (HttpWebRequest) WebRequest.Create(httpProtocol + Host + ":" + Port + file);
+                var request = (HttpWebRequest)WebRequest.Create(httpProtocol + Host + ":" + Port + file);
                 request.KeepAlive = false;
                 request.AllowAutoRedirect = false;
-                request.Timeout = 8*1000; // 8 seconds
+                request.Timeout = 8 * 1000; // 8 seconds
                 Program.LogThis(new Log(Log.ModuleType.FingingerPrinting,
                     "HTTP Fingerprinting TPL error on " + httpProtocol + Host + ":" + Port + file, Log.LogType.debug));
                 response = request.GetResponse();
@@ -449,17 +446,15 @@ namespace FOCA.Analysis.FingerPrinting
         {
             try
             {
-                var request = (HttpWebRequest) WebRequest.Create("https://" + Host + ":" + "443" + "/");
+                HttpWebRequest request = HttpWebRequest.CreateHttp("https://" + Host + ":" + "443" + "/");
                 request.KeepAlive = false;
                 request.AllowAutoRedirect = false;
-                request.Timeout = 5*1000; // 5 seconds
+                request.Timeout = 5 * 1000; // 5 seconds
+                request.ServerCertificateValidationCallback += ExtractServerCertificateInformation;
                 Program.LogThis(new Log(Log.ModuleType.FingingerPrinting,
                     "HTTP Fingerprinting on " + "https://" + Host + ":" + "443", Log.LogType.debug));
-                request.GetResponse();
-
-                if (string.IsNullOrEmpty(aux_certName)) return;
-                if (Program.data.GetDomain(aux_certName) == null)
-                    Program.data.AddDomain(aux_certName, "Certificate FingerPrinting", 1, Program.cfgCurrent);
+                var response = request.GetResponse();
+                response.Dispose();
             }
             catch (WebException)
             {
@@ -470,46 +465,55 @@ namespace FOCA.Analysis.FingerPrinting
             }
         }
 
-        private bool VerifyServerCertificate(
-            object sender, X509Certificate certificate,
-            X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        private static bool ExtractServerCertificateInformation(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
         {
-            if (certificate == null)
+            HttpWebRequest sourceRequest = sender as HttpWebRequest;
+
+            if (certificate == null || sourceRequest == null)
                 return true;
 
-            var startCn = certificate.Subject.IndexOf("CN=", StringComparison.Ordinal) + "CN=".Length;
-            var offset = certificate.Subject.Length - startCn;
+            int startCn = certificate.Subject.IndexOf("CN=", StringComparison.OrdinalIgnoreCase) + "CN=".Length;
+            int offset = certificate.Subject.Length - startCn;
 
-            var recorte = certificate.Subject.Substring(startCn, offset);
-            if (recorte.Contains(","))
-                recorte = recorte.Split(',')[0];
-            aux_certName = recorte;
+            string aux_certName = certificate.Subject.Substring(startCn, offset);
+            if (aux_certName.Contains(","))
+                aux_certName = aux_certName.Split(',')[0];
 
-            const string folder = "/certificates/";
-            if (!Directory.Exists(Program.data.Project.FolderToDownload + "\\" + folder))
+            if (!aux_certName.Contains("*"))
+            {
+                if (aux_certName.EndsWith("." + Program.data.Project.Domain))
+                {
+                    Program.data.AddDomain(aux_certName, "Certificate FingerPrinting", 1, Program.cfgCurrent);
+                }
+                else if (Program.data.Project.AlternativeDomains.FirstOrDefault(p => p == aux_certName) == null)
+                {
+                    Program.data.Project.AlternativeDomains.Add(aux_certName);
+                }
+            }
+
+            string certificatesFullPath = Path.Combine(Program.data.Project.FolderToDownload, CertificatesFolderName);
+            if (!Directory.Exists(certificatesFullPath))
             {
                 try
                 {
-                    Directory.CreateDirectory(Program.data.Project.FolderToDownload + "\\" + folder);
+                    Directory.CreateDirectory(certificatesFullPath);
                 }
                 catch
                 {
                     return true;
                 }
             }
+
             FileStream fs = null;
             try
             {
-                var hWr = (HttpWebRequest) sender;
-                fs =
-                    new FileStream(
-                        Program.data.Project.FolderToDownload + "\\" + folder + "\\" + hWr.Address.Host + "_" +
-                        aux_certName + ".crt", FileMode.Create);
+                fs = new FileStream(Path.Combine(certificatesFullPath, sourceRequest.Address.Host + "_" + aux_certName.Replace('*', '%') + ".crt"),
+                    FileMode.Create);
                 fs.Write(certificate.GetRawCertData(), 0, certificate.GetRawCertData().Length);
             }
             catch
             {
-                Program.LogThis(new Log(Log.ModuleType.FingingerPrinting, "Couldn't get certificate of host " + Host,
+                Program.LogThis(new Log(Log.ModuleType.FingingerPrinting, "Couldn't get certificate of host " + sourceRequest.Address.Host,
                     Log.LogType.debug));
             }
             finally

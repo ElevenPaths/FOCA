@@ -381,7 +381,6 @@
     <Compile Include="ModifiedComponents\TreeViewNoFickering.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Net\Request.cs" />
     <Compile Include="PanelDNSSearch.cs">
       <SubType>UserControl</SubType>
     </Compile>
