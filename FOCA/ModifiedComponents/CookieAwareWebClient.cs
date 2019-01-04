@@ -18,21 +18,5 @@ namespace FOCA.Search
             }
             return request;
         }
-
-        public static void AcceptAllCertificates()
-        {
-            //Acepta todos los certificados aunque sean invalidos
-            ServicePointManager.ServerCertificateValidationCallback +=
-                delegate(
-                    object
-                    senderr,
-                    System.Security.Cryptography.X509Certificates.X509Certificate
-                    pCertificate,
-                    System.Security.Cryptography.X509Certificates.X509Chain pChain,
-                    System.Net.Security.SslPolicyErrors pSSLPolicyErrors)
-                {
-                    return true;
-                };
-        }
     }
 }
