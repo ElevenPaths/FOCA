@@ -1,4 +1,12 @@
-﻿using System;
+﻿using FOCA.Analysis;
+using FOCA.Properties;
+using FOCA.Searcher;
+using FOCA.Threads;
+using Heijden.DNS;
+using MetadataExtractCore;
+using MetadataExtractCore.Diagrams;
+using SearcherCore.Searcher.BingAPI;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
@@ -8,14 +16,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using FOCA.Analysis;
-using FOCA.Properties;
-using FOCA.Searcher;
-using FOCA.Threads;
-using Heijden.DNS;
-using MetadataExtractCore;
-using MetadataExtractCore.Diagrams;
-using SearcherCore.Searcher.BingAPI;
 
 namespace FOCA
 {
@@ -59,7 +59,7 @@ namespace FOCA
             if (Program.DesingMode()) return;
             Resolve = new Resolver
             {
-                TimeOut          = 1000,
+                TimeOut = 1000,
                 SearchWithAllDNS = Program.cfgCurrent.UseAllDns
             };
 
@@ -67,7 +67,7 @@ namespace FOCA
             if (!Program.DesingMode())
             {
                 Program.data.OnLog +=
-                    delegate(object s, EventsThreads.ThreadStringEventArgs ev)
+                    delegate (object s, EventsThreads.ThreadStringEventArgs ev)
                     {
                         Program.LogThis(new Log(Log.ModuleType.DNS, ev.Message, Log.LogType.debug));
                     };
@@ -81,11 +81,11 @@ namespace FOCA
         /// <param name="e"></param>
         private void checkedButton_Click(object sender, EventArgs e)
         {
-            panelWebSearcher.Visible          = sender == checkedButtonWebSearcher;
+            panelWebSearcher.Visible = sender == checkedButtonWebSearcher;
             panelDNSSearchInformation.Visible = sender == checkedButtonDNSSearch;
-            panelTryTransferZone.Visible      = sender == checkedButtonTransferZone;
-            panelTryCommonNames.Visible       = sender == checkedButtonNamesSearch;
-            panelSearchIPBing.Visible         = sender == checkedButtonIPBing;
+            panelTryTransferZone.Visible = sender == checkedButtonTransferZone;
+            panelTryCommonNames.Visible = sender == checkedButtonNamesSearch;
+            panelSearchIPBing.Visible = sender == checkedButtonIPBing;
         }
 
         /// <summary>
@@ -121,7 +121,7 @@ namespace FOCA
                 else if (rbWSBing.Checked)
                 {
                     searchEngine = PanelWebSearcherInformation.Engine.BingAPI;
-                    if (string.IsNullOrEmpty(Program.cfgCurrent.DuckDuckKey))
+                    if (string.IsNullOrEmpty(Program.cfgCurrent.BingApiKey))
                     {
                         var result = MessageBox.Show(
                             @"Before searching with Bing's API you must set up a Bing API Key. You can do it in 'Options > General Config', do you continue with Web option?", "", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
@@ -144,13 +144,13 @@ namespace FOCA
                         if (result == DialogResult.No)
                             return;
                     }
-                    
+
                 }
 
-                bSearchShodan       = cbShodan.Checked;
-                bSearchCommonNames  = cbDictionarySearch.Checked;
+                bSearchShodan = cbShodan.Checked;
+                bSearchCommonNames = cbDictionarySearch.Checked;
                 CommonNamesFileName = textBoxCommonNames.Text;
-                bSearchIPBing       = cbIpBing.Checked;
+                bSearchIPBing = cbIpBing.Checked;
 
                 MaxRecursion = Program.cfgCurrent.MaxRecursion;
                 thrSearch = new Thread(Search)
@@ -376,9 +376,9 @@ namespace FOCA
             {
                 googleSearcher = new GoogleWebSearcher
                 {
-                    SearchAll       = true,
-                    cSafeSearch     = GoogleWebSearcher.SafeSearch.off,
-                    FirstSeen       = GoogleWebSearcher.FirstSeenGoogle.AnyTime,
+                    SearchAll = true,
+                    cSafeSearch = GoogleWebSearcher.SafeSearch.off,
+                    FirstSeen = GoogleWebSearcher.FirstSeenGoogle.AnyTime,
                     LocatedInRegion = GoogleWebSearcher.Region.AnyRegion,
                     WriteInLanguage = GoogleWebSearcher.Language.AnyLanguage
                 };
@@ -386,9 +386,9 @@ namespace FOCA
                 var currentResults = new List<string>();
 
                 googleSearcher.SearcherLinkFoundEvent +=
-                    delegate(object sender, EventsThreads.ThreadListDataFoundEventArgs e)
+                    delegate (object sender, EventsThreads.ThreadListDataFoundEventArgs e)
                     {
-                        var searcher = (GoogleWebSearcher) sender;
+                        var searcher = (GoogleWebSearcher)sender;
                         foreach (var item in e.Data)
                         {
                             if (CheckToSkip())
@@ -397,7 +397,7 @@ namespace FOCA
                             {
                                 if (item == null)
                                     continue;
-                                var url = new Uri((string) item);
+                                var url = new Uri((string)item);
                                 var strHost = url.Host;
                                 if (
                                     currentResults.All(
@@ -419,7 +419,7 @@ namespace FOCA
                 googleSearcher.SearcherLogEvent += WebSearcherLogEvent;
                 var endReason = EventsThreads.ThreadEndEventArgs.EndReasonEnum.ErrorFound;
                 googleSearcher.SearcherEndEvent +=
-                    delegate(object o, EventsThreads.ThreadEndEventArgs e) { endReason = e.EndReason; };
+                    delegate (object o, EventsThreads.ThreadEndEventArgs e) { endReason = e.EndReason; };
                 var strSearchString = $"site:{strDomain}";
                 int resultsNumber;
                 do
@@ -461,9 +461,9 @@ namespace FOCA
 
                 var currentResults = new List<string>();
                 googleApiSearcher.SearcherLinkFoundEvent +=
-                    delegate(object sender, EventsThreads.ThreadListDataFoundEventArgs e)
+                    delegate (object sender, EventsThreads.ThreadListDataFoundEventArgs e)
                     {
-                        var searcher = (GoogleAPISearcher) sender;
+                        var searcher = (GoogleAPISearcher)sender;
 
                         foreach (var item in e.Data)
                         {
@@ -472,7 +472,7 @@ namespace FOCA
 
                             try
                             {
-                                var gr = (GoogleAPISearcher.GoogleAPIResults) item;
+                                var gr = (GoogleAPISearcher.GoogleAPIResults)item;
                                 var url = new Uri(gr.Url);
                                 var strHost = url.Host;
                                 if (
@@ -493,7 +493,7 @@ namespace FOCA
                 googleApiSearcher.SearcherLogEvent += WebSearcherLogEvent;
                 var endReason = EventsThreads.ThreadEndEventArgs.EndReasonEnum.ErrorFound;
                 googleApiSearcher.SearcherEndEvent +=
-                    delegate(object o, EventsThreads.ThreadEndEventArgs e) { endReason = e.EndReason; };
+                    delegate (object o, EventsThreads.ThreadEndEventArgs e) { endReason = e.EndReason; };
                 var strSearchString = $"site:{strDomain}";
                 int resultsNumber;
                 do
@@ -531,9 +531,9 @@ namespace FOCA
 
                 var currentResults = new List<string>();
                 duckSearcher.SearcherLinkFoundEvent +=
-                    delegate(object sender, EventsThreads.ThreadListDataFoundEventArgs e)
+                    delegate (object sender, EventsThreads.ThreadListDataFoundEventArgs e)
                     {
-                        var searcher = (DuckduckgoWebSearcher) sender;
+                        var searcher = (DuckduckgoWebSearcher)sender;
                         foreach (var item in e.Data)
                         {
                             if (CheckToSkip())
@@ -607,9 +607,9 @@ namespace FOCA
 
                 var currentResults = new List<string>();
                 bingSearcher.SearcherLinkFoundEvent +=
-                    delegate(object sender, EventsThreads.ThreadListDataFoundEventArgs e)
+                    delegate (object sender, EventsThreads.ThreadListDataFoundEventArgs e)
                     {
-                        var searcher = (BingWebSearcher) sender;
+                        var searcher = (BingWebSearcher)sender;
 
                         foreach (var item in e.Data)
                         {
@@ -618,7 +618,7 @@ namespace FOCA
 
                             try
                             {
-                                var url = new Uri((string) item);
+                                var url = new Uri((string)item);
                                 var strHost = url.Host;
                                 if (
                                     currentResults.All(
@@ -639,7 +639,7 @@ namespace FOCA
                 bingSearcher.SearcherLogEvent += WebSearcherLogEvent;
                 var endReason = EventsThreads.ThreadEndEventArgs.EndReasonEnum.ErrorFound;
                 bingSearcher.SearcherEndEvent +=
-                    delegate(object o, EventsThreads.ThreadEndEventArgs e) { endReason = e.EndReason; };
+                    delegate (object o, EventsThreads.ThreadEndEventArgs e) { endReason = e.EndReason; };
                 var strSearchString = $"site:{strDomain}";
                 int nroResultados;
                 do
@@ -676,9 +676,9 @@ namespace FOCA
 
                 var currentResults = new List<string>();
                 bingSearcherApi.SearcherLinkFoundEvent +=
-                    delegate(object sender, EventsThreads.ThreadListDataFoundEventArgs e)
+                    delegate (object sender, EventsThreads.ThreadListDataFoundEventArgs e)
                     {
-                        var searcher = (BingAPISearcher) sender;
+                        var searcher = (BingAPISearcher)sender;
 
                         foreach (var item in e.Data)
                         {
@@ -687,7 +687,7 @@ namespace FOCA
 
                             try
                             {
-                                var br = (BingApiResult) item;
+                                var br = (BingApiResult)item;
                                 var url = new Uri(br.Url);
                                 var strHost = url.Host;
                                 if (
@@ -708,7 +708,7 @@ namespace FOCA
                 bingSearcherApi.SearcherLogEvent += WebSearcherLogEvent;
                 var endReason = EventsThreads.ThreadEndEventArgs.EndReasonEnum.ErrorFound;
                 bingSearcherApi.SearcherEndEvent +=
-                    delegate(object o, EventsThreads.ThreadEndEventArgs e) { endReason = e.EndReason; };
+                    delegate (object o, EventsThreads.ThreadEndEventArgs e) { endReason = e.EndReason; };
                 var strSearchString = $"site:{strDomain}";
                 int nroResultados;
                 do
@@ -796,7 +796,7 @@ namespace FOCA
                     if (Program.cfgCurrent.ParallelDnsQueries != 0)
                         po.MaxDegreeOfParallelism = Program.cfgCurrent.ParallelDnsQueries;
 
-                    Parallel.ForEach(op, po, delegate(string name)
+                    Parallel.ForEach(op, po, delegate (string name)
                     {
                         if (CheckToSkip())
                             return;
@@ -893,19 +893,19 @@ namespace FOCA
         private void SerchLinkApiBingEvent(string ip, BingAPISearcher bingSearcherApi, List<string> currentResults)
         {
             bingSearcherApi.SearcherLinkFoundEvent +=
-                delegate(object sender, EventsThreads.ThreadListDataFoundEventArgs e)
+                delegate (object sender, EventsThreads.ThreadListDataFoundEventArgs e)
                 {
                     var op = Partitioner.Create(e.Data);
                     var po = new ParallelOptions();
                     if (Program.cfgCurrent.ParallelDnsQueries != 0)
                         po.MaxDegreeOfParallelism = Program.cfgCurrent.ParallelDnsQueries;
-                    Parallel.ForEach(op, po, delegate(object item, ParallelLoopState loopState)
+                    Parallel.ForEach(op, po, delegate (object item, ParallelLoopState loopState)
                     {
                         if (CheckToSkip())
                             loopState.Stop();
                         try
                         {
-                            var br = (BingApiResult) item;
+                            var br = (BingApiResult)item;
                             var url = new Uri(br.Url);
                             if (
                                 currentResults.Any(d => string.Equals(d, url.Host, StringComparison.CurrentCultureIgnoreCase)))
@@ -939,19 +939,19 @@ namespace FOCA
         private void SerchLinkWebBingEvent(string ip, BingWebSearcher bingSearcher, List<string> currentResults)
         {
             bingSearcher.SearcherLinkFoundEvent +=
-                delegate(object sender, EventsThreads.ThreadListDataFoundEventArgs e)
+                delegate (object sender, EventsThreads.ThreadListDataFoundEventArgs e)
                 {
                     var op = Partitioner.Create(e.Data);
                     var po = new ParallelOptions();
                     if (Program.cfgCurrent.ParallelDnsQueries != 0)
                         po.MaxDegreeOfParallelism = Program.cfgCurrent.ParallelDnsQueries;
-                    Parallel.ForEach(op, po, delegate(object item, ParallelLoopState loopState)
+                    Parallel.ForEach(op, po, delegate (object item, ParallelLoopState loopState)
                     {
                         if (CheckToSkip())
                             loopState.Stop();
                         try
                         {
-                            var url = new Uri((string) item);
+                            var url = new Uri((string)item);
                             if (currentResults.Any(d => d.ToLower() == url.Host.ToLower())) return;
                             currentResults.Add(url.Host);
 
@@ -1012,7 +1012,7 @@ namespace FOCA
             var ranges = new ModifiedComponents.ThreadSafeList<string>();
             var ips = Program.data.GetIPs().Select(x => x.Remove(x.LastIndexOf('.') + 1)).Distinct().ToList();
 
-            ips.ForEach(x=> ranges.Add(x));
+            ips.ForEach(x => ranges.Add(x));
 
             var lstIpsInRanges = new ModifiedComponents.ThreadSafeList<string>();
 
@@ -1111,8 +1111,8 @@ namespace FOCA
         private void DisableSkip(string text)
         {
             CheckForIllegalCrossThreadCalls = false;
-            btSkip.Enabled                  = false;
-            btSkip.Text                     = text;
+            btSkip.Enabled = false;
+            btSkip.Text = text;
             CheckForIllegalCrossThreadCalls = true;
         }
 
@@ -1123,26 +1123,26 @@ namespace FOCA
         private void EnableSkip(string text)
         {
             CheckForIllegalCrossThreadCalls = false;
-            bSkipToNextSearch               = false;
-            btSkip.Enabled                  = true;
-            btSkip.Text                     = text;
+            bSkipToNextSearch = false;
+            btSkip.Enabled = true;
+            btSkip.Text = text;
             CheckForIllegalCrossThreadCalls = true;
         }
 
         private void btSkip_Click(object sender, EventArgs e)
         {
             bSkipToNextSearch = true;
-            btSkip.Enabled    = false;
+            btSkip.Enabled = false;
         }
 
         private void MouseOver(object sender, MouseEventArgs e)
         {
-            panelWebSearcher.Visible          = sender == checkedButtonWebSearcher;
+            panelWebSearcher.Visible = sender == checkedButtonWebSearcher;
             panelDNSSearchInformation.Visible = sender == checkedButtonDNSSearch;
-            panelTryTransferZone.Visible      = sender == checkedButtonTransferZone;
-            panelTryCommonNames.Visible       = sender == checkedButtonNamesSearch;
-            panelSearchIPBing.Visible         = sender == checkedButtonIPBing;
-            panelShodan.Visible               = sender == checkedButtonShodan;
+            panelTryTransferZone.Visible = sender == checkedButtonTransferZone;
+            panelTryCommonNames.Visible = sender == checkedButtonNamesSearch;
+            panelSearchIPBing.Visible = sender == checkedButtonIPBing;
+            panelShodan.Visible = sender == checkedButtonShodan;
         }
 
         /// <summary>

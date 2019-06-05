@@ -1,43 +1,58 @@
+using FOCA.Threads;
+using HtmlAgilityPack;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading;
-using HtmlAgilityPack;
-using FOCA.Threads;
 
 namespace FOCA.Searcher
 {
     public class DuckduckgoWebSearcher : WebSearcher
     {
-        private string userAgent = "Mozilla/5.0 (Linux; U; Android 4.1.1; en-gb; Build/KLP) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Safari/534.30";
-        private string postParams = string.Empty; 
-        private List<string> results; 
-        private string[] supportedFileTypes = new string[] { "html", "htm", "pdf", "txt", "doc", "docx", "xls", "xlsx", "ppt", "pptx" };
+        private const int MAX_PAGES = 3;
+        private const string userAgent = "Mozilla/5.0 (Linux; U; Android 4.1.1; en-gb; Build/KLP) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Safari/534.30";
+        private static readonly string[] supportedFileTypes = new string[] { "pdf", "txt", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "rdp", "ica", "html", "htm" };
 
         public DuckduckgoWebSearcher()
         {
-            strName = "DuckduckgoWeb";
+            strName = "DuckDuckGoWeb";
         }
 
-
-        public int Query(string searchTerms)
+        private HashSet<string> Query(string searchTerms)
         {
-            var response = SendInitialRequest(searchTerms);
-            
-            results = ParseResponse(response);
+            HashSet<string> results = null;
             try
             {
-                GetPostData(response);
-                response = MoreResults(searchTerms, postParams);
-                results.AddRange(ParseResponse(response));
+
+
+                string response = SendInitialRequest(searchTerms);
+                results = ParseResponse(response);
+                HashSet<string> pageResults = null;
+                int currentPage = 0;
+                do
+                {
+                    string requestParams = GetPostData(response);
+                    response = MoreResults(searchTerms, requestParams);
+                    pageResults = ParseResponse(response);
+                    results.UnionWith(pageResults);
+                    currentPage++;
+                } while (pageResults != null && pageResults.Count > 0 && currentPage < MAX_PAGES);
             }
-            catch (Exception)
+            catch (WebException e)
             {
-                OnSearcherEndEvent(new EventsThreads.ThreadEndEventArgs(EventsThreads.ThreadEndEventArgs.EndReasonEnum.ErrorFound));
+                if (e.Response is HttpWebResponse && ((HttpWebResponse)e.Response).StatusCode == HttpStatusCode.Forbidden)
+                {
+                    OnSearcherEndEvent(new EventsThreads.ThreadEndEventArgs(EventsThreads.ThreadEndEventArgs.EndReasonEnum.LimitReached));
+                    return new HashSet<string>();
+                }
+                else
+                {
+                    throw;
+                }
             }
-            return results.Count;
+            return results;
         }
 
         /// <summary>
@@ -49,18 +64,11 @@ namespace FOCA.Searcher
         {
             var responseText = string.Empty;
 
-            try
-            {
-                var request = (HttpWebRequest)WebRequest.Create(string.Format("https://duckduckgo.com/html/?q={0}&t=h_", System.Web.HttpUtility.UrlEncode(searchString)));
-                request.UserAgent = userAgent;
-                request.Referer = "https://duckduckgo.com/";
-                var response = (HttpWebResponse)request.GetResponse();
-                responseText = new System.IO.StreamReader(response.GetResponseStream()).ReadToEnd();
-            } catch (Exception ex)
-            {
-                OnSearcherEndEvent(new EventsThreads.ThreadEndEventArgs(EventsThreads.ThreadEndEventArgs.EndReasonEnum.ErrorFound));
-                throw ex;
-            }
+            var request = (HttpWebRequest)WebRequest.Create(string.Format("https://duckduckgo.com/html/?q={0}&t=h_", System.Web.HttpUtility.UrlEncode(searchString)));
+            request.UserAgent = userAgent;
+            request.Referer = "https://duckduckgo.com/";
+            var response = (HttpWebResponse)request.GetResponse();
+            responseText = new System.IO.StreamReader(response.GetResponseStream()).ReadToEnd();
             return responseText;
         }
 
@@ -72,49 +80,46 @@ namespace FOCA.Searcher
         /// <returns></returns>
         private string MoreResults(string searchString, string postParameters)
         {
-            var responseString = string.Empty;
-            var request = (HttpWebRequest)WebRequest.Create(string.Format("https://duckduckgo.com/html/?q={0}&t=h_", System.Web.HttpUtility.UrlEncode(searchString)));
+            string responseString = String.Empty;
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(string.Format("https://duckduckgo.com/html/?q={0}&t=h_", System.Web.HttpUtility.UrlEncode(searchString)));
             request.Method = "POST";
             request.Headers.Add("Origin: https://duckduckgo.com");
-            request.Referer = "https://duckduckgo.com/";    
+            request.Referer = "https://duckduckgo.com/";
             request.ContentType = "application/x-www-form-urlencoded";
             request.UserAgent = userAgent;
             request.ContentLength = postParameters.Length;
             request.Headers.Add("Cache-Control: max-age=0");
             request.Headers.Add("Upgrade-Insecure-Requests: 1");
-            
-            var data = Encoding.ASCII.GetBytes(postParameters);
-            try
+            byte[] data = Encoding.ASCII.GetBytes(postParameters);
+            using (var stream = request.GetRequestStream())
             {
-                using (var stream = request.GetRequestStream())
-                {
-                    stream.Write(data, 0, data.Length);
-                }
-                var response = (HttpWebResponse)request.GetResponse();
-                responseString = new System.IO.StreamReader(response.GetResponseStream()).ReadToEnd();
-            } catch
-            {
-                OnSearcherEndEvent(new EventsThreads.ThreadEndEventArgs(EventsThreads.ThreadEndEventArgs.EndReasonEnum.ErrorFound));
+                stream.Write(data, 0, data.Length);
             }
+
+            using (var response = (HttpWebResponse)request.GetResponse())
+            {
+                responseString = new System.IO.StreamReader(response.GetResponseStream()).ReadToEnd();
+            }
+
             return responseString;
         }
 
-       
+
         /// <summary>
         /// Parse Response.
         /// </summary>
         /// <param name="response"></param>
         /// <returns></returns>
-        private List<string> ParseResponse(string response)
+        private HashSet<string> ParseResponse(string response)
         {
-            var res = new List<string>();
-            var doc = new HtmlDocument();
+            HashSet<string> res = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            HtmlDocument doc = new HtmlDocument();
             doc.LoadHtml(response);
 
             var links = doc.DocumentNode.SelectNodes(string.Format("//a[contains(@class,'{0}')]", "result__a"));
             if (links == null) return res;
 
-            res.AddRange(links.Select(link => link.Attributes["href"].Value.Split(new string[] {"uddg="}, StringSplitOptions.None)).Select(parts => Uri.UnescapeDataString(parts[parts.Length - 1])));
+            res.UnionWith(links.Select(link => link.Attributes["href"].Value.Split(new string[] { "uddg=" }, StringSplitOptions.None)).Select(parts => Uri.UnescapeDataString(parts[parts.Length - 1])));
             return res;
         }
 
@@ -122,12 +127,13 @@ namespace FOCA.Searcher
         /// Get post data.
         /// </summary>
         /// <param name="response"></param>
-        private void GetPostData(string response)
+        private string GetPostData(string response)
         {
-            var doc = new HtmlDocument();
+            string postParams = String.Empty;
+            HtmlDocument doc = new HtmlDocument();
             doc.LoadHtml(response);
 
-            var inputs = doc.DocumentNode.SelectNodes(string.Format("//input[@type={0}]", "\"hidden\""));
+            var inputs = doc.DocumentNode.SelectNodes("//input[@type=\"hidden\"]");
             foreach (var f in inputs)
             {
                 var value = f.Attributes["value"].Value;
@@ -135,6 +141,35 @@ namespace FOCA.Searcher
                 postParams += f.Attributes["name"].Value + "=" + value + "&";
             }
             postParams.Remove(postParams.Length - 1);
+            return postParams;
+        }
+
+        private void GetCustomLinksAsync(object customSearchString)
+        {
+            OnSearcherStartEvent(null);
+            try
+            {
+                SearchAndReport((string)customSearchString);
+                OnSearcherEndEvent(new EventsThreads.ThreadEndEventArgs(EventsThreads.ThreadEndEventArgs.EndReasonEnum.NoMoreData));
+            }
+            catch (ThreadAbortException)
+            {
+                OnSearcherEndEvent(new EventsThreads.ThreadEndEventArgs(EventsThreads.ThreadEndEventArgs.EndReasonEnum.Stopped));
+            }
+            catch
+            {
+                OnSearcherEndEvent(new EventsThreads.ThreadEndEventArgs(EventsThreads.ThreadEndEventArgs.EndReasonEnum.ErrorFound));
+            }
+        }
+
+        private void SearchAndReport(string searchValue)
+        {
+            OnSearcherChangeStateEvent(new EventsThreads.ThreadStringEventArgs($"Searching links in {this.Name} using '{searchValue}' ...."));
+            HashSet<string> results = Query(searchValue);
+            List<object> lstCurrentResults = results.Cast<object>().ToList();
+
+            OnSearcherLogEvent(new EventsThreads.ThreadStringEventArgs(String.Format("[{0}] Found {1} links", strName, lstCurrentResults.Count)));
+            OnSearcherLinkFoundEvent(new EventsThreads.ThreadListDataFoundEventArgs(lstCurrentResults));
         }
 
         /// <summary>
@@ -143,54 +178,14 @@ namespace FOCA.Searcher
         /// <param name="customSearchString"></param>
         public override void GetCustomLinks(string customSearchString)
         {
-            
-            OnSearcherStartEvent(null);
-            OnSearcherChangeStateEvent(new EventsThreads.ThreadStringEventArgs("Searching links in " + Name + "..."));
-            string valueQuery = string.Empty;
-            var completeQuery = customSearchString.Replace("site:","site=");
-            int count = 0;
-            string endQuery = string.Empty;
+            if (thrSearchLinks != null && thrSearchLinks.IsAlive) return;
 
-            foreach (var ext in Extensions)
+            thrSearchLinks = new Thread(GetCustomLinksAsync)
             {
-                if (count == 0 && supportedFileTypes.Contains(ext.ToLower()))
-                {
-                    count++;
-                    valueQuery += "filetype:(" + ext + "+OR+";
-                }
-                else if (supportedFileTypes.Contains(ext.ToLower()))
-                    valueQuery += ext + "+OR+";
-
-            }
-            if (valueQuery.Length > 0)
-            {
-                endQuery = valueQuery.Remove(valueQuery.Length - 4);
-                endQuery += ")" + completeQuery;
-                GetDuckduckgoResults(endQuery);
-            }
-            else
-                GetDuckduckgoResults(completeQuery);
-           
-            OnSearcherEndEvent(new EventsThreads.ThreadEndEventArgs(EventsThreads.ThreadEndEventArgs.EndReasonEnum.NoMoreData));
-        }
-
-        /// <summary>
-        /// Get Duck go results.
-        /// </summary>
-        /// <param name="searchTerms"></param>
-        /// <returns></returns>
-        private int GetDuckduckgoResults(string searchTerms)
-        {
-            OnSearcherChangeStateEvent(new EventsThreads.ThreadStringEventArgs("Search in " + Name));
-            Query(searchTerms);
-            var lstCurrentResults = new List<object>();
-            lstCurrentResults = results.Cast<object>().ToList();
-
-            OnSearcherLogEvent(new EventsThreads.ThreadStringEventArgs(String.Format("[{0}] Found {1} links", strName, lstCurrentResults.Count)));
-            OnSearcherLinkFoundEvent(new EventsThreads.ThreadListDataFoundEventArgs(lstCurrentResults));
-            OnSearcherEndEvent(new EventsThreads.ThreadEndEventArgs(EventsThreads.ThreadEndEventArgs.EndReasonEnum.NoMoreData));
-
-            return lstCurrentResults.Count;
+                Priority = ThreadPriority.Lowest,
+                IsBackground = true
+            };
+            thrSearchLinks.Start(customSearchString);
         }
 
         /// <summary>
@@ -202,7 +197,7 @@ namespace FOCA.Searcher
 
             thrSearchLinks = new Thread(GetLinksAsync)
             {
-                Priority     = ThreadPriority.Lowest,
+                Priority = ThreadPriority.Lowest,
                 IsBackground = true
             };
             thrSearchLinks.Start();
@@ -223,13 +218,13 @@ namespace FOCA.Searcher
                     switch (strExtension.ToLower())
                     {
                         case "ica":
-                            GetCustomLinks("site:" + Site + " f:txt \"initialprogram\"");
+                            SearchAndReport("site:" + Site + " filetype:txt \"initialprogram\"");
                             break;
                         case "rdp":
-                            GetCustomLinks("site:" + Site + " f:txt \"full address:s:\"");
+                            SearchAndReport("site:" + Site + " filetype:txt \"full address:s:\"");
                             break;
                         default:
-                            GetCustomLinks("site:" + Site);
+                            SearchAndReport("site:" + Site + " filetype:" + strExtension);
                             break;
                     }
                 }

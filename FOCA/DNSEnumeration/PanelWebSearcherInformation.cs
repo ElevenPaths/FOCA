@@ -15,7 +15,6 @@ namespace FOCA
             GoogleAPI,
             BingWeb,
             BingAPI,
-            DuckDuckApi,
             DuckDuckWeb
         }
 
@@ -49,7 +48,7 @@ namespace FOCA
         private void FillComboboxEngine()
         {
             cboEngine.Items.Clear();
-            foreach (Engine e in Enum.GetValues(typeof (Engine)))
+            foreach (Engine e in Enum.GetValues(typeof(Engine)))
                 cboEngine.Items.Add(EngineToString(e));
         }
 
@@ -84,36 +83,7 @@ namespace FOCA
 
         public static string EngineToString(Engine e)
         {
-            switch (e)
-            {
-                case Engine.GoogleWeb:
-                    return "GoogleWeb";
-                case Engine.GoogleAPI:
-                    return "GoogleAPI";
-                case Engine.BingWeb:
-                    return "BingWeb";
-                case Engine.BingAPI:
-                    return "BingAPI";
-                default:
-                    return string.Empty;
-            }
-        }
-
-        public static Engine StringToEngine(string s)
-        {
-            switch (s)
-            {
-                case "GoogleWeb":
-                    return Engine.GoogleWeb;
-                case "GoogleAPI":
-                    return Engine.GoogleAPI;
-                case "BingWeb":
-                    return Engine.BingWeb;
-                case "BingAPI":
-                    return Engine.BingAPI;
-                default:
-                    return Engine.GoogleWeb;
-            }
+            return e.ToString();
         }
     }
 }
