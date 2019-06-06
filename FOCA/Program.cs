@@ -1,15 +1,17 @@
+using com.rusanu.dataconnectiondialog;
+using FOCA.Controllers;
 using System;
-using System.Diagnostics;
+using System.Configuration;
+using System.Data.SqlClient;
 using System.Windows.Forms;
-using System.IO;
-using System.ServiceProcess;
-using System.Threading;
 
 namespace FOCA
 {
     static class Program
     {
         private static bool Running;
+        private const string FocaDatabaseName = "Foca";
+        private const string SQLExpressConnectionString = @"Server=.\SQLEXPRESS;Initial Catalog=" + FocaDatabaseName + ";MultipleActiveResultSets=True;Integrated Security=true;Connection Timeout=3";
         public static string ProgramVersion = Application.ProductVersion.Remove(3);
         public static string ProgramName = Application.ProductName + " " + ProgramVersion;
 
@@ -19,9 +21,8 @@ namespace FOCA
 
         public static FormMain FormMainInstance;
         public static FormOptions FormOptionsInstance;
-        private readonly static string strPathErrorLog = Path.GetDirectoryName(Application.ExecutablePath) + "\\errorlog.txt";
 
-        public static bool DesingMode()
+        public static bool DesignMode()
         {
             return !Running;
         }
@@ -36,115 +37,92 @@ namespace FOCA
             FormMainInstance.ChangeStatus(newStatus);
         }
 
-        private static void InitializeErrorLog()
-        {
-            File.Delete(strPathErrorLog);
-        }
-
-        public static void WriteErrorInLog(string strMessage)
-        {
-            try
-            {
-                using (var sw = new StreamWriter(strPathErrorLog, true))
-                {
-                    sw.WriteLine("Exception: " + strMessage);
-                }
-            }
-            catch (Exception)
-            {
-            }
-        }
-
-        /// <summary>
-        /// Validate Service Sql.
-        /// </summary>
-        /// <returns></returns>
-        public static bool IsSQLServerRunning()
-        {
-            try
-            {
-                var process = Process.GetProcessesByName("sqlservr");
-                if (process.Length == 0) return false;
-
-                //Validate Sql Express
-                var serviceController = new ServiceController("MSSQL$SQLEXPRESS", Environment.MachineName);
-
-                if (serviceController.DisplayName != null)
-                    return serviceController.Status != ServiceControllerStatus.Stopped;
-
-                //Validate Sql Server
-                serviceController = new ServiceController("MSSQLServer", Environment.MachineName);
-
-                return serviceController.Status != ServiceControllerStatus.Stopped;
-            }
-            catch (InvalidOperationException e)
-            {
-                //Throwed if you are not running an MSSQL EXPRESS instance on the local machine
-                return false;
-            }
-        }
-
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
         static void Main()
         {
-            Process.GetCurrentProcess().PriorityBoostEnabled = true;
             Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
 
-            var fsf = new FormSplashFOCA("Open Source");
-            var t = new Thread(new ThreadStart(delegate
-            {
-                Application.Run(fsf);
-            }));
-            t.Start();
-
+            FormSplashFOCA splashScreen = new FormSplashFOCA("Open Source");
+            splashScreen.Show();
+            Application.DoEvents();
             //Load the FOCA
             Running = true;
 
-            if (!IsSQLServerRunning())
+            SqlConnectionStringBuilder connectionStringBuilder = null;
+            bool csUpdated = false;
+
+            try
             {
-                var f = MessageBox.Show(
-                    "A SQL server must be installed and running. We recommend you to use SQL Server Express Edition",
-                    "Missing SQL Server", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                if (f == DialogResult.OK)
+                ConnectionStringSettings csFromConfig = ConfigurationManager.ConnectionStrings[nameof(FocaContextDb)];
+                //If there is no connection string configured, try with SQLEXPRESS instance
+                if (csFromConfig == null || String.IsNullOrEmpty(csFromConfig.ConnectionString))
                 {
-                    try
-                    {
-                        Process.Start("https://www.microsoft.com/en-us/sql-server/sql-server-editions-express");
-                    }
-                    catch (Exception)
-                    {
-                    }
-                    Environment.Exit(0);
+                    connectionStringBuilder = new SqlConnectionStringBuilder(SQLExpressConnectionString);
+                    csUpdated = true;
                 }
+                else
+                {
+                    connectionStringBuilder = new SqlConnectionStringBuilder(csFromConfig.ConnectionString);
+                    if (String.IsNullOrWhiteSpace(connectionStringBuilder.InitialCatalog))
+                    {
+                        connectionStringBuilder.InitialCatalog = FocaDatabaseName;
+                    }
+                }
+            }
+            catch (ArgumentException)
+            {
+                csUpdated = true;
+                connectionStringBuilder = new SqlConnectionStringBuilder(SQLExpressConnectionString);
+            }
+
+            while (!FocaContextDb.IsDatabaseAvailable(connectionStringBuilder.ToString()))
+            {
+                MessageBox.Show("FOCA needs a SQL database. Please setup your connection and try again.", "Database not found", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                // Display the connection dialog
+                using (DataConnectionDialog dlg = new DataConnectionDialog(connectionStringBuilder))
+                {
+                    if (DialogResult.OK != dlg.ShowDialog(splashScreen))
+                    {
+                        Environment.Exit(0);
+                    }
+                }
+                csUpdated = true;
+            }
+
+            if (csUpdated)
+            {
+                UpdateConnectionString(connectionStringBuilder.ToString());
             }
 
             data = new Data();
-            InitializeErrorLog();
             FormMainInstance = new FormMain();
             FormOptionsInstance = new FormOptions();
 
-            var canStart = false;
-            do
-            {
-                try
-                {
-                    fsf.Invoke(new MethodInvoker(delegate
-                    {
-                        fsf.Close();
-                        canStart = true;
-                    }));
-                }
-                catch
-                {
-                    Thread.Sleep(900);
-                    canStart = false;
-                }
-            } while (canStart == false);
+            splashScreen.Close();
+            splashScreen.Dispose();
 
             Application.Run(FormMainInstance);
+        }
+
+        private static void UpdateConnectionString(string connectionString)
+        {
+            try
+            {
+                System.Configuration.Configuration configFile = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+                configFile.ConnectionStrings.ConnectionStrings.Clear();
+                configFile.ConnectionStrings.ConnectionStrings.Add(new ConnectionStringSettings(nameof(FocaContextDb), connectionString, "System.Data.SQLCLient"));
+                configFile.Save(ConfigurationSaveMode.Modified);
+                ConfigurationManager.RefreshSection(configFile.ConnectionStrings.SectionInformation.Name);
+            }
+            catch (ConfigurationErrorsException)
+            {
+                MessageBox.Show("The database connection string could not be saved to the config file.", "Unsaved connection string", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
         }
     }
 }

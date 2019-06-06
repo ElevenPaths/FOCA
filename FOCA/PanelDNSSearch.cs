@@ -56,7 +56,7 @@ namespace FOCA
         /// <param name="e"></param>
         private void PanelDNSSearch_Load(object sender, EventArgs e)
         {
-            if (Program.DesingMode()) return;
+            if (Program.DesignMode()) return;
             Resolve = new Resolver
             {
                 TimeOut = 1000,
@@ -64,7 +64,7 @@ namespace FOCA
             };
 
             Program.data.SetResolver(Resolve);
-            if (!Program.DesingMode())
+            if (!Program.DesignMode())
             {
                 Program.data.OnLog +=
                     delegate (object s, EventsThreads.ThreadStringEventArgs ev)
