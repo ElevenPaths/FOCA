@@ -96,6 +96,7 @@ namespace FOCA
             this.Name = "FormSplashFOCA";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "FOCA Loading...";
+            this.TopMost = true;
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picFOCA)).EndInit();

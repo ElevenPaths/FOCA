@@ -113,7 +113,7 @@ namespace FOCA
 
             try
             {
-                if (Program.DesingMode())
+                if (Program.DesignMode())
                     return;
 
 #if PLUGINS
