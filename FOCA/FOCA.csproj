@@ -1,14 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <!--
-    The location where Dotfuscator is installed.
-    -->
-    <DotfuscatorBinPath>$(DevEnvDir)..\..\Application\PreEmptive Solutions\Dotfuscator Community Edition\dotfuscator.exe</DotfuscatorBinPath>
-    <!--
-    The location of your Dotfuscator configuration file.
-     -->
-    <ConfigPath>"$(ProjectDir)foca_dotfuscator.xml"</ConfigPath>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>9.0.21022</ProductVersion>
@@ -29,14 +21,14 @@
     <ManifestCertificateThumbprint>DAD76C8149967FFEFB23DDCD9674B80CD215ED4E</ManifestCertificateThumbprint>
     <ManifestKeyFile>
     </ManifestKeyFile>
-    <GenerateManifests>true</GenerateManifests>
+    <GenerateManifests>false</GenerateManifests>
     <TargetZone>LocalIntranet</TargetZone>
     <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
     <SignManifests>false</SignManifests>
     <RunPostBuildEvent>Always</RunPostBuildEvent>
     <StartupObject>FOCA.Program</StartupObject>
     <ManifestTimestampUrl>http://timestamp.verisign.com/scripts/timestamp.dll</ManifestTimestampUrl>
-    <SignAssembly>true</SignAssembly>
+    <SignAssembly>false</SignAssembly>
     <AssemblyOriginatorKeyFile>
     </AssemblyOriginatorKeyFile>
     <DelaySign>false</DelaySign>
@@ -46,7 +38,7 @@
     </UpgradeBackupLocation>
     <OldToolsVersion>3.5</OldToolsVersion>
     <TargetFrameworkProfile />
-    <PublishUrl>C:\Users\Alekusu\Desktop\Foca Free\</PublishUrl>
+    <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
     <UpdateEnabled>false</UpdateEnabled>
@@ -65,14 +57,14 @@
     <ApplicationVersion>2.6.0.0</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
-    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <BootstrapperEnabled>false</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>PRO, BackUps, PLUGINS, leaks</DefineConstants>
+    <DefineConstants>DEBUG;PRO, BackUps, PLUGINS, leaks</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
@@ -523,7 +515,6 @@
       <SubType>Designer</SubType>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="FOCA_Pro.nrproj" />
     <Content Include="Icons\bing.png" />
     <Content Include="Icons\chart_organisation.png" />
     <Content Include="Icons\Logo_interfaz.ico" />
@@ -536,15 +527,6 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-    </Compile>
     <Compile Include="SubdomainSearcher\DNSUtilities.cs" />
     <Compile Include="TaskManager\Tasker.cs" />
     <Compile Include="Win7Integration\CoreErrorHelper.cs" />
@@ -905,9 +887,4 @@
   </Target>
   <Target Name="BeforeRebuild">
   </Target>
-  <ProjectExtensions>
-    <VisualStudio>
-      <UserProperties Reactor_Enabled="1" Reactor_Commands="" Reactor_Project="C:\Users\Alekusu\Documents\Visual Studio 2008\Projects\FOCANormal\FOCA\FOCA.nrproj" Reactor_Configuration="Release Pro" Reactor_Output="&lt;AssemblyLocation&gt;\&lt;AssemblyName&gt;_Secure\&lt;AssemblyFileName&gt;" Reactor_Deploy="0" />
-    </VisualStudio>
-  </ProjectExtensions>
 </Project>
