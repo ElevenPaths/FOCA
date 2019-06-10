@@ -1,29 +1,11 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using RestSharp;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Newtonsoft.Json.Linq;
-using RestSharp;
 
 namespace SearcherCore.Searcher.BingAPI
 {
-    /// <summary>
-    ///     BingApiResults encapsulates the fields of each result
-    ///     that FOCA may use
-    /// </summary>
-    public class BingApiResult
-    {
-        public BingApiResult(string url, string title, string description)
-        {
-            Url = url;
-            Title = title;
-            Description = description;
-        }
-
-        public string Url { get; set; }
-        public string Title { get; set; }
-        public string Description { get; set; }
-    }
-
     public class SearchBingApi
     {
         public delegate void StatusUpdateHandler(object sender, string e);
@@ -46,9 +28,9 @@ namespace SearcherCore.Searcher.BingAPI
         /// </summary>
         /// <param name="q">query</param>
         /// <returns></returns>
-        public List<BingApiResult> Search(string q)
+        public List<string> Search(string q)
         {
-            var results = new List<BingApiResult>();
+            var results = new List<string>();
             var offset = 0;
             // URL of the requests. Count = 50 because it's the max allowed value
             var request = new RestRequest($"search?count=50&safeSearch=Off&textFormat=Raw&offset={offset}&q={q}",
@@ -62,21 +44,18 @@ namespace SearcherCore.Searcher.BingAPI
             {
                 do
                 {
-                    var webpages = (JArray) token["webPages"]["value"];
+                    var webpages = (JArray)token["webPages"]["value"];
                     results.AddRange(
                         webpages.Select(
-                            res =>
-                                new BingApiResult((string) res.SelectToken("displayUrl"),
-                                    (string) res.SelectToken("name"), (string) res.SelectToken("snippet"))));
-                    foreach (
-                        var b in
+                            res => (string)res.SelectToken("displayUrl")));
+                    foreach (var b in
                             webpages.Select(
-                                link => new BingApiResult((string) link.SelectToken("displayUrl"), "", "")))
+                                link => ((string)link.SelectToken("displayUrl"))))
                     {
-                        UpdateStatus(b.Url);
+                        UpdateStatus(b);
                     }
                     offset += 50;
-                } while (offset < (int) token.SelectToken("webPages").SelectToken("totalEstimatedMatches")/1000);
+                } while (offset < (int)token.SelectToken("webPages").SelectToken("totalEstimatedMatches") / 1000);
             }
             catch
             {

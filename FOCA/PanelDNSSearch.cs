@@ -5,7 +5,6 @@ using FOCA.Threads;
 using Heijden.DNS;
 using MetadataExtractCore;
 using MetadataExtractCore.Diagrams;
-using SearcherCore.Searcher.BingAPI;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -472,8 +471,7 @@ namespace FOCA
 
                             try
                             {
-                                var gr = (GoogleAPISearcher.GoogleAPIResults)item;
-                                var url = new Uri(gr.Url);
+                                var url = new Uri((string)item);
                                 var strHost = url.Host;
                                 if (
                                     currentResults.All(
@@ -687,8 +685,7 @@ namespace FOCA
 
                             try
                             {
-                                var br = (BingApiResult)item;
-                                var url = new Uri(br.Url);
+                                var url = new Uri((string)item);
                                 var strHost = url.Host;
                                 if (
                                     currentResults.All(
@@ -905,8 +902,7 @@ namespace FOCA
                             loopState.Stop();
                         try
                         {
-                            var br = (BingApiResult)item;
-                            var url = new Uri(br.Url);
+                            var url = new Uri((string)item);
                             if (
                                 currentResults.Any(d => string.Equals(d, url.Host, StringComparison.CurrentCultureIgnoreCase)))
                                 return;

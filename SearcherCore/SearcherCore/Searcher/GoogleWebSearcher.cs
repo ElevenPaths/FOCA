@@ -1,15 +1,13 @@
+using FOCA.Threads;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Threading;
-using System.Net;
 using System.IO;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Windows.Forms;
-using FOCA.Threads;
-using System.Web;
+using System.Net;
 using System.Net.Cache;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading;
+using System.Web;
 
 namespace FOCA.Searcher
 {
@@ -21,8 +19,8 @@ namespace FOCA.Searcher
         public const int maxResults = 1000;
 
         private static string strCaptchaCookie = string.Empty;
-        private static Form frmCaptcha;
-        
+        private static readonly Regex googleWebUriRegex = new Regex("q=(?<url>https?:\\/\\/[^>]+)&amp;sa", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
         public int ResultsPerPage { get; set; }
         public int Offset { get; set; }
 
@@ -51,7 +49,7 @@ namespace FOCA.Searcher
             if (thrSearchLinks != null && thrSearchLinks.IsAlive) return;
             thrSearchLinks = new Thread(GetLinksAsync)
             {
-                Priority     = ThreadPriority.Lowest,
+                Priority = ThreadPriority.Lowest,
                 IsBackground = true
             };
             thrSearchLinks.Start();
@@ -67,9 +65,10 @@ namespace FOCA.Searcher
 
             thrSearchLinks = new Thread(GetCustomLinksAsync)
             {
-                Priority     = ThreadPriority.Lowest,
+                Priority = ThreadPriority.Lowest,
                 IsBackground = true
             };
+            thrSearchLinks.SetApartmentState(ApartmentState.STA);
             thrSearchLinks.Start(customSearchString);
         }
 
@@ -111,7 +110,7 @@ namespace FOCA.Searcher
             try
             {
                 if (SearchAll)
-                    OnSearcherEndEvent(GetGoogleAllLinks((string) CustomSearchString) == maxResults
+                    OnSearcherEndEvent(GetGoogleAllLinks((string)CustomSearchString) == maxResults
                         ? new EventsThreads.ThreadEndEventArgs(
                             EventsThreads.ThreadEndEventArgs.EndReasonEnum.LimitReached)
                         : new EventsThreads.ThreadEndEventArgs(EventsThreads.ThreadEndEventArgs.EndReasonEnum.NoMoreData));
@@ -166,7 +165,7 @@ namespace FOCA.Searcher
                     sb.Append("&as_qdr=" + FirstSeenToHtmlOption(FirstSeen));
                 if (WriteInLanguage != Language.AnyLanguage)
                     sb.Append("&lr=" + LanguageToHtmlOption(WriteInLanguage));
-                
+
                 var intTimeOut = 5000 + 10000 * retries;
                 Error = false;
                 request = (HttpWebRequest)HttpWebRequest.Create(sb.ToString());
@@ -189,102 +188,31 @@ namespace FOCA.Searcher
                 try
                 {
                     OnSearcherLogEvent(new EventsThreads.ThreadStringEventArgs(string.Format("[{0}] Requesting URL {1}", strName, request.RequestUri)));
+                    response = (HttpWebResponse)request.GetResponse();
 
-                    try
+                }
+                catch (WebException we)
+                {
+                    if (we.Response != null && we.Response is HttpWebResponse)
                     {
-                        response = (HttpWebResponse)request.GetResponse();
-                    }
-                    catch (WebException we)
-                    {
-                        var hwr = (HttpWebResponse)we.Response;
-                        if (hwr.StatusCode == HttpStatusCode.ServiceUnavailable)
+                        HttpWebResponse exceptionResponse = (HttpWebResponse)we.Response;
+                        //Too many request, reCaptcha
+                        if ((int)exceptionResponse.StatusCode == 429)
                         {
-
-                            referer = hwr.ResponseUri.AbsoluteUri;
-
-                            var srLector = new StreamReader(hwr.GetResponseStream(), Encoding.UTF8);
-                            var htmlCaptcha = srLector.ReadToEnd();
-                            srLector.Close();
-                            hwr.Close();
-
-                            Match m;
-                            var continuePagePattern = "name=\"continue\" value=\"(.*?)\"";
-                            m = Regex.Match(htmlCaptcha, continuePagePattern);
-                            var strContinuePage = m.Success ? HttpUtility.UrlEncode(m.Groups[1].Value.Replace("&amp;", "&"), Encoding.UTF8) : string.Empty;
-
-                            var captchaImgPattern = "/sorry/image(.*?)\"";
-                            m = Regex.Match(htmlCaptcha, captchaImgPattern);
-                            var captchaImg = m.Success ? m.Value.Substring(0, m.Value.Length - 1).Replace("&amp;", "&") : string.Empty;
-
-                            var captchaIDPattern = "id=(.*?)&";
-                            m = Regex.Match(captchaImg, captchaIDPattern);
-                            var captchaID = m.Success ? m.Groups[1].Value : string.Empty;
-
-                            var captchaQParameterPattern = "q=(.*?)&";
-                            m = Regex.Match(captchaImg, captchaQParameterPattern);
-                            var qParameter = m.Success ? m.Groups[1].Value : string.Empty;
-
-                            var captchaSolved = string.Empty;
-
-                            if (frmCaptcha == null)
-                                captchaSolved = ShowCaptcha(captchaImg);
-                            else
-                            {
-                                frmCaptcha.FormClosed += frmCaptcha_FormClosed;
-
-                                Error = true;
-                                do
-                                {
-                                    Thread.Sleep(500);
-                                } while (frmCaptcha != null);
-
-                                if (string.IsNullOrEmpty(captchaSolved))
-                                    Thread.CurrentThread.Abort();
-                                continue;
-                            }
-                            
-                            var url = ipv4Google + "/sorry/index";
-                            var strRequest = url + "?q=" + qParameter + "&hl=es&continue=" + strContinuePage + "&id=" + captchaID + "&captcha=" + captchaSolved + "&submit=Enviar";
-                            request = (HttpWebRequest)HttpWebRequest.Create(strRequest);
-                            request.CachePolicy = policy;
-                            if (!string.IsNullOrEmpty(UserAgent))
-                                request.UserAgent = UserAgent;
-                            var Cookie = strCaptchaCookie;
-                            request.UserAgent = "FOCA";
-                            request.Headers[HttpRequestHeader.Cookie] = Cookie;
-                            request.Headers[HttpRequestHeader.AcceptLanguage] = "es-ES,es;q=0.8,en-US;q=0.5,en;q=0.3";
-                            request.Headers[HttpRequestHeader.AcceptEncoding] = "gzip, deflate, br";
-                            request.Referer = referer;
-                            request.Accept = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
-                            request.KeepAlive = true;
-
-                            request.Timeout = intTimeOut;
-                            request.AllowAutoRedirect = false;
-                            response = (HttpWebResponse)request.GetResponse();
-
-                            if (response.StatusCode == HttpStatusCode.Found)
-                            {
-                                var newUrl = response.Headers["Location"];
-
-                                var nextURL = HttpUtility.UrlDecode(newUrl, Encoding.UTF8);
-                                var query = HttpUtility.ParseQueryString(nextURL);
-                                var googleAbuseParameters = query["google_abuse"].Split(';');
-
-                                foreach (var parameter in googleAbuseParameters.Where(parameter => parameter.StartsWith("GOOGLE_ABUSE_EXEMPTION")))
-                                {
-                                    strCaptchaCookie = parameter;
-                                }
-                            }
-
-                            Error = true;
+                            OnSearcherLogEvent(new EventsThreads.ThreadStringEventArgs("Too many requests to GoogleWeb engine. Please use the API instead."));
+                            retries = 3;
+                        }
+                        else
+                        {
+                            OnSearcherLogEvent(new EventsThreads.ThreadStringEventArgs(string.Format("[{0}] Error {1} in request {2}", strName, retries, request.RequestUri.ToString())));
                         }
                     }
-                }
-                catch (WebException)
-                {
+                    else
+                    {
+                        OnSearcherLogEvent(new EventsThreads.ThreadStringEventArgs(string.Format("[{0}] Error {1} in request {2}", strName, retries, request.RequestUri.ToString())));
+                    }
                     Error = true;
                     retries++;
-                    OnSearcherLogEvent(new EventsThreads.ThreadStringEventArgs(string.Format("[{0}] Error {1} in request {2}", strName, retries, request.RequestUri.ToString())));
                 }
                 catch
                 {
@@ -293,6 +221,7 @@ namespace FOCA.Searcher
                     OnSearcherLogEvent(new EventsThreads.ThreadStringEventArgs(string.Format("[{0}] Error {1} in request {2}", strName, retries, request.RequestUri.ToString())));
                 }
             } while (Error && retries < 3);
+
             if (Error || retries >= 3)
                 throw new Exception(string.Format("[{0}] Error connecting", Name));
             string html = null;
@@ -301,34 +230,19 @@ namespace FOCA.Searcher
                 html = lector.ReadToEnd();
             }
             response.Close();
-            var patron = new Regex("<h3 class=\"r\"><\\s*a\\s+href=\\s*\"?([^\"]*)\"?\\s*", RegexOptions.IgnoreCase);
-            var lstCurrentResults = new List<object>();
-            foreach (Match m in patron.Matches(html))
+            HashSet<string> lstCurrentResults = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (Match m in googleWebUriRegex.Matches(html))
             {
-                string link = System.Web.HttpUtility.HtmlDecode(m.Result("$1"));
-                if (link.IndexOf("interstitial?url=") >= 0)
-                    link = link.Substring(link.IndexOf("interstitial?url=") + "interstitial?url=".Length, link.Length - link.IndexOf("interstitial?url=") - "interstitial?url=".Length);
-                if (link.IndexOf("/url?q=") >= 0)
-                {
-                    //Format: /url?q=http://page.com/linkfound.html&googleparameters&andmore=parameters
-                    if (link.IndexOf('&') > 0)
-                    {
-                        link = link.Substring(link.IndexOf("/url?q=") + "/url?q=".Length, link.IndexOf('&') - link.IndexOf("/url?q=") - "/url?q=".Length);
-                        link = (HttpUtility.UrlDecode(link));
-                    }
-                    else
-                    {
-                        link = link.Substring(link.IndexOf("/url?q=") + "/url?q=".Length, link.Length - link.IndexOf("/url?q=") - "/url?q=".Length);
-                        link = (HttpUtility.UrlDecode(link));
-                    }
-                }
-
+                string link = m.Groups["url"].Value;
                 if (link.Contains("%"))
                     link = (HttpUtility.UrlDecode(link));
-                lstCurrentResults.Add(link);
+                if (Uri.TryCreate(link, UriKind.Absolute, out Uri foundUri) && !foundUri.Host.Contains("google.com"))
+                {
+                    lstCurrentResults.Add(link);
+                }
             }
             OnSearcherLogEvent(new EventsThreads.ThreadStringEventArgs(string.Format("[{0}] Found {1} links", strName, lstCurrentResults.Count)));
-            OnSearcherLinkFoundEvent(new EventsThreads.ThreadListDataFoundEventArgs(lstCurrentResults));
+            OnSearcherLinkFoundEvent(new EventsThreads.ThreadListDataFoundEventArgs(new List<object>(lstCurrentResults)));
 
             moreResults = html.ToLower().Contains("<span class=\"csb ch\" style=\"background-position:-96px 0;width:71px\"></span>".ToLower());
 
@@ -361,66 +275,6 @@ namespace FOCA.Searcher
                 currentPage++;
             } while (moreResults);
             return totalResults;
-        }
-
-        /// <summary>
-        /// Show captcha
-        /// </summary>
-        /// <param name="strURL"></param>
-        /// <returns></returns>
-        private string ShowCaptcha(string strURL)
-        {
-            var strCompleteUrl = ipv4Google + strURL;
-            frmCaptcha = new Form {ControlBox = false};
-            frmCaptcha.FormClosed += frmCaptcha_FormClosed;
-            var pcbCaptcha = new PictureBox();
-            var request = (HttpWebRequest)HttpWebRequest.Create(strCompleteUrl);
-            if (!string.IsNullOrEmpty(UserAgent))
-                request.UserAgent = UserAgent;
-            request.KeepAlive = true;
-            using (var response = (HttpWebResponse)request.GetResponse())
-            {
-                strCaptchaCookie = response.Headers[HttpResponseHeader.SetCookie];
-                pcbCaptcha.Image = System.Drawing.Image.FromStream(response.GetResponseStream());
-            }
-
-            pcbCaptcha.Top = 1;
-            pcbCaptcha.Left = 1;
-            pcbCaptcha.Height = pcbCaptcha.Image.Height;
-            pcbCaptcha.Width = pcbCaptcha.Image.Width;
-            frmCaptcha.Controls.Add(pcbCaptcha);
-            Label lblResolv = new Label();
-            lblResolv.Text = "Write the Captcha, and press enter:";
-            lblResolv.Top = pcbCaptcha.Height + 5;
-            frmCaptcha.Controls.Add(lblResolv);
-            TextBox txtCaptcha = new TextBox();
-            txtCaptcha.Top = lblResolv.Top + lblResolv.Height;
-            txtCaptcha.Width = 196;
-            txtCaptcha.Left = 3;
-            txtCaptcha.KeyPress += txtCaptcha_KeyPress;
-            frmCaptcha.Controls.Add(txtCaptcha);
-            frmCaptcha.FormBorderStyle = FormBorderStyle.FixedSingle;
-            frmCaptcha.Width = 208;
-            frmCaptcha.Height = 150;
-            frmCaptcha.Text = "Resolve the Captcha";
-            frmCaptcha.StartPosition = FormStartPosition.CenterParent;
-            frmCaptcha.ShowDialog();
-            return txtCaptcha.Text;
-        }
-
-        void frmCaptcha_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            if (frmCaptcha.DialogResult == DialogResult.Cancel)
-                System.Threading.Thread.CurrentThread.Abort();
-            frmCaptcha = null;
-        }
-
-        private void txtCaptcha_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if (e.KeyChar == Convert.ToChar(Keys.Enter))
-            {
-                frmCaptcha.DialogResult = DialogResult.OK;
-            }
         }
 
         /// <summary>

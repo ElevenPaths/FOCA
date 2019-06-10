@@ -1,22 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
 using FOCA.Threads;
 using SearcherCore.Searcher.GoogleAPI;
+using System.Linq;
+using System.Threading;
 
 namespace FOCA.Searcher
 {
-    public class GoogleAPISearcher: WebSearcher
+    public class GoogleAPISearcher : WebSearcher
     {
-        public class GoogleAPIResults
-        {
-            public string Url;
-            public string Title;
-            public string UrlCache;
-        }
-
         public string GoogleApiKey { get; set; }
         public string GoogleApiCx { get; set; }
         public const int maxResultPerRequest = 8;
@@ -38,7 +28,7 @@ namespace FOCA.Searcher
             if (thrSearchLinks != null && thrSearchLinks.IsAlive) return;
             thrSearchLinks = new Thread(GetLinksAsync)
             {
-                Priority     = ThreadPriority.Lowest,
+                Priority = ThreadPriority.Lowest,
                 IsBackground = true
             };
             thrSearchLinks.Start();
@@ -68,7 +58,7 @@ namespace FOCA.Searcher
             OnSearcherChangeStateEvent(new EventsThreads.ThreadStringEventArgs("Searching links in " + Name + "..."));
             try
             {
-                foreach(var strExtension in Extensions)
+                foreach (var strExtension in Extensions)
                 {
                     OnSearcherChangeStateEvent(new EventsThreads.ThreadStringEventArgs("Search " + strExtension + " in " + Name));
                     GetGoogleLinks("site:" + Site + " filetype:" + strExtension);
@@ -96,7 +86,7 @@ namespace FOCA.Searcher
             try
             {
                 if (SearchAll)
-                    OnSearcherEndEvent(GetGoogleAllLinks((string) customSearchString) > maxResults - 10
+                    OnSearcherEndEvent(GetGoogleAllLinks((string)customSearchString) > maxResults - 10
                         ? new EventsThreads.ThreadEndEventArgs(
                             EventsThreads.ThreadEndEventArgs.EndReasonEnum.LimitReached)
                         : new EventsThreads.ThreadEndEventArgs(EventsThreads.ThreadEndEventArgs.EndReasonEnum.NoMoreData));
@@ -140,7 +130,7 @@ namespace FOCA.Searcher
             OnSearcherLogEvent(new EventsThreads.ThreadStringEventArgs($"[{strName}] Found {results.Count} links"));
             OnSearcherLinkFoundEvent(new EventsThreads.ThreadListDataFoundEventArgs(results));
 
-            return results.Count ;
+            return results.Count;
         }
 
         /// <summary>

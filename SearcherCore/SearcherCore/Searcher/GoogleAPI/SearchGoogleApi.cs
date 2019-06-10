@@ -44,11 +44,11 @@ namespace SearcherCore.Searcher.GoogleAPI
             return listRequest;
         }
 
-        public List<GoogleAPISearcher.GoogleAPIResults> RunService(string searchString)
+        public List<string> RunService(string searchString)
         {
             var listRequest = BuildRequest(searchString);
             IList<Result> paging = new List<Result>();
-            var urls = new List<GoogleAPISearcher.GoogleAPIResults>();
+            var urls = new List<string>();
             var count = 0;
             while (paging != null)
             {
@@ -60,7 +60,7 @@ namespace SearcherCore.Searcher.GoogleAPI
                     {
                         urls.AddRange(
                             paging.Select(
-                                item => new GoogleAPISearcher.GoogleAPIResults {Url = item.Link, Title = item.Title}));
+                                item => item.Link));
                         foreach (var item in paging)
                         {
                             UpdateStatus(item.Link);
