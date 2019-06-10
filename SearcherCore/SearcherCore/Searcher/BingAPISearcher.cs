@@ -110,7 +110,7 @@ namespace FOCA.Searcher
         private int GetBingResults(string searchString, out bool moreResults)
         {
             var client = new SearchBingApi(BingApiKey);
-            List<BingApiResult> results;
+            List<string> results;
             try
             {
                 results = client.Search(searchString);

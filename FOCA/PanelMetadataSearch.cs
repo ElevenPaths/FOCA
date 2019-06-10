@@ -2385,10 +2385,35 @@ namespace FOCA
             var searchString = parameter as string;
             try
             {
+
                 if (chkGoogle.Checked)
-                    CustomSearchEventsGeneric(new GoogleWebSearcher(), searchString);
+                {
+                    if (String.IsNullOrWhiteSpace(Program.cfgCurrent.GoogleApiKey) || String.IsNullOrWhiteSpace(Program.cfgCurrent.GoogleApiCx))
+                    {
+                        CustomSearchEventsGeneric(new GoogleWebSearcher(), searchString);
+                    }
+                    else
+                    {
+                        CustomSearchEventsGeneric(new GoogleAPISearcher
+                        {
+                            GoogleApiKey = Program.cfgCurrent.GoogleApiKey,
+                            GoogleApiCx = Program.cfgCurrent.GoogleApiCx,
+                            SearchAll = true
+                        }, searchString);
+                    }
+                }
+
                 if (chkBing.Checked)
-                    CustomSearchEventsGeneric(new BingWebSearcher(), searchString);
+                {
+                    if (String.IsNullOrWhiteSpace(Program.cfgCurrent.BingApiKey))
+                    {
+                        CustomSearchEventsGeneric(new BingWebSearcher(), searchString);
+                    }
+                    else
+                    {
+                        CustomSearchEventsGeneric(new BingAPISearcher(Program.cfgCurrent.BingApiKey), searchString);
+                    }
+                }
             }
             catch (ThreadAbortException)
             {
@@ -2437,9 +2462,33 @@ namespace FOCA
             try
             {
                 if (chkGoogle.Checked)
-                    SearchEventsGeneric(new GoogleWebSearcher());
+                {
+                    if (String.IsNullOrWhiteSpace(Program.cfgCurrent.GoogleApiKey) || String.IsNullOrWhiteSpace(Program.cfgCurrent.GoogleApiCx))
+                    {
+                        SearchEventsGeneric(new GoogleWebSearcher());
+                    }
+                    else
+                    {
+                        SearchEventsGeneric(new GoogleAPISearcher
+                        {
+                            GoogleApiKey = Program.cfgCurrent.GoogleApiKey,
+                            GoogleApiCx = Program.cfgCurrent.GoogleApiCx,
+                            SearchAll = true
+                        });
+                    }
+                }
+
                 if (chkBing.Checked)
-                    SearchEventsGeneric(new BingWebSearcher());
+                {
+                    if (String.IsNullOrWhiteSpace(Program.cfgCurrent.BingApiKey))
+                    {
+                        SearchEventsGeneric(new BingWebSearcher());
+                    }
+                    else
+                    {
+                        SearchEventsGeneric(new BingAPISearcher(Program.cfgCurrent.BingApiKey));
+                    }
+                }
                 if (chkDuck.Checked)
                     SearchEventsGeneric(new DuckduckgoWebSearcher());
             }
