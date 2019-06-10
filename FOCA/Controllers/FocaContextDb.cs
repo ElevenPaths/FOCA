@@ -1,6 +1,7 @@
 ﻿using FOCA.Plugins;
 using MetadataExtractCore.Diagrams;
 using System;
+using System.Configuration;
 using System.Data.Entity;
 
 namespace FOCA.Controllers
@@ -20,7 +21,7 @@ namespace FOCA.Controllers
         public DbSet<HttpMapTypesFiles> HttpMapTypesFiles { get; set; }
         public DbSet<Plugin> Plugins { get; set; }
 
-        public FocaContextDb() : base()
+        public FocaContextDb() : base(ConfigurationManager.ConnectionStrings[nameof(FocaContextDb)].ConnectionString)
         { }
 
         public FocaContextDb(string connectionString) : base(connectionString)
