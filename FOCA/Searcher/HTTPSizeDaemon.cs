@@ -1,4 +1,5 @@
-using System.Collections.Generic;
+using System;
+using System.Collections.Concurrent;
 using System.Net;
 using System.Threading;
 using System.Windows.Forms;
@@ -9,70 +10,61 @@ namespace FOCA.Searcher
     //Su cometido será el de recibir urls de las que tendrá que obtener, cuando pueda, su tamaño mediante el método HEAD
     public class HTTPSizeDaemon
     {
+        private ConcurrentQueue<FilesITem> filesToReadSizeQueue;
+        private readonly Thread thrSizeSearcher;
+        private CancellationTokenSource threadToken;
+
         public ThreadState ThreadState
         {
             get
             {
-                if (thrSizeSearcher != null)
-                    return thrSizeSearcher.ThreadState;
-                return ThreadState.Stopped;
+                return thrSizeSearcher.ThreadState;
             }
         }
-
-        private List<HTTPSizeElement> LstURLs
-        {
-            get
-            {
-                return lstUrLs;
-            }
-
-            set
-            {
-                lstUrLs = value;
-            }
-        }
-
-        private struct HTTPSizeElement{
-            public string strURL;
-            public System.Windows.Forms.ListViewItem lvi;
-        };
-
-        private readonly Thread thrSizeSearcher;
-        private List<HTTPSizeElement> lstUrLs = new List<HTTPSizeElement>();
 
         public HTTPSizeDaemon()
         {
-            thrSizeSearcher = new Thread(Work) {IsBackground = true};
+            this.filesToReadSizeQueue = new ConcurrentQueue<FilesITem>();
+            this.threadToken = new CancellationTokenSource();
+            thrSizeSearcher = new Thread(Work) { IsBackground = true };
             thrSizeSearcher.Start();
         }
 
-        public void AddURL(string strURL, System.Windows.Forms.ListViewItem lvi)
+        public void AddURL(string strURL, FilesITem metadataFile)
         {
-            HTTPSizeElement hse = new HTTPSizeElement();
-            hse.strURL = strURL;
-            hse.lvi = lvi;
-            LstURLs.Add(hse);
+            if (Program.cfgCurrent.UseHead)
+            {
+                this.filesToReadSizeQueue.Enqueue(metadataFile);
+            }
         }
 
         public void Work()
         {
-            try
+            do
             {
-                if (!Program.cfgCurrent.UseHead || LstURLs.Count == 0 || !Program.FormMainInstance.panelMetadataSearch.listViewDocuments.Items.Contains(LstURLs[0].lvi)) return;
-                var lSize = GetURLContentLength(LstURLs[0].strURL);
-                if (lSize >= 0)
+                try
                 {
-                    Program.FormMainInstance.panelMetadataSearch.listViewDocuments.Invoke(
-                        new MethodInvoker(delegate
+                    if (this.filesToReadSizeQueue.Count > 0 && this.filesToReadSizeQueue.TryDequeue(out FilesITem currentItem))
+                    {
+                        long lSize = GetURLContentLength(currentItem.URL);
+                        if (lSize >= 0)
                         {
-                            FilesITem fi = (FilesITem) LstURLs[0].lvi.Tag;
-                            fi.Size = (int) lSize;
-                            LstURLs[0].lvi.SubItems[5].Text = Functions.GetFileSizeAsString(lSize);
-                        }));
+                            Program.FormMainInstance.panelMetadataSearch.listViewDocuments.Invoke(
+                                new MethodInvoker(delegate
+                                {
+                                    currentItem.Size = (int)lSize;
+                                    Program.FormMainInstance.panelMetadataSearch.listViewDocuments_Update(currentItem);
+                                }));
+                        }
+                    }
+                    else
+                    {
+                        Thread.Sleep(TimeSpan.FromSeconds(5));
+                    }
                 }
-                LstURLs.RemoveAt(0);
+                catch { }
             }
-            catch { }
+            while (!this.threadToken.IsCancellationRequested);
         }
 
         /// <summary>
@@ -87,9 +79,11 @@ namespace FOCA.Searcher
                 HttpWebRequest wr = (HttpWebRequest)HttpWebRequest.Create(strURL);
                 wr.Method = "HEAD";
                 wr.KeepAlive = false;
-                System.Net.WebResponse wrp = wr.GetResponse();
-                wrp.Close();
-                return wrp.ContentLength;
+                wr.Timeout = 3000;
+                using (WebResponse wrp = wr.GetResponse())
+                {
+                    return wrp.ContentLength;
+                }
             }
             catch
             {
@@ -99,8 +93,8 @@ namespace FOCA.Searcher
 
         public void Abort()
         {
-            if (thrSizeSearcher != null)
-                thrSizeSearcher.Abort();
+            this.threadToken.Cancel();
+            this.thrSizeSearcher.Join();
         }
     }
 }

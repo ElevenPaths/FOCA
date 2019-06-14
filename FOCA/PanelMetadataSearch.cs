@@ -569,7 +569,7 @@ namespace FOCA
                     lviDownloadedDate.Text = fi.Date == DateTime.MinValue
                         ? "-"
                         : fi.Date.ToString(CultureInfo.InvariantCulture);
-                    lviSize.Text = fi.Downloaded ? GetFileSizeAsString(fi.Size) : "-";
+                    lviSize.Text = fi.Size > -1 ? GetFileSizeAsString(fi.Size) : "-";
 
                     lviAnalyzed.Font = new Font(Font.FontFamily, 14);
                     lviAnalyzed.Text = fi.Processed ? "•" : "×";
@@ -2585,7 +2585,7 @@ namespace FOCA
                     Program.data.files.Items.Add(fi);
                     Program.FormMainInstance.treeViewMetadata_UpdateDocumentsNumber();
                     var lvi = listViewDocuments_Update(fi);
-                    HttpSizeDaemonInst.AddURL(link, lvi);
+                    HttpSizeDaemonInst.AddURL(link, fi);
                 }));
                 // add the domain from the found link to the project's domains
                 var uri = new Uri(link);
