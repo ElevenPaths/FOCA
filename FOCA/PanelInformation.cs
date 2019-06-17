@@ -1,6 +1,5 @@
 using FOCA.Properties;
 using FOCA.Search;
-using MetadataExtractCore.Diagrams;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -257,106 +256,49 @@ namespace FOCA
 
         private void searchDocumentsWhereAppearsValueToolStripMenuItem_Click(object sender, EventArgs eArgs)
         {
-            var formSearchInstance = new FormDocumentsSearch(ParentForm)
+            string valueToSearch = lvwInformation?.SelectedItems[0]?.SubItems[1]?.Text?.Trim();
+            if (lvwInformation.Groups.Count == 0 || String.IsNullOrWhiteSpace(valueToSearch))
+                return;
+
+            FormDocumentsSearch formSearchInstance = new FormDocumentsSearch(ParentForm)
             {
-                Text = @"Documents found with value " + lvwInformation.SelectedItems[0].Text.Trim()
+                Text = $"Documents found with value '{valueToSearch}'"
             };
-            formSearchInstance.lstDocumentsFound.Items.Clear();
-            // searching users
-            if (lvwInformation.Groups.Count == 0) return;
+
+            Func<FilesITem, bool> searchPredicate = null;
+
             if (lvwInformation.Groups[0].Header.StartsWith("All users found"))
             {
-                foreach (var fi in from tn in Program.FormMainInstance.TreeViewMetadataReturnAllDocuments()
-                                   let fi = (FilesITem)tn.Tag
-                                   where tn.Nodes["Users"] != null
-                                   let u = (Users)tn.Nodes["Users"].Tag
-                                   from ui in u.Items
-                                   where ui.Name.Trim()
-                                       .Equals(lvwInformation.SelectedItems[0].Text.Trim(),
-                                           StringComparison.OrdinalIgnoreCase) &&
-                                         !formSearchInstance.lstDocumentsFound.Items.Contains(fi.Path)
-                                   select fi)
-                {
-                    formSearchInstance.lstDocumentsFound.Items.Add(fi.Path);
-                }
+                searchPredicate = p => p.Metadata?.FoundUsers?.Items.Any(q => String.Equals(q.Name, valueToSearch, StringComparison.OrdinalIgnoreCase)) ?? false;
             }
             else if (lvwInformation.Groups[0].Header.StartsWith("All folders found"))
             {
-                foreach (var fi in from tn in Program.FormMainInstance.TreeViewMetadataReturnAllDocuments()
-                                   let fi = (FilesITem)tn.Tag
-                                   where tn.Nodes["Folders"] != null
-                                   let r = (Paths)tn.Nodes["Folders"].Tag
-                                   from ri in r.Items
-                                   where ri.Path.Trim()
-                                       .Equals(lvwInformation.SelectedItems[0].Text.Trim(),
-                                           StringComparison.OrdinalIgnoreCase) &&
-                                         !formSearchInstance.lstDocumentsFound.Items.Contains(fi.Path)
-                                   select fi)
-                {
-                    formSearchInstance.lstDocumentsFound.Items.Add(fi.Path);
-                }
+                searchPredicate = p => p.Metadata?.FoundPaths?.Items.Any(q => String.Equals(q.Path, valueToSearch, StringComparison.OrdinalIgnoreCase)) ?? false;
             }
             else if (lvwInformation.Groups[0].Header.StartsWith("All printers found"))
             {
-                foreach (var fi in from tn in Program.FormMainInstance.TreeViewMetadataReturnAllDocuments()
-                                   let fi = (FilesITem)tn.Tag
-                                   where tn.Nodes["Printers"] != null
-                                   let i = (Printers)tn.Nodes["Printers"].Tag
-                                   from ii in i.Items
-                                   where ii.Printer.Trim()
-                                       .Equals(lvwInformation.SelectedItems[0].Text.Trim(),
-                                           StringComparison.OrdinalIgnoreCase) &&
-                                         !formSearchInstance.lstDocumentsFound.Items.Contains(fi.Path)
-                                   select fi)
-                {
-                    formSearchInstance.lstDocumentsFound.Items.Add(fi.Path);
-                }
+                searchPredicate = p => p.Metadata?.FoundPrinters?.Items.Any(q => String.Equals(q.Printer, valueToSearch, StringComparison.OrdinalIgnoreCase)) ?? false;
             }
             else if (lvwInformation.Groups[0].Header.StartsWith("All software found"))
             {
-                foreach (var fi in from tn in Program.FormMainInstance.TreeViewMetadataReturnAllDocuments()
-                                   let fi = (FilesITem)tn.Tag
-                                   where tn.Nodes["Software"] != null
-                                   let aplicaciones = (Applications)tn.Nodes["Software"].Tag
-                                   from ai in aplicaciones.Items
-                                   where ai.Name.Trim()
-                                       .Equals(lvwInformation.SelectedItems[0].Text.Trim(),
-                                           StringComparison.OrdinalIgnoreCase) &&
-                                         !formSearchInstance.lstDocumentsFound.Items.Contains(fi.Path)
-                                   select fi)
-                {
-                    formSearchInstance.lstDocumentsFound.Items.Add(fi.Path);
-                }
+                searchPredicate = p => p.Metadata?.FoundMetaData?.Applications?.Items.Any(q => String.Equals(q.Name, valueToSearch, StringComparison.OrdinalIgnoreCase)) ?? false;
             }
             else if (lvwInformation.Groups[0].Header.StartsWith("All emails found"))
             {
-                foreach (var fi in from tn in Program.FormMainInstance.TreeViewMetadataReturnAllDocuments()
-                                   let fi = (FilesITem)tn.Tag
-                                   where tn.Nodes["Emails"] != null
-                                   let e = (Emails)tn.Nodes["Emails"].Tag
-                                   from ei in e.Items
-                                   where ei.Mail.Trim()
-                                       .Equals(lvwInformation.SelectedItems[0].Text.Trim(),
-                                           StringComparison.OrdinalIgnoreCase) &&
-                                         !formSearchInstance.lstDocumentsFound.Items.Contains(fi.Path)
-                                   select fi)
-                {
-                    formSearchInstance.lstDocumentsFound.Items.Add(fi.Path);
-                }
+                searchPredicate = p => p.Metadata?.FoundEmails?.Items.Any(q => String.Equals(q.Mail, valueToSearch, StringComparison.OrdinalIgnoreCase)) ?? false;
             }
             else if (lvwInformation.Groups[0].Header.StartsWith("All operating systems found"))
             {
-                foreach (var fi in from tn in Program.FormMainInstance.TreeViewMetadataReturnAllDocuments()
-                                   select (FilesITem)tn.Tag
-                    into fi
-                                   where !string.IsNullOrEmpty(fi.Metadata.FoundMetaData.OperativeSystem)
-                                   where fi.Metadata.FoundMetaData.OperativeSystem == lvwInformation.SelectedItems[0].Text
-                                   where !formSearchInstance.lstDocumentsFound.Items.Contains(fi.Path)
-                                   select fi)
-                {
-                    formSearchInstance.lstDocumentsFound.Items.Add(fi.Path);
-                }
+                searchPredicate = p => p.Metadata?.FoundMetaData?.OperativeSystem?.Equals(valueToSearch, StringComparison.OrdinalIgnoreCase) ?? false;
             }
+            else
+            {
+                searchPredicate = p => false;
+            }
+
+            string[] foundElements = Program.data.files.Items.Where(searchPredicate).Select(p => p.Path).ToArray();
+            formSearchInstance.lstDocumentsFound.Items.AddRange(new ListBox.ObjectCollection(formSearchInstance.lstDocumentsFound, foundElements));
+
             formSearchInstance.Show();
         }
 
