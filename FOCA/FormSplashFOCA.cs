@@ -11,8 +11,7 @@ namespace FOCA
 
         public FormSplashFOCA(string version) : this()
         {
-            lblVersionValue.Text = "Open Source";
-            lblLoading.Text = @"Loading...";
+            lblVersionValue.Text = version;
         }
     }
 }

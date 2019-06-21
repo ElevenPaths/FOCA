@@ -13,7 +13,7 @@ namespace FOCA
         private static bool Running;
         private const string FocaDatabaseName = "Foca";
         private const string SQLExpressConnectionString = @"Server=.\SQLEXPRESS;Initial Catalog=" + FocaDatabaseName + ";MultipleActiveResultSets=True;Integrated Security=true;Connection Timeout=3";
-        public static string ProgramVersion = Application.ProductVersion.Remove(3);
+        public static string ProgramVersion = Application.ProductVersion;
         public static string ProgramName = Application.ProductName + " " + ProgramVersion;
 
         public static Data data;
@@ -22,6 +22,8 @@ namespace FOCA
 
         public static FormMain FormMainInstance;
         public static FormOptions FormOptionsInstance;
+
+        private static FormSplashFOCA splashScreen;
 
         public static bool DesignMode()
         {
@@ -47,11 +49,20 @@ namespace FOCA
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            FormSplashFOCA splashScreen = new FormSplashFOCA("Open Source");
-            splashScreen.Show();
+            System.Threading.Thread splashThread = new System.Threading.Thread(new System.Threading.ThreadStart(() =>
+              {
+                  splashScreen = new FormSplashFOCA(ProgramVersion);
+                  Application.Run(splashScreen);
+                  Application.ExitThread();
+              }));
+
+            splashThread.SetApartmentState(System.Threading.ApartmentState.STA);
+            splashThread.Start();
+
             Application.DoEvents();
             //Load the FOCA
             Running = true;
+
 
             SqlConnectionStringBuilder connectionStringBuilder = null;
             bool csUpdated = false;
@@ -82,12 +93,15 @@ namespace FOCA
 
             while (!FocaContextDb.IsDatabaseAvailable(connectionStringBuilder.ToString()))
             {
-                MessageBox.Show("FOCA needs a SQL database. Please setup your connection and try again.", "Database not found", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                splashScreen.Invoke((MethodInvoker)(() => MessageBox.Show(splashScreen, "FOCA needs a SQL database. Please setup your connection and try again.", "Database not found", MessageBoxButtons.OK, MessageBoxIcon.Error)));
 
                 // Display the connection dialog
                 using (DataConnectionDialog dlg = new DataConnectionDialog(connectionStringBuilder))
                 {
-                    if (DialogResult.OK != dlg.ShowDialog(splashScreen))
+                    DialogResult connectionResult = DialogResult.Cancel;
+                    splashScreen.Invoke((MethodInvoker)(() => connectionResult = dlg.ShowDialog(splashScreen)));
+
+                    if (DialogResult.OK != connectionResult)
                     {
                         Environment.Exit(0);
                     }
@@ -102,14 +116,25 @@ namespace FOCA
 
             data = new Data();
             FormMainInstance = new FormMain();
-            FormOptionsInstance = new FormOptions();
+            FormMainInstance.TopMost = true;
+            FormMainInstance.Shown += FormMainInstance_Shown;
 
-            splashScreen.Close();
-            splashScreen.Dispose();
+            FormOptionsInstance = new FormOptions();
 
             InitializeServicePointManager();
 
             Application.Run(FormMainInstance);
+        }
+
+        private static void FormMainInstance_Shown(object sender, EventArgs e)
+        {
+            splashScreen?.Invoke((Action)delegate
+            {
+                splashScreen.Close();
+                splashScreen.Dispose();
+            });
+            FormMainInstance.Activate();
+            FormMainInstance.TopMost = false;
         }
 
         private static void UpdateConnectionString(string connectionString)
