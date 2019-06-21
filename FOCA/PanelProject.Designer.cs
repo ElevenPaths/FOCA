@@ -245,7 +245,7 @@ namespace FOCA
             this.lblDocumentFolder.Name = "lblDocumentFolder";
             this.lblDocumentFolder.Size = new System.Drawing.Size(221, 20);
             this.lblDocumentFolder.TabIndex = 67;
-            this.lblDocumentFolder.Text = "Folder where save documents";
+            this.lblDocumentFolder.Text = "Folder where to save documents";
             // 
             // txtFolderDocuments
             // 

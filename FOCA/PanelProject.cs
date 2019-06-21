@@ -1,16 +1,15 @@
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Windows.Forms;
 using FOCA.Controllers;
 using FOCA.Core;
 using FOCA.GUI;
 using MetadataExtractCore.Diagrams;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Windows.Forms;
 
 namespace FOCA
 {
@@ -78,10 +77,10 @@ namespace FOCA
         /// </summary>
         public void ClearFields()
         {
-            ProjectName = string.Empty;
+            ProjectName = Project.DefaultProjectName;
             DomainWebsite = string.Empty;
             AlternativeDomains = string.Empty;
-            FolderDocuments = string.Empty;
+            FolderDocuments = Path.GetTempPath();
             Notes = string.Empty;
             definedProject = false;
             Program.data = new Data();
@@ -93,7 +92,7 @@ namespace FOCA
         /// <summary>
         ///     Fill project fields with the received project's data
         /// </summary>
-        /// <param name="cfg"></param>
+        /// <param name="project"></param>
         public void Fill(Project project)
         {
             cmbProject.SelectedItem = project;
@@ -126,7 +125,7 @@ namespace FOCA
             Program.data.Project.ProjectState = Project.ProjectStates.InitializedUnsave;
             Program.data.Project.Domain = DomainWebsite.ToLower();
             Program.data.Project.AlternativeDomains.Clear();
-            Program.data.Project.AlternativeDomains.AddRange(AlternativeDomains.Split(new[] {Environment.NewLine},
+            Program.data.Project.AlternativeDomains.AddRange(AlternativeDomains.Split(new[] { Environment.NewLine },
                 StringSplitOptions.RemoveEmptyEntries));
             Program.data.Project.ProjectDate = txtDate.Value;
             Program.data.Project.ProjectNotes = Notes;
@@ -137,9 +136,9 @@ namespace FOCA
 
             // OnNewProject
 #if PLUGINS
-            var tPluginOnNewProject = new Thread(Program.data.plugins.OnNewProject) {IsBackground = true};
+            var tPluginOnNewProject = new Thread(Program.data.plugins.OnNewProject) { IsBackground = true };
 
-            object[] oProject = {new object[] {DomainWebsite}};
+            object[] oProject = { new object[] { DomainWebsite } };
             tPluginOnNewProject.Start(oProject);
 #endif
             Program.FormMainInstance.ProjectManager.SaveProject(string.Empty);
@@ -157,7 +156,7 @@ namespace FOCA
             if (fallo) return;
             Program.data.Project.ProjectName = ProjectName;
             Program.data.Project.Domain = DomainWebsite;
-            var aDomains = AlternativeDomains.Split(new[] {Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries);
+            var aDomains = AlternativeDomains.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
             // check if there're new alternative domains
             var bNewAlternativeDomains = Program.data.Project.AlternativeDomains.Intersect(aDomains).Count() !=
                                          aDomains.Length;
@@ -195,9 +194,9 @@ namespace FOCA
         }
 
         /// <summary>
-        ///     Verify if the downloads directory exists. If not, create it.
+        ///  Check if the download directory exists. If not, create it.
         /// </summary>
-        /// <returns>False if not exists and was not able to create it</returns>
+        /// <returns>False if it doesn't exist and it wasn't able to create it</returns>
         public bool CheckDownloadDirectory()
         {
             if (FolderDocuments != string.Empty)
@@ -212,7 +211,7 @@ namespace FOCA
                 {
                     Program.FormMainInstance.LoadProjectGui(false);
                     MessageBox.Show(
-                        $"The folder {FolderDocuments} not exists and cannot be created, select another folder");
+                        $"The folder {FolderDocuments} doesn't exist and can't be created. Please, select another folder.");
                     Program.data.Project.FolderToDownload = Path.GetTempPath();
                     return false;
                 }
@@ -246,7 +245,7 @@ namespace FOCA
         public void LoadProject()
         {
             var projects = new ProjectController().GetAllProjects();
-            
+
             cmbProject.ValueMember = "Id";
             cmbProject.DisplayMember = "ProjectName";
             cmbProject.DataSource = projects;
@@ -254,15 +253,15 @@ namespace FOCA
             cmbProject.SelectedIndex = -1;
 
             btnCreate.Text = Program.data.Project.Id == 0 ? "Create" : "Update";
-            
+
         }
 
         private void DataBindProject(Project project)
         {
-            txtProjectName.Text   = project.ProjectName;
+            txtProjectName.Text = project.ProjectName;
             txtFolderDocuments.Text = project.FolderToDownload;
-            txtDate.Value         = project.ProjectDate;
-            txtNotes.Text         = project.ProjectNotes;
+            txtDate.Value = project.ProjectDate;
+            txtNotes.Text = project.ProjectNotes;
             txtDomainWebsite.Text = project.Domain;
             SetAlternativeDomains(project.AlternativeDomains);
 
@@ -286,7 +285,8 @@ namespace FOCA
         {
             var result = false;
             errorPorject.Clear();
-            if (string.IsNullOrEmpty(txtProjectName.Text)) { 
+            if (string.IsNullOrEmpty(txtProjectName.Text))
+            {
                 errorPorject.SetError(txtProjectName, "Value is required."); result = true;
             }
 
@@ -295,16 +295,20 @@ namespace FOCA
                 errorPorject.SetError(txtDomainWebsite, "Value is required."); result = true;
             }
 
-            if (string.IsNullOrEmpty(txtFolderDocuments.Text)){ 
-                errorPorject.SetError(txtFolderDocuments, "Value is required."); result = true;}
+            if (string.IsNullOrEmpty(txtFolderDocuments.Text))
+            {
+                errorPorject.SetError(txtFolderDocuments, "Value is required."); result = true;
+            }
 
-            if (string.IsNullOrEmpty(txtDate.Value.ToString())){ 
-                errorPorject.SetError(txtDate, "Value is required."); result = true;}
+            if (string.IsNullOrEmpty(txtDate.Value.ToString()))
+            {
+                errorPorject.SetError(txtDate, "Value is required."); result = true;
+            }
 
             return result;
         }
 
-  
+
         private void cmbProject_SelectionChangeCommitted(object sender, EventArgs e)
         {
             if (cmbProject.SelectedIndex >= 0)
@@ -339,21 +343,21 @@ namespace FOCA
                 }
             }
 
-            var result = JsonConvert.DeserializeObject( strContent, typeof(Data));
+            var result = JsonConvert.DeserializeObject(strContent, typeof(Data));
 
             if (result != null)
             {
-                Program.data = (Data) result;
+                Program.data = (Data)result;
                 new ProjectController().Save(Program.data.Project);
                 ProjectManager.SaveProjectData();
                 LoadProject();
                 MessageBox.Show("Successful importation", "Foca", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
-                cmbProject.SelectedIndex = cmbProject.Items.Count -1;
+                cmbProject.SelectedIndex = cmbProject.Items.Count - 1;
                 cmbProject_SelectionChangeCommitted(null, null);
             }
             else
                 MessageBox.Show("Importation Cancel", "Foca", MessageBoxButtons.OK, MessageBoxIcon.Stop);
-            
+
         }
 
         private void btnExport_Click(object sender, EventArgs e)
@@ -398,7 +402,7 @@ namespace FOCA
             ProjectManager.LoadProyectDataController(Program.data.Project.Id);
             Program.data.files.Items.ToList().ForEach(x => { x.Id = 0; x.IdProject = 0; });
             Program.data.Ips.Items.ToList().ForEach(x => { x.Id = 0; x.IdProject = 0; });
-            Program.data.domains.Items.ToList().ForEach(x => { x.Id = 0; x.IdProject = 0;});
+            Program.data.domains.Items.ToList().ForEach(x => { x.Id = 0; x.IdProject = 0; });
             Program.data.relations.Items.ToList().ForEach(x => { x.Id = 0; x.IdProject = 0; });
             Program.data.computers.Items.ToList().ForEach(x => { x.Id = 0; x.IdProject = 0; });
             Program.data.computerIPs.Items.ToList().ForEach(x => { x.Id = 0; x.IdProject = 0; });

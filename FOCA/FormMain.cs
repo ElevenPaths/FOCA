@@ -152,11 +152,10 @@ namespace FOCA
 
                 tUpdaterBackground.Start();
 
-                Program.data.Project.ProjectName = "No project";
+                Program.data.Project.ProjectName = Project.DefaultProjectName;
                 Text = Program.ProgramName;
 
                 LoadPanelIntroduccion();
-
             }
             catch (Exception ex)
             {
