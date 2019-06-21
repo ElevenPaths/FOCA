@@ -30,9 +30,9 @@ namespace FOCA
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormSplashFOCA));
             this.panel1 = new System.Windows.Forms.Panel();
-            this.lblLoading = new System.Windows.Forms.Label();
             this.lblVersionValue = new System.Windows.Forms.Label();
             this.picFOCA = new System.Windows.Forms.PictureBox();
+            this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picFOCA)).BeginInit();
             this.SuspendLayout();
@@ -40,34 +40,22 @@ namespace FOCA
             // panel1
             // 
             this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panel1.Controls.Add(this.lblLoading);
+            this.panel1.Controls.Add(this.progressBar1);
             this.panel1.Controls.Add(this.lblVersionValue);
             this.panel1.Controls.Add(this.picFOCA);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(0, 0);
-            this.panel1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(404, 194);
+            this.panel1.Size = new System.Drawing.Size(269, 126);
             this.panel1.TabIndex = 0;
-            // 
-            // lblLoading
-            // 
-            this.lblLoading.AutoSize = true;
-            this.lblLoading.Location = new System.Drawing.Point(270, 163);
-            this.lblLoading.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.lblLoading.Name = "lblLoading";
-            this.lblLoading.Size = new System.Drawing.Size(66, 20);
-            this.lblLoading.TabIndex = 91;
-            this.lblLoading.Text = "Loading";
             // 
             // lblVersionValue
             // 
             this.lblVersionValue.AutoSize = true;
             this.lblVersionValue.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblVersionValue.Location = new System.Drawing.Point(39, 163);
-            this.lblVersionValue.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblVersionValue.Location = new System.Drawing.Point(26, 106);
             this.lblVersionValue.Name = "lblVersionValue";
-            this.lblVersionValue.Size = new System.Drawing.Size(32, 20);
+            this.lblVersionValue.Size = new System.Drawing.Size(23, 13);
             this.lblVersionValue.TabIndex = 90;
             this.lblVersionValue.Text = "x.x";
             // 
@@ -76,23 +64,29 @@ namespace FOCA
             this.picFOCA.BackColor = System.Drawing.SystemColors.Control;
             this.picFOCA.Image = ((System.Drawing.Image)(resources.GetObject("picFOCA.Image")));
             this.picFOCA.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.picFOCA.Location = new System.Drawing.Point(64, 5);
-            this.picFOCA.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.picFOCA.Location = new System.Drawing.Point(43, 3);
             this.picFOCA.Name = "picFOCA";
-            this.picFOCA.Size = new System.Drawing.Size(258, 146);
+            this.picFOCA.Size = new System.Drawing.Size(172, 95);
             this.picFOCA.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.picFOCA.TabIndex = 88;
             this.picFOCA.TabStop = false;
             // 
+            // progressBar1
+            // 
+            this.progressBar1.Location = new System.Drawing.Point(163, 98);
+            this.progressBar1.Name = "progressBar1";
+            this.progressBar1.Size = new System.Drawing.Size(100, 23);
+            this.progressBar1.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
+            this.progressBar1.TabIndex = 91;
+            // 
             // FormSplashFOCA
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(404, 194);
+            this.ClientSize = new System.Drawing.Size(269, 126);
             this.Controls.Add(this.panel1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Name = "FormSplashFOCA";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "FOCA Loading...";
@@ -108,7 +102,7 @@ namespace FOCA
 
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.PictureBox picFOCA;
-        private System.Windows.Forms.Label lblLoading;
         private System.Windows.Forms.Label lblVersionValue;
+        private System.Windows.Forms.ProgressBar progressBar1;
     }
 }
