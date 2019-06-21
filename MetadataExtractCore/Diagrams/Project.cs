@@ -1,16 +1,18 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 
 namespace MetadataExtractCore.Diagrams
 {
     [Serializable]
     public class Project : IDisposable
     {
+        [NonSerialized]
+        public const string DefaultProjectName = "Project Name";
+
         public int Id { get; set; }
 
-        public enum ProjectStates { Uninitialized, InitializedUnsave, InitializedSave};
+        public enum ProjectStates { Uninitialized, InitializedUnsave, InitializedSave };
 
         public string ProjectName { get; set; }
 
@@ -32,9 +34,6 @@ namespace MetadataExtractCore.Diagrams
 
         public ThreadSafeList<AntiSpoofingPolitics> LstAntispoofingPolitics = new ThreadSafeList<AntiSpoofingPolitics>();
 
-
-        public int AutoSaveMinuts = 5;
-
         public Project()
         {
             ProjectState = ProjectStates.Uninitialized;
@@ -54,12 +53,12 @@ namespace MetadataExtractCore.Diagrams
             var p3 = int.Parse(netrange.to.Split('.')[2]) - (int.Parse(netrange.from.Split('.')[2]));
             var p4 = int.Parse(netrange.to.Split('.')[3]) - (int.Parse(netrange.from.Split('.')[3]));
 
-            if (p1==0)p1=1;
-            if (p2==0)p2=1;
-            if (p3==0)p3=1;
-            if (p4==0)p4=1;
+            if (p1 == 0) p1 = 1;
+            if (p2 == 0) p2 = 1;
+            if (p3 == 0) p3 = 1;
+            if (p4 == 0) p4 = 1;
 
-            return p1*p2*p3*p4;
+            return p1 * p2 * p3 * p4;
 
         }
 
