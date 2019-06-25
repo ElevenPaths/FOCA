@@ -563,11 +563,6 @@ namespace FOCA
             panelInformation.BringToFront();
         }
 
-        public void LoadSearchGui()
-        {
-            LoadSearchGui(panelMetadataSearch.txtSearch.Text, false);
-        }
-
         public void LoadPanelIntroduccion()
         {
             panelMetadataSearch.Visible =
@@ -577,52 +572,57 @@ namespace FOCA
             PanelIntroduccion.BringToFront();
         }
 
+        #region Search GUI Panel
+
+        public void LoadSearchGui()
+        {
+            LoadSearchGui(panelMetadataSearch.txtSearch.Text, false);
+        }
+
         /// <summary>
         /// Load search Gui.
         /// </summary>
-        /// <param name="strSearchString">searchstring</param>
-        /// <param name="bInitialSearch">Initial search</param>
-        public void LoadSearchGui(string strSearchString, bool bInitialSearch)
+        /// <param name="searchString">searchstring</param>
+        /// <param name="isInitialSearch">Initial search</param>
+        public void LoadSearchGui(string searchString, bool isInitialSearch)
         {
-            panelMetadataSearch.Visible =
-            splitContainerMain.Visible = true;
             splitContainerMain.BringToFront();
-            if (Program.data.Project.ProjectState == Project.ProjectStates.Uninitialized)
-            {
+
+            bool isProjectInitialized = Program.data.Project.ProjectState != Project.ProjectStates.Uninitialized;
+
+            HideOrShowProjectInitializedComponents(isProjectInitialized);
+
+            if (!isProjectInitialized)
+            { 
                 panelMetadataSearch.panelCustomSearch.BorderStyle = BorderStyle.FixedSingle;
-                panelMetadataSearch.txtSearch.Visible = true;
                 panelMetadataSearch.linkLabelCustomSearch.Visible = false;
-                panelMetadataSearch.btnSearch.Visible = true;
-                panelMetadataSearch.btnSearchAll.Enabled = false;
-                panelMetadataSearch.lblExtensions.Visible = true;
-                panelMetadataSearch.checkedListBoxExtensions.Visible = true;
-                panelMetadataSearch.lblAll.Visible = false;
-                panelMetadataSearch.lblNone.Visible = false;
-
             }
-            else
-            {
-                panelMetadataSearch.btnSearchAll.Enabled = true;
-                panelMetadataSearch.lblExtensions.Visible =
-                panelMetadataSearch.checkedListBoxExtensions.Visible = true;
 
-                panelMetadataSearch.lblAll.Visible = true;
-                panelMetadataSearch.lblNone.Visible = true;
-            }
-            if (bInitialSearch)
+            if (isInitialSearch)
             {
-                panelMetadataSearch.linkLabelCustomSearch.Visible = !string.IsNullOrEmpty(strSearchString);
+                panelMetadataSearch.linkLabelCustomSearch.Visible = !string.IsNullOrWhiteSpace(searchString);
                 panelMetadataSearch.txtSearch.Visible = !panelMetadataSearch.linkLabelCustomSearch.Visible;
                 panelMetadataSearch.btnSearch.Visible = !panelMetadataSearch.linkLabelCustomSearch.Visible;
                 panelMetadataSearch.panelCustomSearch.BorderStyle = BorderStyle.None;
             }
 
-            panelMetadataSearch.txtSearch.Text = strSearchString;
+            panelMetadataSearch.txtSearch.Text = searchString;
             panelMetadataSearch.BringToFront();
         }
 
+        private void HideOrShowProjectInitializedComponents(bool isProjectInitialized)
+        {
+            panelMetadataSearch.btnSearchAll.Enabled = isProjectInitialized;
+            panelMetadataSearch.checkedListBoxExtensions.Visible = isProjectInitialized;
+            panelMetadataSearch.lblExtensions.Visible = isProjectInitialized;
+            panelMetadataSearch.lblAll.Visible = isProjectInitialized;
+            panelMetadataSearch.lblNone.Visible = isProjectInitialized;
+        }
+
+        #endregion
+
         /// <summary>
-        /// Show panel DNS
+        /// Show DNS panel
         /// </summary>
         public void LoadDnsEnumerationGui()
         {
@@ -632,6 +632,10 @@ namespace FOCA
             panelInformation.Visible = false;
             panelDNSSearch.Visible = true;
             panelDNSSearch.BringToFront();
+
+            bool isProjectInitialized = Program.data.Project.ProjectState != Project.ProjectStates.Uninitialized;
+
+            panelDNSSearch.Enabled = isProjectInitialized;
         }
 
         /// <summary>
