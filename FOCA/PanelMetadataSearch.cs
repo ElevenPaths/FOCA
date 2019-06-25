@@ -657,7 +657,12 @@ namespace FOCA
             {
                 CurrentSearch?.Abort();
             }
-            else if (!chkGoogle.Checked && !chkBing.Checked)
+            else if (String.IsNullOrWhiteSpace(txtSearch.Text))
+            {
+                MessageBox.Show(@"Please, insert a term for searching", @"Insert a term", MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+            }
+            else if (!chkGoogle.Checked && !chkBing.Checked && !chkDuck.Checked)
             {
                 MessageBox.Show(@"Select a search engine, please.", @"Select a search engine", MessageBoxButtons.OK,
                     MessageBoxIcon.Information);
@@ -2411,6 +2416,8 @@ namespace FOCA
                         CustomSearchEventsGeneric(new BingAPISearcher(Program.cfgCurrent.BingApiKey), searchString);
                     }
                 }
+                if (chkDuck.Checked)
+                    CustomSearchEventsGeneric(new DuckduckgoWebSearcher(), searchString);
             }
             catch (ThreadAbortException)
             {
