@@ -317,8 +317,7 @@ namespace FOCA
             this.lblParallelDescription.Name = "lblParallelDescription";
             this.lblParallelDescription.Size = new System.Drawing.Size(483, 60);
             this.lblParallelDescription.TabIndex = 41;
-            this.lblParallelDescription.Text = "To speed up DNS lookups it\'s possible to perform parallel searches.\r\nThis value s" +
-    "ets the maximun number of parallel queries.\r\n0 means no limit.";
+            this.lblParallelDescription.Text = "To speed up DNS lookups it\'s possible to perform parallel searches.\r\nThis value sets the maximum number of parallel queries.";
             // 
             // lblParallel1
             // 
