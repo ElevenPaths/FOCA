@@ -1,4 +1,11 @@
-﻿using System;
+﻿using FOCA.Analysis.FingerPrinting;
+using FOCA.ModifiedComponents;
+using FOCA.Properties;
+using Microsoft.Win32;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using PluginsAPI.ImportElements;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -6,13 +13,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-using FOCA.Analysis.FingerPrinting;
-using FOCA.ModifiedComponents;
-using FOCA.Properties;
-using Microsoft.Win32;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
-using PluginsAPI.ImportElements;
 
 namespace FOCA.GUI
 {
@@ -120,7 +120,7 @@ namespace FOCA.GUI
 
             tsiSave.Click +=
                 delegate { Program.FormMainInstance.ProjectManager.SaveProject(Program.data.Project.ProjectSaveFile); };
-            
+
             Program.FormMainInstance.contextMenu.Items.Add(tsiNewProject);
             Program.FormMainInstance.contextMenu.Items.Add(new ToolStripSeparator());
             Program.FormMainInstance.contextMenu.Items.Add(tsiSave);
@@ -130,7 +130,7 @@ namespace FOCA.GUI
             foreach (var pluginMenu in Program.FormMainInstance.ManagePluginsApi.lstContextShowProjectMenu)
             {
                 var tsiPlugin = pluginMenu.item;
-                var project = new Project(Program.data.Project.Domain, Program.data.Project.AlternativeDomains);
+                var project = new PluginsAPI.ImportElements.Project(Program.data.Project.Domain, Program.data.Project.AlternativeDomains);
                 tsiPlugin.Tag = project;
                 Program.FormMainInstance.contextMenu.Items.Add(tsiPlugin);
             }
@@ -1038,20 +1038,24 @@ namespace FOCA.GUI
             };
 
             tsiFingerHTTP.Click +=
-                delegate {
+                delegate
+                {
                     FingerPrintingEventHandler.data_NewWebDomain(domainItem, null); // fingerprinting http
                 };
 
             tsiFingerDNS.Click +=
-                delegate {
+                delegate
+                {
                     FingerPrintingEventHandler.data_NewDNSDomain(domainItem, null); // fingerprinting dns
                 };
             tsiFingerSMTP.Click +=
-                delegate {
+                delegate
+                {
                     FingerPrintingEventHandler.data_NewMXDomain(domainItem, null); // fingerprinting mail
                 };
             tsiFingerFTP.Click +=
-                delegate {
+                delegate
+                {
                     FingerPrintingEventHandler.data_NewFTPDomain(domainItem, null); // fingerprinting ftp
                 };
             tsiFingerAll.Click += delegate
