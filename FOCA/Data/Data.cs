@@ -527,23 +527,11 @@ namespace FOCA
                                 object[] oNetRange = new object[] { new object[] { netrange.from, netrange.to } };
                                 tPluginOnNetrange.Start(oNetRange);
 #endif
-                                if (Program.cfgCurrent.ScanNetranges255 == true)
-                                {
-                                    if (Project.GetIpsOfNetrange(netrange) <= 255)
-                                    {
-                                        var lstIps = Project.GenerateIpsOfNetrange(netrange);
-                                        Program.LogThis(new Log(Log.ModuleType.IPRangeSearch, "Netrange with " + lstIps.Count.ToString() + " IPs", Log.LogType.low));
-                                        Thread tAddIps = new Thread(new ParameterizedThreadStart(AddIpListAsync));
-                                        tAddIps.IsBackground = true;
-                                        tAddIps.Priority = ThreadPriority.Lowest;
-                                        tAddIps.Start(lstIps);
-                                    }
-                                }
-                                else
-                                {
-                                    var lstIps = Project.GenerateIpsOfNetrange(netrange);
-                                    Program.LogThis(new Log(Log.ModuleType.IPRangeSearch, "Netrange with " + lstIps.Count.ToString() + " IPs", Log.LogType.low));
 
+                                if (!Program.cfgCurrent.ScanNetranges255 || Project.GetIpsOfNetrange(netrange) <= 255)
+                                {
+                                    List<string> lstIps = netrange.GenerateIpsOfNetrange();
+                                    Program.LogThis(new Log(Log.ModuleType.IPRangeSearch, "Netrange with " + lstIps.Count.ToString() + " IPs", Log.LogType.low));
                                     Thread tAddIps = new Thread(new ParameterizedThreadStart(AddIpListAsync));
                                     tAddIps.IsBackground = true;
                                     tAddIps.Priority = ThreadPriority.Lowest;

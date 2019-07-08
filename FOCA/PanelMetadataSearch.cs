@@ -812,109 +812,16 @@ namespace FOCA
                             fi.Processed = true;
                             tnFile.Tag = fi;
                             MetaExtractor doc = null;
-                            var s = Path.GetExtension(fi.Path);
-                            if (s != null)
+                            string extension = Path.GetExtension(fi.Path);
+                            if (!String.IsNullOrWhiteSpace(extension))
                             {
-                                var extension = s.ToLower();
                                 try
                                 {
-                                    switch (extension)
+                                    using (var fs = new FileStream(fi.Path, FileMode.Open, FileAccess.Read))
                                     {
-                                        case ".sxw":
-                                        case ".odt":
-                                        case ".ods":
-                                        case ".odg":
-                                        case ".odp":
-                                            // fi.Path fi.Path contains the file's full path
-                                            using (var fs = new FileStream(fi.Path, FileMode.Open, FileAccess.Read))
-                                            {
-                                                doc = new OpenOfficeDocument(fs, extension);
-                                            }
-                                            break;
-                                        case ".docx":
-                                        case ".xlsx":
-                                        case ".pptx":
-                                        case ".ppsx":
-                                            using (
-                                                var fs = new FileStream(fi.Path, FileMode.Open, FileAccess.Read,
-                                                    FileShare.ReadWrite))
-                                            {
-                                                doc = new OfficeOpenXMLDocument(fs, extension);
-                                            }
-                                            break;
-                                        case ".doc":
-                                        case ".xls":
-                                        case ".ppt":
-                                        case ".pps":
-                                            using (
-                                                var fs = new FileStream(fi.Path, FileMode.Open, FileAccess.Read,
-                                                    FileShare.ReadWrite))
-                                            {
-                                                doc = new Office972003(fs);
-                                            }
-                                            break;
-                                        case ".pdf":
-                                            using (
-                                                var fs = new FileStream(fi.Path, FileMode.Open, FileAccess.Read,
-                                                    FileShare.ReadWrite))
-                                            {
-                                                doc = new PDFDocument(fs);
-                                            }
-                                            break;
-                                        case ".wpd":
-                                            using (
-                                                var fs = new FileStream(fi.Path, FileMode.Open, FileAccess.Read,
-                                                    FileShare.ReadWrite))
-                                            {
-                                                doc = new WPDDocument(fs);
-                                            }
-                                            break;
-                                        case ".raw":
-                                        case ".cr2":
-                                        case ".crw":
-                                        case ".jpg":
-                                        case ".jpeg":
-                                            using (
-                                                var fs = new FileStream(fi.Path, FileMode.Open, FileAccess.Read,
-                                                    FileShare.ReadWrite))
-                                            {
-                                                doc = new EXIFDocument(fs, extension);
-                                            }
-                                            break;
-                                        case ".svg":
-                                        case ".svgz":
-                                            using (
-                                                var fs = new FileStream(fi.Path, FileMode.Open, FileAccess.Read,
-                                                    FileShare.ReadWrite))
-                                            {
-                                                doc = new SVGDocument(fs);
-                                            }
-                                            break;
-                                        case ".indd":
-                                            using (
-                                                var fs = new FileStream(fi.Path, FileMode.Open, FileAccess.Read,
-                                                    FileShare.ReadWrite))
-                                            {
-                                                doc = new InDDDocument(fs);
-                                            }
-                                            break;
-                                        case ".rdp":
-                                            using (
-                                                var fs = new FileStream(fi.Path, FileMode.Open, FileAccess.Read,
-                                                    FileShare.ReadWrite))
-                                            {
-                                                doc = new RDPDocument(fs);
-                                            }
-                                            break;
-                                        case ".ica":
-                                            using (
-                                                var fs = new FileStream(fi.Path, FileMode.Open, FileAccess.Read,
-                                                    FileShare.ReadWrite))
-                                            {
-                                                doc = new ICADocument(fs);
-                                            }
-                                            break;
+                                        doc = MetaExtractor.Create(extension, fs);
                                     }
+
                                     Program.FormMainInstance.TreeView.Invoke(new MethodInvoker(delegate
                                     {
                                         tnFile.ImageIndex =

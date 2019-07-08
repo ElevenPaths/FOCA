@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -85,7 +85,6 @@
   <ItemGroup>
     <Compile Include="Analysis\ApplicationAnalysis.cs" />
     <Compile Include="Analysis\PathAnalysis.cs" />
-    <Compile Include="Diagrams\AntiSpoofingPolitics.cs" />
     <Compile Include="Diagrams\Applications.cs" />
     <Compile Include="Diagrams\Descriptions.cs" />
     <Compile Include="Diagrams\Emails.cs" />
@@ -93,11 +92,7 @@
     <Compile Include="Diagrams\History.cs" />
     <Compile Include="Diagrams\Printers.cs" />
     <Compile Include="Diagrams\MetaData.cs" />
-    <Compile Include="Diagrams\NetRange.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="Diagrams\Passwords.cs" />
-    <Compile Include="Diagrams\Project.cs" />
     <Compile Include="Diagrams\Paths.cs" />
     <Compile Include="Diagrams\Servers.cs" />
     <Compile Include="Diagrams\Users.cs" />

@@ -211,7 +211,9 @@
     <Compile Include="Data\IPs.cs" />
     <Compile Include="Data\Limits.cs" />
     <Compile Include="Data\Log.cs" />
+    <Compile Include="Data\NetRange.cs" />
     <Compile Include="Data\OperatingSystem.cs" />
+    <Compile Include="Data\Project.cs" />
     <Compile Include="Data\Relations.cs" />
     <Compile Include="DNSEnumeration\DNSDumpsterParser.cs" />
     <Compile Include="DNSEnumeration\DNSUtil.cs" />
