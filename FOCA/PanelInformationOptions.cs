@@ -105,26 +105,24 @@ namespace FOCA
             AddLog("Google crawling");
         }
 
-        private void wsSearch_SearcherLinkFoundEvent(object sender, EventsThreads.ThreadListDataFoundEventArgs e)
+        private void wsSearch_SearcherLinkFoundEvent(object sender, EventsThreads.CollectionFound<Uri> e)
         {
-            foreach (var t in e.Data)
+            foreach (Uri url in e.Data)
             {
                 try
                 {
-                    var u = new Uri(t.ToString());
-                    var link = t.ToString();
-
                     try
                     {
                         var fileWithMetadata =
                             Program.FormMainInstance.panelMetadataSearch.checkedListBoxExtensions.Items.Cast<string>()
-                                .Any(checkedListbox => link.EndsWith(checkedListbox));
+                                .Any(checkedListbox => url.ToString().EndsWith(checkedListbox));
+
                         if (fileWithMetadata)
                         {
                             var fi = new FilesITem
                             {
-                                Ext = Path.GetExtension(new Uri(link).AbsolutePath).ToLower(),
-                                URL = link,
+                                Ext = Path.GetExtension(url.AbsolutePath).ToLower(),
+                                URL = url.ToString(),
                                 Downloaded = false,
                                 Processed = false,
                                 Date = DateTime.MinValue,
@@ -135,22 +133,22 @@ namespace FOCA
                             Program.data.files.Items.Add(fi);
                             Program.FormMainInstance.treeViewMetadata_UpdateDocumentsNumber();
                             var lvi = Program.FormMainInstance.panelMetadataSearch.listViewDocuments_Update(fi);
-                            Program.FormMainInstance.panelMetadataSearch.HttpSizeDaemonInst.AddURL(link, fi);
+                            Program.FormMainInstance.panelMetadataSearch.HttpSizeDaemonInst.AddURL(fi);
                         }
                     }
                     catch (Exception)
                     {
                     }
                     // add the url to the files list
-                    var d = Program.data.GetDomain(u.Host);
-                    d.map.AddUrl(u.ToString());
+                    var d = Program.data.GetDomain(url.Host);
+                    d.map.AddUrl(url.ToString());
 
                     if (d.techAnalysis.domain == null)
                         d.techAnalysis.domain = d.Domain;
 
-                    var listaUrl = new List<object> {u};
+                    var listaUrl = new List<Uri> {url};
                     d.techAnalysis.eventLinkFoundDetailed(null,
-                        new EventsThreads.ThreadListDataFoundEventArgs(listaUrl));
+                        new EventsThreads.CollectionFound<Uri>(listaUrl));
                 }
                 catch
                 {

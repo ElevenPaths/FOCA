@@ -1,23 +1,25 @@
 using FOCA.Threads;
 using SearcherCore.Searcher.GoogleAPI;
-using System.Linq;
+using System;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace FOCA.Searcher
 {
     public class GoogleAPISearcher : WebSearcher
     {
-        public string GoogleApiKey { get; set; }
-        public string GoogleApiCx { get; set; }
+        public string GoogleApiKey { get; }
+        public string GoogleApiCx { get; }
         public const int maxResultPerRequest = 8;
         public const int maxResults = 64;
 
         public int ResultsPerRequest { get; set; }
         public int Offset { get; set; }
 
-        public GoogleAPISearcher()
+        public GoogleAPISearcher(string apiKey, string apiCx) : base("GoogleAPI")
         {
-            strName = "GoogleAPI";
+            this.GoogleApiKey = apiCx;
+            this.GoogleApiCx = apiCx;
         }
 
         /// <summary>
@@ -118,17 +120,17 @@ namespace FOCA.Searcher
             var client = new SearchGoogleApi(GoogleApiKey, GoogleApiCx);
             OnSearcherLogEvent(new EventsThreads.ThreadStringEventArgs($"[{Name}] Searching q={searchString}"));
 
-            var results = client.RunService(searchString).Cast<object>().ToList();
+            ICollection<Uri> results = client.RunService(searchString);
             moreResults = false;
             if (results.Count == 0)
             {
                 OnSearcherLogEvent(new EventsThreads.ThreadStringEventArgs(
-                    $"[{strName}] Error in request q={searchString}"));
+                    $"[{this.Name}] Error in request q={searchString}"));
                 return 0;
             }
 
-            OnSearcherLogEvent(new EventsThreads.ThreadStringEventArgs($"[{strName}] Found {results.Count} links"));
-            OnSearcherLinkFoundEvent(new EventsThreads.ThreadListDataFoundEventArgs(results));
+            OnSearcherLogEvent(new EventsThreads.ThreadStringEventArgs($"[{this.Name}] Found {results.Count} links"));
+            OnSearcherLinkFoundEvent(new EventsThreads.CollectionFound<Uri>(results));
 
             return results.Count;
         }

@@ -1,6 +1,6 @@
+using FOCA.Threads;
 using System;
 using System.Collections.Generic;
-using FOCA.Threads;
 using System.Threading;
 
 namespace FOCA.Searcher
@@ -11,7 +11,6 @@ namespace FOCA.Searcher
         protected Thread thrSearchLinks;
 
         protected bool bSearchAll;
-        protected string strName;
         protected string strSite;
         protected List<string> Extensions;
 
@@ -24,7 +23,7 @@ namespace FOCA.Searcher
         /// <summary>
         /// Event raised when a new link or group of links is found. Be carefull! The searcher may return repeat links.
         /// </summary>
-        public event EventHandler<EventsThreads.ThreadListDataFoundEventArgs> SearcherLinkFoundEvent;
+        public event EventHandler<EventsThreads.CollectionFound<Uri>> SearcherLinkFoundEvent;
 
         /// <summary>
         /// Event raised when a new link or group of links is found
@@ -43,7 +42,7 @@ namespace FOCA.Searcher
 
         public string Name
         {
-            get { return strName; }
+            get;
         }
 
         /// <summary>
@@ -72,8 +71,9 @@ namespace FOCA.Searcher
             Extensions.Add(extension);
         }
 
-        public WebSearcher()
+        public WebSearcher(string searcherName)
         {
+            this.Name = searcherName;
             Extensions = new List<string>();
         }
 
@@ -118,9 +118,9 @@ namespace FOCA.Searcher
         /// <param name="customSearchString">The SearchString, diferent foreach web searcher</param>
         public abstract void GetCustomLinks(String customSearchString);
 
-        protected void OnSearcherLinkFoundEvent(EventsThreads.ThreadListDataFoundEventArgs e)
+        protected void OnSearcherLinkFoundEvent(EventsThreads.CollectionFound<Uri> e)
         {
-            EventHandler<EventsThreads.ThreadListDataFoundEventArgs> handler = SearcherLinkFoundEvent;
+            EventHandler<EventsThreads.CollectionFound<Uri>> handler = SearcherLinkFoundEvent;
             if (handler != null)
             {
                 handler(this, e);

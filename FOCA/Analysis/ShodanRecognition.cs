@@ -1,3 +1,6 @@
+using FOCA.Analysis.FingerPrinting;
+using FOCA.ModifiedComponents;
+using FOCA.Threads;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,10 +10,6 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Threading;
-using FOCA.Analysis.FingerPrinting;
-using FOCA.ModifiedComponents;
-using FOCA.Threads;
-using MetadataExtractCore.Diagrams;
 
 namespace FOCA.Analysis
 {
@@ -102,14 +101,13 @@ namespace FOCA.Analysis
                 OnLogEvent(new EventsThreads.ThreadStringEventArgs(
                     $"Starting Shodan search in {lstIPs.Count} IP Addresses"));
 
-                foreach (var lstObject in from strIP in lstIPs
-                    select GetShodanInformation(strIP)
-                    into SIPInfo
-                    where SIPInfo != null
-                    select new List<object> {SIPInfo})
+                foreach (string ip in lstIPs.Where(p => Functions.IsIP(p)))
                 {
-                    //Se añade a la lista de objetos la información encontrada
-                    OnDataFoundEvent(new EventsThreads.ThreadListDataFoundEventArgs(lstObject));
+                    ShodanIPInformation ipInfo = GetShodanInformation(ip);
+                    if (ipInfo != null)
+                    {
+                        OnDataFoundEvent(new EventsThreads.CollectionFound<ShodanIPInformation>(new[] { ipInfo }));
+                    }
                 }
 
                 OnLogEvent(new EventsThreads.ThreadStringEventArgs("Shodan search finished"));
@@ -149,21 +147,15 @@ namespace FOCA.Analysis
         /// <returns></returns>
         private ShodanIPInformation GetShodanInformation(string strIPAddress)
         {
-            //Si no es una IP válida de vuelve un valor vacio
-            if (!Functions.IsIP(strIPAddress))
-                return new ShodanIPInformation();
-
             //Obtiene el HTML de la petición
-            var json = MakeShodanRequestIP(strIPAddress);
+            string json = MakeShodanRequestIP(strIPAddress);
             //Parsea el HTML y obtiene los datos de respuesta
-            var lstSIPinfo = ParseJsonShodan(json);
-            if (lstSIPinfo.Count == 0) return null;
+            List<ShodanIPInformation> lstSIPinfo = ParseJsonShodan(json);
             //Filtra los datos para que se quede solo con los de la ip buscada
-            var SIPinfo = FilterShodanResults(lstSIPinfo, strIPAddress);
+            ShodanIPInformation SIPinfo = lstSIPinfo.FirstOrDefault(p => p.IPAddress == strIPAddress);
 
             //Damos prioridad al fprinting de shodan al del modulo fingerprinting/http.cs
-
-            if (string.IsNullOrEmpty(SIPinfo.OS))
+            if (SIPinfo != null && String.IsNullOrWhiteSpace(SIPinfo.OS))
             {
                 SIPinfo.OS = HTTP.GetOsFromBanner(SIPinfo.ServerBanner).ToString();
             }
@@ -184,14 +176,14 @@ namespace FOCA.Analysis
             do
             {
                 error = false;
-                var request = (HttpWebRequest) WebRequest.Create(url);
+                var request = (HttpWebRequest)WebRequest.Create(url);
                 try
                 {
                     OnLogEvent(new EventsThreads.ThreadStringEventArgs($"Requesting URL {urlCensored}"));
                     HttpWebResponse response = null;
                     try
                     {
-                        response = (HttpWebResponse) request.GetResponse();
+                        response = (HttpWebResponse)request.GetResponse();
                     }
                     catch
                     {
@@ -238,14 +230,14 @@ namespace FOCA.Analysis
             do
             {
                 error = false;
-                var request = (HttpWebRequest) WebRequest.Create(url);
+                var request = (HttpWebRequest)WebRequest.Create(url);
                 try
                 {
                     OnLogEvent(new EventsThreads.ThreadStringEventArgs($"Requesting URL {urlCensored}"));
                     HttpWebResponse response = null;
                     try
                     {
-                        response = (HttpWebResponse) request.GetResponse();
+                        response = (HttpWebResponse)request.GetResponse();
                     }
                     catch
                     {
@@ -288,27 +280,31 @@ namespace FOCA.Analysis
         /// <returns>Devuelve una lista ya que shodan no da un solo resultado, da varios</returns>
         private List<ShodanIPInformation> ParseJsonShodan(string JSON)
         {
-            var lstShodan = new List<ShodanIPInformation>();
-            var serializer = new DataContractJsonSerializer(typeof (ShodanJson));
-            var ms = new MemoryStream(Encoding.ASCII.GetBytes(JSON));
+            List<ShodanIPInformation> lstShodan = new List<ShodanIPInformation>();
             try
             {
-                var sj = (ShodanJson) serializer.ReadObject(ms);
-                ms.Close();
-                foreach (var m in sj.matches)
+                ShodanJson result;
+                using (MemoryStream ms = new MemoryStream(Encoding.ASCII.GetBytes(JSON)))
                 {
-                    var si = new ShodanIPInformation
+                    DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(ShodanJson));
+                    result = (ShodanJson)serializer.ReadObject(ms);
+                }
+                if (result != null && result.matches != null)
+                {
+                    foreach (var m in result.matches)
                     {
-                        Country = m.country,
-                        IPAddress = m.ip,
-                        OS = m.os
-                    };
-                    si.HostNames.AddRange(m.hostnames);
-                    var dummy = 0;
-                    si.ServerBanner = Functions.SearchBetweenDelimiters(m.data, "Server: ", "\r", ref dummy,
-                        StringComparison.InvariantCulture);
-                    si.ShodanResponse = JSON;
-                    lstShodan.Add(si);
+                        ShodanIPInformation si = new ShodanIPInformation
+                        {
+                            Country = m.country,
+                            IPAddress = m.ip,
+                            OS = m.os
+                        };
+                        si.HostNames.AddRange(m.hostnames);
+                        var dummy = 0;
+                        si.ServerBanner = Functions.SearchBetweenDelimiters(m.data, "Server: ", "\r", ref dummy, StringComparison.InvariantCulture);
+                        si.ShodanResponse = JSON;
+                        lstShodan.Add(si);
+                    }
                 }
             }
             catch
@@ -400,7 +396,7 @@ namespace FOCA.Analysis
         /// <summary>
         ///     Event raised when a new link or group of links is found..
         /// </summary>
-        public event EventHandler<EventsThreads.ThreadListDataFoundEventArgs> DataFoundEvent;
+        public event EventHandler<EventsThreads.CollectionFound<ShodanIPInformation>> DataFoundEvent;
 
         /// <summary>
         ///     Evento lanzado cuando hay algo importante que logear
@@ -417,7 +413,7 @@ namespace FOCA.Analysis
             EndEvent?.Invoke(this, e);
         }
 
-        protected void OnDataFoundEvent(EventsThreads.ThreadListDataFoundEventArgs e)
+        protected void OnDataFoundEvent(EventsThreads.CollectionFound<ShodanIPInformation> e)
         {
             //MS say: Copy the handle to avoid a race condition.
             DataFoundEvent?.Invoke(this, e);

@@ -15,21 +15,18 @@ namespace FOCA.Searcher
         private const string userAgent = "Mozilla/5.0 (Linux; U; Android 4.1.1; en-gb; Build/KLP) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Safari/534.30";
         private static readonly string[] supportedFileTypes = new string[] { "pdf", "txt", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "rdp", "ica", "html", "htm" };
 
-        public DuckduckgoWebSearcher()
+        public DuckduckgoWebSearcher() : base("DuckDuckGoWeb")
         {
-            strName = "DuckDuckGoWeb";
         }
 
-        private HashSet<string> Query(string searchTerms)
+        private HashSet<Uri> Query(string searchTerms)
         {
-            HashSet<string> results = null;
+            HashSet<Uri> results = null;
             try
             {
-
-
                 string response = SendInitialRequest(searchTerms);
                 results = ParseResponse(response);
-                HashSet<string> pageResults = null;
+                HashSet<Uri> pageResults = null;
                 int currentPage = 0;
                 do
                 {
@@ -45,7 +42,7 @@ namespace FOCA.Searcher
                 if (e.Response is HttpWebResponse && ((HttpWebResponse)e.Response).StatusCode == HttpStatusCode.Forbidden)
                 {
                     OnSearcherEndEvent(new EventsThreads.ThreadEndEventArgs(EventsThreads.ThreadEndEventArgs.EndReasonEnum.LimitReached));
-                    return new HashSet<string>();
+                    return new HashSet<Uri>();
                 }
                 else
                 {
@@ -110,16 +107,24 @@ namespace FOCA.Searcher
         /// </summary>
         /// <param name="response"></param>
         /// <returns></returns>
-        private HashSet<string> ParseResponse(string response)
+        private HashSet<Uri> ParseResponse(string response)
         {
-            HashSet<string> res = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            HashSet<Uri> res = new HashSet<Uri>();
             HtmlDocument doc = new HtmlDocument();
             doc.LoadHtml(response);
 
             var links = doc.DocumentNode.SelectNodes(string.Format("//a[contains(@class,'{0}')]", "result__a"));
             if (links == null) return res;
 
-            res.UnionWith(links.Select(link => link.Attributes["href"].Value.Split(new string[] { "uddg=" }, StringSplitOptions.None)).Select(parts => Uri.UnescapeDataString(parts[parts.Length - 1])));
+            foreach (var item in links)
+            {
+                var parts = item.Attributes["href"].Value.Split(new string[] { "uddg=" }, StringSplitOptions.None);
+                if (Uri.TryCreate(Uri.UnescapeDataString(parts[parts.Length - 1]), UriKind.Absolute, out Uri urlFound))
+                {
+                    res.Add(urlFound);
+                }
+            }
+
             return res;
         }
 
@@ -165,11 +170,13 @@ namespace FOCA.Searcher
         private void SearchAndReport(string searchValue)
         {
             OnSearcherChangeStateEvent(new EventsThreads.ThreadStringEventArgs($"Searching links in {this.Name} using '{searchValue}' ...."));
-            HashSet<string> results = Query(searchValue);
-            List<object> lstCurrentResults = results.Cast<object>().ToList();
+            HashSet<Uri> results = Query(searchValue);
 
-            OnSearcherLogEvent(new EventsThreads.ThreadStringEventArgs(String.Format("[{0}] Found {1} links", strName, lstCurrentResults.Count)));
-            OnSearcherLinkFoundEvent(new EventsThreads.ThreadListDataFoundEventArgs(lstCurrentResults));
+            if (results.Count > 0)
+            {
+                OnSearcherLogEvent(new EventsThreads.ThreadStringEventArgs(String.Format("[{0}] Found {1} links", this.Name, results.Count)));
+                OnSearcherLinkFoundEvent(new EventsThreads.CollectionFound<Uri>(results));
+            }
         }
 
         /// <summary>

@@ -28,13 +28,12 @@ namespace SearcherCore.Searcher.BingAPI
         /// </summary>
         /// <param name="q">query</param>
         /// <returns></returns>
-        public List<string> Search(string q)
+        public List<Uri> Search(string q)
         {
-            var results = new List<string>();
-            var offset = 0;
+            List<Uri> results = new List<Uri>();
+            int offset = 0;
             // URL of the requests. Count = 50 because it's the max allowed value
-            var request = new RestRequest($"search?count=50&safeSearch=Off&textFormat=Raw&offset={offset}&q={q}",
-                Method.GET);
+            RestRequest request = new RestRequest($"search?count=50&safeSearch=Off&textFormat=Raw&offset={offset}&q={q}", Method.GET);
             // Request header which sends the private key to the server
             request.AddHeader("Ocp-Apim-Subscription-Key", _secretKey);
             var queryResult = client.Execute<List<string>>(request).Data[0];
@@ -45,14 +44,13 @@ namespace SearcherCore.Searcher.BingAPI
                 do
                 {
                     var webpages = (JArray)token["webPages"]["value"];
-                    results.AddRange(
-                        webpages.Select(
-                            res => (string)res.SelectToken("displayUrl")));
-                    foreach (var b in
-                            webpages.Select(
-                                link => ((string)link.SelectToken("displayUrl"))))
+                    foreach (string displayUrl in webpages.Select(link => ((string)link.SelectToken("displayUrl"))))
                     {
-                        UpdateStatus(b);
+                        if (Uri.TryCreate(displayUrl, UriKind.Absolute, out Uri url))
+                        {
+                            results.Add(url);
+                            UpdateStatus(displayUrl);
+                        }
                     }
                     offset += 50;
                 } while (offset < (int)token.SelectToken("webPages").SelectToken("totalEstimatedMatches") / 1000);

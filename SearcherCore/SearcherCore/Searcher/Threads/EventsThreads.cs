@@ -1,23 +1,20 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace FOCA.Threads
 {
     public class EventsThreads
     {
-        public class ThreadListDataFoundEventArgs : EventArgs
+        public class CollectionFound<T> : EventArgs
         {
-            public ThreadListDataFoundEventArgs(List<object> lstData)
+            public CollectionFound(ICollection<T> lstData)
             {
-                this.lstData = lstData;
+                this.Data = lstData;
             }
-            private List<object> lstData;
 
-            public List<object> Data
+            public ICollection<T> Data
             {
-                get { return lstData; }
-                set { lstData = value; }
+                get;
             }
         }
 
@@ -30,25 +27,6 @@ namespace FOCA.Threads
 
             public enum EndReasonEnum { NoMoreData, LimitReached, ErrorFound, Stopped }
             public EndReasonEnum EndReason;
-        }
-
-        public class ThreadListDataEndEventArgs : EventArgs
-        {
-            public ThreadListDataEndEventArgs(EndReasonEnum EndReason, List<string> lstData)
-            {
-                this.EndReason = EndReason;
-                this.lstData = lstData;
-            }
-
-            public enum EndReasonEnum { NoMoreData, LimitReached, ErrorFound, Stopped }
-            public EndReasonEnum EndReason;
-            private List<string> lstData;
-
-            public List<string> Data
-            {
-                get { return lstData; }
-                set { lstData = value; }
-            }
         }
 
         public class ThreadStringEventArgs : EventArgs

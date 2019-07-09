@@ -1,16 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using FOCA.Analysis;
+﻿using FOCA.Analysis;
 using FOCA.Analysis.FingerPrinting;
 using FOCA.Analysis.HttpMap;
 using FOCA.Analysis.Pinger;
@@ -27,6 +15,18 @@ using MetadataExtractCore.Diagrams;
 using MetadataExtractCore.Metadata;
 using Microsoft.WindowsAPICodePack.Taskbar;
 using NLog;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace FOCA
 {
@@ -378,16 +378,13 @@ namespace FOCA
 
         #region DNS Enumeration events
 
-        public void ShodanDataFound(object sender, EventsThreads.ThreadListDataFoundEventArgs e)
+        public void ShodanDataFound(object sender, EventsThreads.CollectionFound<ShodanRecognition.ShodanIPInformation> e)
         {
             try
             {
                 if (e?.Data == null || e.Data.Count <= 0) return;
 
-
-                if (!(e.Data[0] is ShodanRecognition.ShodanIPInformation)) return;
-
-                var si = (ShodanRecognition.ShodanIPInformation)e.Data[0];
+                ShodanRecognition.ShodanIPInformation si = e.Data.First();
 
                 Program.LogThis(new Log(Log.ModuleType.ShodanSearch, string.Format("Found IP Information {0}", si.IPAddress), Log.LogType.medium));
 
@@ -523,7 +520,7 @@ namespace FOCA
             }
             else
                 panelProject.Fill(Program.data.Project);
-            
+
             panelProject.LoadProject();
 
         }
@@ -788,7 +785,7 @@ namespace FOCA
             }
             catch
             {
-            
+
             }
 
             return documents;
@@ -812,7 +809,7 @@ namespace FOCA
             {
                 string ext;
                 ext = tn.Text.IndexOf(" (") > 0 ? tn.Text.Substring(0, tn.Text.IndexOf(" (")) : tn.Text;
-                
+
                 tn.Text = string.Format("{0} ({1})", ext, tn.Nodes.Count);
             }
 
@@ -1207,7 +1204,7 @@ namespace FOCA
                 }
                 catch
                 {
-                 
+
                 }
             }
             else if (e.Node == TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Users"])
@@ -1285,7 +1282,7 @@ namespace FOCA
                 InitializeInformationPanel();
                 panelInformation.lvwInformation.ListViewItemSorter = (ListViewColumnSorterValues)panelInformation.lvwInformation.Tag;
 
-                var software = (List<ApplicationsItem>) e.Node.Tag;
+                var software = (List<ApplicationsItem>)e.Node.Tag;
 
                 panelInformation.lvwInformation.Groups.Add("SoftwareFound", string.Format("All software found ({0}) - Times found", software.Count));
                 if (software.Count == 0)
@@ -1308,7 +1305,7 @@ namespace FOCA
                 InitializeInformationPanel();
                 panelInformation.lvwInformation.ListViewItemSorter = (ListViewColumnSorterValues)panelInformation.lvwInformation.Tag;
 
-                var email = (List<EmailsItem>) e.Node.Tag;
+                var email = (List<EmailsItem>)e.Node.Tag;
 
                 panelInformation.lvwInformation.Groups.Add("EmailsFound", string.Format("All emails found ({0}) - Times found", email.Count));
                 if (email.Count == 0)
@@ -1334,7 +1331,7 @@ namespace FOCA
                 var operatingsystems = (List<string>)e.Node.Tag;
 
                 panelInformation.lvwInformation.Groups.Add("OperatingSystemsFound", string.Format("All operating systems found ({0}) - Times found", 0));
-           
+
                 if (!operatingsystems.Any())
                 {
                     var lvi = panelInformation.lvwInformation.Items.Add("No operating systems found");
@@ -1427,28 +1424,28 @@ namespace FOCA
                 if (metaDatos.DataBase != null)
                     NewItemListView("Database", metaDatos.DataBase, valueGroupMetadata);
 
-                if (metaDatos.Category!= null)
+                if (metaDatos.Category != null)
                     NewItemListView("Category", metaDatos.Category, valueGroupMetadata);
 
-                if (metaDatos.Codification!= null)
+                if (metaDatos.Codification != null)
                     NewItemListView("Encoding", metaDatos.Codification, valueGroupMetadata);
 
-                if (metaDatos.Comments!= null)
+                if (metaDatos.Comments != null)
                     NewItemListView("Comments", metaDatos.Comments, valueGroupMetadata);
 
-                if (metaDatos.Company!= null)
+                if (metaDatos.Company != null)
                     NewItemListView("Company", metaDatos.Company, valueGroupMetadata);
 
-                if (metaDatos.Description!= null)
+                if (metaDatos.Description != null)
                     NewItemListView("Description", metaDatos.Description, valueGroupMetadata);
 
-                if (metaDatos.Statistic!= null)
+                if (metaDatos.Statistic != null)
                     NewItemListView("Statistics", metaDatos.Statistic, valueGroupMetadata);
 
-                if (metaDatos.Language!= null)
+                if (metaDatos.Language != null)
                     NewItemListView("Languaje", metaDatos.Language, valueGroupMetadata);
 
-                if (metaDatos.UserInfo!= null)
+                if (metaDatos.UserInfo != null)
                 {
                     var lvi = panelInformation.lvwInformation.Items.Add("User defined information");
                     lvi.Group = panelInformation.lvwInformation.Groups["Other Metadata"];
@@ -1467,20 +1464,20 @@ namespace FOCA
                 if (metaDatos.VersionNumber != 0)
                     NewItemListView("Revisions", metaDatos.VersionNumber.ToString(), valueGroupMetadata);
 
-                if (metaDatos.Keywords!= null)
+                if (metaDatos.Keywords != null)
                     NewItemListView("Keywords", metaDatos.Keywords, valueGroupMetadata);
 
-                if (metaDatos.Template!= null)
+                if (metaDatos.Template != null)
                     NewItemListView("Template", metaDatos.Template, valueGroupMetadata);
 
-                if (metaDatos.OperativeSystem!= null)
+                if (metaDatos.OperativeSystem != null)
                     NewItemListView("Operating system", metaDatos.OperativeSystem, valueGroupMetadata);
 
                 if (metaDatos.EditTime != 0)
                     NewItemListView("Edition time", TimeSpan.FromTicks((long)metaDatos.EditTime).ToString(),
                         valueGroupMetadata);
 
-                if (metaDatos.Title!= null)
+                if (metaDatos.Title != null)
                     NewItemListView("Title", metaDatos.Title, valueGroupMetadata);
 
                 if (metaDatos.Model != null && metaDatos.Model.Trim() != string.Empty)
@@ -2135,7 +2132,7 @@ namespace FOCA
                     foreach (var ii in i.Items)
                     {
                         panelInformation.lvwInformation.Groups.Add(ii.Printer, string.Format("Printer: {0}", ii.Printer));
-                       
+
                         if (ii.RemoteUsers.Items.Count > 0)
                         {
                             var lvi = panelInformation.lvwInformation.Items.Add("Users with access");
@@ -2383,7 +2380,7 @@ namespace FOCA
             {
                 Invoke(new MethodInvoker(delegate
                 {
-                    var strMessage ="Resolving domains aborted!";
+                    var strMessage = "Resolving domains aborted!";
                     toolStripStatusLabelLeft.Text = strMessage;
                     Program.LogThis(new Log(Log.ModuleType.DNSSearch, strMessage, Log.LogType.debug));
                 }));
@@ -2420,13 +2417,12 @@ namespace FOCA
 
                 var currentResults = new List<string>();
 
-                bingSearcher.SearcherLinkFoundEvent += delegate (object sender, EventsThreads.ThreadListDataFoundEventArgs e)
+                bingSearcher.SearcherLinkFoundEvent += delegate (object sender, EventsThreads.CollectionFound<Uri> e)
                 {
-                    foreach (object item in e.Data)
+                    foreach (Uri url in e.Data)
                     {
                         try
                         {
-                            var url = new Uri((string)item);
                             if (currentResults.Any(d => d.ToLower() == url.Host.ToLower())) continue;
 
                             currentResults.Add(url.Host);
@@ -2537,7 +2533,7 @@ namespace FOCA
         {
             var strSource = string.Empty;
 
-           
+
             int scrollPos = panelInformation.lvwInformation.TopItem != null ? panelInformation.lvwInformation.TopItem.Index : 0;
             LoadInformationGui();
             panelInformation.lvwInformation.BeginUpdate();
@@ -2546,13 +2542,13 @@ namespace FOCA
 
             DomainsItem d = Program.data.GetDomain(e.Node.Text);
             if (d == null)
-                panelInformation.splitPanel.Panel2Collapsed = true; 
+                panelInformation.splitPanel.Panel2Collapsed = true;
 
             if (d != null)
             {
                 panelInformation.splitPanel.Panel2Collapsed = false;
                 UpdateBottomPanel(d);
-                
+
                 panelInformation.lvwInformation.Groups.Add("Domain", "Domain - Source");
                 var lvi = panelInformation.lvwInformation.Items.Add(e.Node.Text);
                 lvi.Group = panelInformation.lvwInformation.Groups["Domain"];
@@ -2615,7 +2611,7 @@ namespace FOCA
                     }
                 }
 
-               var listaIps = Program.data.GetResolutionIPs(e.Node.Text);
+                var listaIps = Program.data.GetResolutionIPs(e.Node.Text);
 
                 panelInformation.lvwInformation.Groups.Add("IPs", "IP Addresses - Source");
                 foreach (var ip in listaIps)
@@ -2651,7 +2647,7 @@ namespace FOCA
                         lvi.SubItems.Add(((HTTP)fp).Version);
                         lvi.Tag = ((HTTP)fp).Version;
 
-                        if (string.IsNullOrEmpty(((HTTP) fp).Title)) continue;
+                        if (string.IsNullOrEmpty(((HTTP)fp).Title)) continue;
 
                         panelInformation.lvwInformation.Groups.Add("Http Title", "HTML Title");
                         lvi = panelInformation.lvwInformation.Items.Add(((HTTP)fp).Host + ":" + ((HTTP)fp).Port);
@@ -2889,7 +2885,7 @@ namespace FOCA
 
         private void UpdateButtom(DomainsItem domain)
         {
-         
+
         }
 
         /// <summary>
@@ -3238,10 +3234,10 @@ namespace FOCA
 
                             else if ((tn?.Tag is ComputersItem) && (tn.Parent.Name != "Unlocated Servers") && ((tn.Parent.Parent.Parent.Name == "Servers") || (tn.Parent.Parent.Name == "Servers") || (tn.Parent.Parent.Parent.Parent.Name == "Servers")))
                                 Contextual.ShowNetworkServersItemMenu(tn, sourceControl);
-                            
+
                             else if ((tn?.Tag is ComputersItem) && (tn.Parent.Name == "Unlocated Servers"))
                                 Contextual.ShowNetworkUnlocatedItemMenu(tn, sourceControl);
-                            
+
                             else if ((tn?.Tag is ComputerDomainsItem) && (tn.Parent.Tag is ComputersItem))
                             {
                                 var newTn = new TreeNode
