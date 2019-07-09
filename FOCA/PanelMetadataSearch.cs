@@ -55,9 +55,9 @@ namespace FOCA
         /// <param name="o"></param>
         private void ProcessUrls(object o)
         {
-            var lstUrLs = (List<object>)o;
+            List<Uri> lstUrLs = (List<Uri>)o;
             if (lstUrLs != null)
-                HandleLinkFoundEvent(null, new EventsThreads.ThreadListDataFoundEventArgs(lstUrLs));
+                HandleLinkFoundEvent(null, new EventsThreads.CollectionFound<Uri>(lstUrLs));
         }
 
         /// <summary>
@@ -2303,10 +2303,8 @@ namespace FOCA
                     }
                     else
                     {
-                        CustomSearchEventsGeneric(new GoogleAPISearcher
+                        CustomSearchEventsGeneric(new GoogleAPISearcher(Program.cfgCurrent.GoogleApiKey, Program.cfgCurrent.GoogleApiCx)
                         {
-                            GoogleApiKey = Program.cfgCurrent.GoogleApiKey,
-                            GoogleApiCx = Program.cfgCurrent.GoogleApiCx,
                             SearchAll = true
                         }, searchString);
                     }
@@ -2380,10 +2378,8 @@ namespace FOCA
                     }
                     else
                     {
-                        SearchEventsGeneric(new GoogleAPISearcher
+                        SearchEventsGeneric(new GoogleAPISearcher(Program.cfgCurrent.GoogleApiKey, Program.cfgCurrent.GoogleApiCx)
                         {
-                            GoogleApiKey = Program.cfgCurrent.GoogleApiKey,
-                            GoogleApiCx = Program.cfgCurrent.GoogleApiCx,
                             SearchAll = true
                         });
                     }
@@ -2495,35 +2491,30 @@ namespace FOCA
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        public void HandleLinkFoundEvent(object sender, EventsThreads.ThreadListDataFoundEventArgs e)
+        public void HandleLinkFoundEvent(object sender, EventsThreads.CollectionFound<Uri> e)
         {
             Program.LogThis(new Log(Log.ModuleType.MetadataSearch, $"Found {e.Data.Count} links",
                 Log.LogType.debug));
 
-            foreach (string link in e.Data)
+            foreach (Uri link in e.Data)
             {
                 try
                 {
-                    if (link == string.Empty)
+                    if (Program.data.files.Items.Count(li => string.Equals(li.URL, link.ToString(), StringComparison.CurrentCultureIgnoreCase)) > 0)
                         continue;
 
-                    if (Program.data.files.Items.Count(li => string.Equals(li.URL, link, StringComparison.CurrentCultureIgnoreCase)) > 0)
-                        continue;
+                    if (Program.data.GetDomain(link.Host) == null)
+                        Program.data.AddDomain(link.Host, "WebSearch", Program.cfgCurrent.MaxRecursion, Program.cfgCurrent);
 
-                    var u = new Uri(link);
-
-                    if (Program.data.GetDomain(u.Host) == null)
-                        Program.data.AddDomain(u.Host, "WebSearch", Program.cfgCurrent.MaxRecursion, Program.cfgCurrent);
-
-                    var dominio = Program.data.GetDomain(u.Host);
-                    dominio.map.AddUrl(u.ToString());
+                    var dominio = Program.data.GetDomain(link.Host);
+                    dominio.map.AddUrl(link.ToString());
 
                     if (dominio.techAnalysis.domain == null)
                         dominio.techAnalysis.domain = dominio.Domain;
 
-                    var listaUrl = new List<object> { u };
+                    var listaUrl = new List<Uri> { link };
                     dominio.techAnalysis.eventLinkFoundDetailed(null,
-                        new EventsThreads.ThreadListDataFoundEventArgs(listaUrl));
+                        new EventsThreads.CollectionFound<Uri>(listaUrl));
                 }
                 catch
                 {
@@ -2533,8 +2524,8 @@ namespace FOCA
                 {
                     var fi = new FilesITem
                     {
-                        Ext = Path.GetExtension(new Uri(link).AbsolutePath).ToLower(),
-                        URL = link,
+                        Ext = Path.GetExtension(link.AbsolutePath).ToLower(),
+                        URL = link.ToString(),
                         Downloaded = false,
                         Processed = false,
                         Date = DateTime.MinValue,
@@ -2545,16 +2536,15 @@ namespace FOCA
                     Program.data.files.Items.Add(fi);
                     Program.FormMainInstance.treeViewMetadata_UpdateDocumentsNumber();
                     var lvi = listViewDocuments_Update(fi);
-                    HttpSizeDaemonInst.AddURL(link, fi);
+                    HttpSizeDaemonInst.AddURL(fi);
                 }));
                 // add the domain from the found link to the project's domains
-                var uri = new Uri(link);
                 if (Program.data.Project.ProjectState == Project.ProjectStates.Uninitialized)
                     continue;
-                Program.data.AddDomain(uri.Host, "Documents search", 0,
+                Program.data.AddDomain(link.Host, "Documents search", 0,
                     Program.cfgCurrent);
                 // add the URL to the domain's map
-                Program.data.GetDomain(uri.Host).map.AddDocument(link);
+                Program.data.GetDomain(link.Host).map.AddDocument(link.ToString());
             }
         }
 

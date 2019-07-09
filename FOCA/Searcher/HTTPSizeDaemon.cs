@@ -30,7 +30,7 @@ namespace FOCA.Searcher
             thrSizeSearcher.Start();
         }
 
-        public void AddURL(string strURL, FilesITem metadataFile)
+        public void AddURL(FilesITem metadataFile)
         {
             if (Program.cfgCurrent.UseHead)
             {

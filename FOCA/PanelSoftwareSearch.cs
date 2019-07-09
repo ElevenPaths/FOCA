@@ -1,13 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Windows.Forms;
 using FOCA.Analysis;
 using FOCA.Analysis.FingerPrinting;
 using FOCA.Analysis.Technology;
 using FOCA.Properties;
 using FOCA.Threads;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Windows.Forms;
 
 namespace FOCA
 {
@@ -82,7 +82,7 @@ namespace FOCA
                 bFpShodan = cbFingerprintingShodan.Checked;
                 bTechRecog = cbTechRecognition.Checked;
 
-                thrSearch = new Thread(Search) {IsBackground = true};
+                thrSearch = new Thread(Search) { IsBackground = true };
                 thrSearch.Start();
 
                 EnableSkip("Skip");
@@ -224,8 +224,8 @@ namespace FOCA
                     else
                     {
                         listaDominios.AddRange(from domAlternativo in Program.data.Project.AlternativeDomains
-                            where dominio.Contains(domAlternativo)
-                            select Program.data.GetDomains()[iDom]);
+                                               where dominio.Contains(domAlternativo)
+                                               select Program.data.GetDomains()[iDom]);
                     }
                 }
 
@@ -301,14 +301,14 @@ namespace FOCA
             panelFPrintingHTTP.Dock = DockStyle.Fill;
         }
 
-        private static void ShodanDataFound(object sender, EventsThreads.ThreadListDataFoundEventArgs e)
+        private static void ShodanDataFound(object sender, EventsThreads.CollectionFound<ShodanRecognition.ShodanIPInformation> e)
         {
             try
             {
-                if (e?.Data == null || e.Data.Count <= 0 || !(e.Data[0] is ShodanRecognition.ShodanIPInformation))
+                if (e?.Data == null || e.Data.Count <= 0)
                     return;
                 // just an object is received
-                var si = (ShodanRecognition.ShodanIPInformation) e.Data[0];
+                ShodanRecognition.ShodanIPInformation si = e.Data.First();
                 Program.LogThis(new Log(Log.ModuleType.ShodanSearch,
                     $"Found IP Information {si.IPAddress}", Log.LogType.low));
 

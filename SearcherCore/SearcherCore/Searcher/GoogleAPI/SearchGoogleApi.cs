@@ -1,9 +1,8 @@
-using System.Collections.Generic;
-using System.Linq;
-using FOCA.Searcher;
 using Google.Apis.Customsearch.v1;
 using Google.Apis.Customsearch.v1.Data;
 using Google.Apis.Services;
+using System;
+using System.Collections.Generic;
 
 namespace SearcherCore.Searcher.GoogleAPI
 {
@@ -44,26 +43,27 @@ namespace SearcherCore.Searcher.GoogleAPI
             return listRequest;
         }
 
-        public List<string> RunService(string searchString)
+        public ICollection<Uri> RunService(string searchString)
         {
             var listRequest = BuildRequest(searchString);
             IList<Result> paging = new List<Result>();
-            var urls = new List<string>();
+            HashSet<Uri> urls = new HashSet<Uri>();
             var count = 0;
             while (paging != null)
             {
-                listRequest.Start = count*10 + 1;
+                listRequest.Start = count * 10 + 1;
                 try
                 {
                     paging = listRequest.Execute().Items;
                     if (paging != null)
                     {
-                        urls.AddRange(
-                            paging.Select(
-                                item => item.Link));
                         foreach (var item in paging)
                         {
-                            UpdateStatus(item.Link);
+                            if (Uri.TryCreate(item.Link, UriKind.Absolute, out Uri urlFound))
+                            {
+                                urls.Add(urlFound);
+                                UpdateStatus(item.Link);
+                            }
                         }
                     }
                     count++;

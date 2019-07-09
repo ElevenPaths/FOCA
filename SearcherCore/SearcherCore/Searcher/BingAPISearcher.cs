@@ -1,22 +1,19 @@
+using FOCA.Threads;
+using SearcherCore.Searcher.BingAPI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using FOCA.Threads;
-using SearcherCore.Searcher.BingAPI;
-using System.Net;
-using System.Windows.Forms;
 
 namespace FOCA.Searcher
 {
     public class BingAPISearcher : WebSearcher
     {
         private readonly string[] supportedFileTypes = new string[4] { "doc", "pdf", "ppt", "xls" };
-        public string BingApiKey { get; set; }
+        public string BingApiKey { get; }
 
-        public BingAPISearcher(string key)
+        public BingAPISearcher(string key) : base("BingAPI")
         {
-            strName = "BingAPI";
             BingApiKey = key;
         }
 
@@ -29,7 +26,7 @@ namespace FOCA.Searcher
 
             thrSearchLinks = new Thread(GetLinksAsync)
             {
-                Priority     = ThreadPriority.Lowest,
+                Priority = ThreadPriority.Lowest,
                 IsBackground = true
             };
             thrSearchLinks.Start();
@@ -45,7 +42,7 @@ namespace FOCA.Searcher
 
             thrSearchLinks = new Thread(GetCustomLinksAsync)
             {
-                Priority     = ThreadPriority.Lowest,
+                Priority = ThreadPriority.Lowest,
                 IsBackground = true
             };
             thrSearchLinks.Start(customSearchString);
@@ -88,7 +85,7 @@ namespace FOCA.Searcher
             OnSearcherChangeStateEvent(new EventsThreads.ThreadStringEventArgs("Searching links in " + Name + "..."));
             try
             {
-                if (GetBingAllLinks((string) customSearchString) == 0)
+                if (GetBingAllLinks((string)customSearchString) == 0)
                     OnSearcherEndEvent(new EventsThreads.ThreadEndEventArgs(EventsThreads.ThreadEndEventArgs.EndReasonEnum.NoMoreData));
             }
             catch (ThreadAbortException)
@@ -110,20 +107,23 @@ namespace FOCA.Searcher
         private int GetBingResults(string searchString, out bool moreResults)
         {
             var client = new SearchBingApi(BingApiKey);
-            List<string> results;
+            List<Uri> results;
             try
             {
                 results = client.Search(searchString);
+                if (results.Count > 0)
+                    OnSearcherLinkFoundEvent(new EventsThreads.CollectionFound<Uri>(results));
+
+                return results.Count;
             }
             catch
             {
-                moreResults = false;
                 return 0;
             }
-            if (results.Count != 0)
-                OnSearcherLinkFoundEvent(new EventsThreads.ThreadListDataFoundEventArgs((List<object>)results.Cast<object>().ToList()));
-            moreResults = false;
-            return results.Count;
+            finally
+            {
+                moreResults = false;
+            }
         }
 
         /// <summary>

@@ -36,9 +36,8 @@ namespace FOCA.Searcher
         public enum FirstSeenGoogle { AnyTime, past24Hours, pastWeek, pastMonth, pastYear };
         public FirstSeenGoogle FirstSeen { get; set; }
 
-        public GoogleWebSearcher()
+        public GoogleWebSearcher() : base("GoogleWeb")
         {
-            strName = "GoogleWeb";
         }
 
         /// <summary>
@@ -187,7 +186,7 @@ namespace FOCA.Searcher
 
                 try
                 {
-                    OnSearcherLogEvent(new EventsThreads.ThreadStringEventArgs(string.Format("[{0}] Requesting URL {1}", strName, request.RequestUri)));
+                    OnSearcherLogEvent(new EventsThreads.ThreadStringEventArgs(string.Format("[{0}] Requesting URL {1}", this.Name, request.RequestUri)));
                     response = (HttpWebResponse)request.GetResponse();
 
                 }
@@ -204,12 +203,12 @@ namespace FOCA.Searcher
                         }
                         else
                         {
-                            OnSearcherLogEvent(new EventsThreads.ThreadStringEventArgs(string.Format("[{0}] Error {1} in request {2}", strName, retries, request.RequestUri.ToString())));
+                            OnSearcherLogEvent(new EventsThreads.ThreadStringEventArgs(string.Format("[{0}] Error {1} in request {2}", this.Name, retries, request.RequestUri.ToString())));
                         }
                     }
                     else
                     {
-                        OnSearcherLogEvent(new EventsThreads.ThreadStringEventArgs(string.Format("[{0}] Error {1} in request {2}", strName, retries, request.RequestUri.ToString())));
+                        OnSearcherLogEvent(new EventsThreads.ThreadStringEventArgs(string.Format("[{0}] Error {1} in request {2}", this.Name, retries, request.RequestUri.ToString())));
                     }
                     Error = true;
                     retries++;
@@ -218,7 +217,7 @@ namespace FOCA.Searcher
                 {
                     Error = true;
                     retries++;
-                    OnSearcherLogEvent(new EventsThreads.ThreadStringEventArgs(string.Format("[{0}] Error {1} in request {2}", strName, retries, request.RequestUri.ToString())));
+                    OnSearcherLogEvent(new EventsThreads.ThreadStringEventArgs(string.Format("[{0}] Error {1} in request {2}", this.Name, retries, request.RequestUri.ToString())));
                 }
             } while (Error && retries < 3);
 
@@ -230,7 +229,7 @@ namespace FOCA.Searcher
                 html = lector.ReadToEnd();
             }
             response.Close();
-            HashSet<string> lstCurrentResults = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            HashSet<Uri> lstCurrentResults = new HashSet<Uri>();
             foreach (Match m in googleWebUriRegex.Matches(html))
             {
                 string link = m.Groups["url"].Value;
@@ -238,11 +237,12 @@ namespace FOCA.Searcher
                     link = (HttpUtility.UrlDecode(link));
                 if (Uri.TryCreate(link, UriKind.Absolute, out Uri foundUri) && !foundUri.Host.Contains("google.com"))
                 {
-                    lstCurrentResults.Add(link);
+                    lstCurrentResults.Add(foundUri);
                 }
             }
-            OnSearcherLogEvent(new EventsThreads.ThreadStringEventArgs(string.Format("[{0}] Found {1} links", strName, lstCurrentResults.Count)));
-            OnSearcherLinkFoundEvent(new EventsThreads.ThreadListDataFoundEventArgs(new List<object>(lstCurrentResults)));
+
+            OnSearcherLogEvent(new EventsThreads.ThreadStringEventArgs(string.Format("[{0}] Found {1} links", this.Name, lstCurrentResults.Count)));
+            OnSearcherLinkFoundEvent(new EventsThreads.CollectionFound<Uri>(lstCurrentResults));
 
             moreResults = html.ToLower().Contains("<span class=\"csb ch\" style=\"background-position:-96px 0;width:71px\"></span>".ToLower());
 
