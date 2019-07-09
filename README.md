@@ -11,11 +11,18 @@ It is capable of analysing a wide variety of documents, with the most common bei
 
 These documents are searched for using three possible search engines: **Google**, **Bing**, and **DuckDuckGo**. The sum of the results from the three engines amounts to a lot of documents. It is also possible to add local files to extract the EXIF information from graphic files, and a complete analysis of the information discovered through the URL is conducted even before downloading the file.
 
+## 🏭 Releases 
+
+Check [here](https://github.com/ElevenPaths/FOCA/releases) our latest releases. 
+
 ## ✔️ Requisites
 
 To run the solution locally the system will need:
 
-* An instance of **SQL Server**.
+* **Microsoft Windows** (64 bits). Versions 7, 8, 8.1 and 10.
+* **Microsoft .NET Framework 4.7.1**.
+* Microsoft **Visual C++ 2010 x64** or greater.
+* An instance of **SQL Server** 2014 or greater.
 
 #### 📝Notes
 
@@ -28,4 +35,5 @@ To run the solution locally the system will need:
 ## ☕ Further reading 
 
 * https://www.elevenpaths.com/labstools/foca/index.html
-* https://0xword.com/es/libros/59-pentesting-con-foca.html
+* [ES] https://0xword.com/es/libros/59-pentesting-con-foca.html
+* [ES] https://empresas.blogthinkbig.com/como-analizar-documentos-con-foca/
