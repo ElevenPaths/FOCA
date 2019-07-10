@@ -590,7 +590,7 @@ namespace FOCA
             HideOrShowProjectInitializedComponents(isProjectInitialized);
 
             if (!isProjectInitialized)
-            { 
+            {
                 panelMetadataSearch.panelCustomSearch.BorderStyle = BorderStyle.FixedSingle;
                 panelMetadataSearch.linkLabelCustomSearch.Visible = false;
             }
@@ -688,13 +688,13 @@ namespace FOCA
         /// </summary>
         /// <param name="name">name</param>
         /// <returns>TreeNode</returns>
-        public TreeNode TreeViewMetadataAddDocument(string name)
+        public TreeNode TreeViewMetadataAddDocument(FilesITem file)
         {
-            var tnSearched = TreeViewMetadataSearchDocument(name);
+            TreeNode tnSearched = TreeViewMetadataSearchDocument(file.Path);
 
             if (tnSearched != null) return tnSearched;
 
-            var ext = Path.GetExtension(name);
+            string ext = file.Ext;
 
             if (ext.Length == 0 || !AstrSuportedExtensions.Contains(ext.Substring(1).ToLower()))
                 ext = "Unknown";
@@ -714,7 +714,7 @@ namespace FOCA
                 parent = TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Documents"].Nodes[ext];
             }
 
-            var child = parent.Nodes.Insert(SearchTextInNodes(parent.Nodes, Path.GetFileName(name)), name, Path.GetFileName(name));
+            TreeNode child = parent.Nodes.Insert(SearchTextInNodes(parent.Nodes, Path.GetFileName(file.Path)), file.Path, Path.GetFileName(file.Path));
 
             child.ContextMenuStrip = Program.FormMainInstance.contextMenuStripDocuments;
 

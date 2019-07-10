@@ -138,7 +138,7 @@ namespace FOCA.Core
                     //Carga los metadatos si los tiene
                     if (fi.Metadata != null)
                     {
-                        TreeNode tn_file = tn_file = Program.FormMainInstance.TreeViewMetadataAddDocument(fi.Path);
+                        TreeNode tn_file = tn_file = Program.FormMainInstance.TreeViewMetadataAddDocument(fi);
                         tn_file.Tag = fi;
                         var Extension = Path.GetExtension(fi.Path).ToLower();
                         tn_file.ImageIndex =
@@ -151,7 +151,7 @@ namespace FOCA.Core
             {
                 foreach (var f in Program.data.files.Items.Where(f => f.Processed))
                 {
-                    Program.FormMainInstance.TreeViewMetadataAddDocument(f.Path);
+                    Program.FormMainInstance.TreeViewMetadataAddDocument(f);
                 }
 
                 mainForm.treeViewMetadata_UpdateDocumentsNumber();

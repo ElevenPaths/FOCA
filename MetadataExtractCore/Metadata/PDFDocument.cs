@@ -1,14 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.IO;
-using System.Text.RegularExpressions;
+using MetadataExtractCore.Analysis;
+using MetadataExtractCore.Diagrams;
+using MetadataExtractCore.Utilities;
 using PdfSharp.Pdf;
 using PdfSharp.Pdf.IO;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
 using System.Xml;
-using MetadataExtractCore.Analysis;
-using MetadataExtractCore.Utilities;
-using MetadataExtractCore.Diagrams;
 
 namespace MetadataExtractCore.Metadata
 {
@@ -43,7 +43,10 @@ namespace MetadataExtractCore.Metadata
                 if (doc.Info.Title != string.Empty)
                 {
                     FoundMetaData.Title = Functions.ToPlainText(doc.Info.Title);
-                    FoundPaths.AddUniqueItem(PathAnalysis.CleanPath(doc.Info.Title), true);
+                    if (Uri.IsWellFormedUriString(doc.Info.Title, UriKind.Absolute))
+                    {
+                        FoundPaths.AddUniqueItem(PathAnalysis.CleanPath(doc.Info.Title), true);
+                    }
                 }
                 if (doc.Info.Subject != string.Empty)
                     FoundMetaData.Subject = Functions.ToPlainText(doc.Info.Subject);
@@ -85,16 +88,30 @@ namespace MetadataExtractCore.Metadata
                         }
                     }
                 }
-                if (doc.Info.CreationDate != DateTime.MinValue)
+                try
                 {
-                    FoundDates.CreationDateSpecified = true;
-                    FoundDates.CreationDate = doc.Info.CreationDate;
+                    if (doc.Info.CreationDate != DateTime.MinValue)
+                    {
+                        FoundDates.CreationDateSpecified = true;
+                        FoundDates.CreationDate = doc.Info.CreationDate;
+                    }
                 }
-                if (doc.Info.ModificationDate != DateTime.MinValue)
+                catch (InvalidCastException)
                 {
-                    FoundDates.ModificationDateSpecified = true;
-                    FoundDates.ModificationDate = doc.Info.ModificationDate;
                 }
+
+                try
+                {
+                    if (doc.Info.ModificationDate != DateTime.MinValue)
+                    {
+                        FoundDates.ModificationDateSpecified = true;
+                        FoundDates.ModificationDate = doc.Info.ModificationDate;
+                    }
+                }
+                catch (InvalidCastException)
+                {
+                }
+
                 //Busca path y links binariamente
                 BinarySearchPaths(stm);
                 BinarySearchLinks(stm);
@@ -471,7 +488,7 @@ namespace MetadataExtractCore.Metadata
                 }
             }
         }
-        
+
         private void BinarySearchPaths(Stream stm)
         {
             stm.Seek(0, SeekOrigin.Begin);

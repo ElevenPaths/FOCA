@@ -487,7 +487,7 @@ namespace FOCA
                 {
                     Program.LogThis(new Log(Log.ModuleType.MetadataSearch,
                         $"Unknow extension {path}, found filetype {extension}", Log.LogType.medium));
-                    var newFile = GetNotExistsPath(path + "." + extension);
+                    var newFile = GetNotExistsPath(path + extension);
                     File.Move(path, newFile);
                     Program.LogThis(new Log(Log.ModuleType.MetadataSearch,
                         $"File moved {path} to {newFile}", Log.LogType.medium));
@@ -569,6 +569,11 @@ namespace FOCA
                         lviSize = lviCurrent.SubItems[5];
                         lviAnalyzed = lviCurrent.SubItems[6];
                         lviModifedDate = lviCurrent.SubItems[7];
+                        //ImageIndex of unknown file
+                        if (lviCurrent.ImageIndex == 22)
+                        {
+                            lviCurrent.ImageIndex = Program.FormMainInstance.GetImageToExtension(fi.Ext);
+                        }
                     }
                     // represent the item into the ListView
                     var extension = fi.Ext;
@@ -819,7 +824,7 @@ namespace FOCA
                             TreeNode tnFile = null;
                             Program.FormMainInstance.TreeView.Invoke(new MethodInvoker(delegate
                             {
-                                tnFile = Program.FormMainInstance.TreeViewMetadataAddDocument(fi.Path);
+                                tnFile = Program.FormMainInstance.TreeViewMetadataAddDocument(fi);
                                 // delete all it's subnodes in case that the document already existed
                                 tnFile.Nodes.Clear();
                             }));
@@ -827,21 +832,20 @@ namespace FOCA
                             fi.Processed = true;
                             tnFile.Tag = fi;
                             MetaExtractor doc = null;
-                            string extension = Path.GetExtension(fi.Path);
-                            if (!String.IsNullOrWhiteSpace(extension))
+                            if (!String.IsNullOrWhiteSpace(fi.Ext))
                             {
                                 try
                                 {
                                     using (var fs = new FileStream(fi.Path, FileMode.Open, FileAccess.Read))
                                     {
-                                        doc = MetaExtractor.Create(extension, fs);
+                                        doc = MetaExtractor.Create(fi.Ext, fs);
                                     }
 
                                     Program.FormMainInstance.TreeView.Invoke(new MethodInvoker(delegate
                                     {
                                         tnFile.ImageIndex =
                                             tnFile.SelectedImageIndex =
-                                                Program.FormMainInstance.GetImageToExtension(extension);
+                                                Program.FormMainInstance.GetImageToExtension(fi.Ext);
                                     }));
                                 }
                                 catch
@@ -2723,16 +2727,12 @@ namespace FOCA
             //Enqueued all files with their url and bind it a physical path in hard disk
             foreach (var url in urls)
             {
-                var d = new Download();
-                var fileName = Path.GetFileName(new Uri(url.SubItems[2].Text).AbsolutePath);
-                //Delete incorrect filename characters
-                for (var i = 0; fileName.IndexOfAny(MyInvalidPathChars) != -1; i++)
-                    fileName = fileName.Replace(MyInvalidPathChars[i], ' ');
-                d.DownloadStatus = Download.Status.Enqueued;
-                d.PhysicalPath = directory;
-                d.DownloadUrl = url.SubItems[2].Text;
-                d.Lvi = url;
-                Downloads.Add(d);
+                Download fileDownload = new Download();
+                fileDownload.DownloadStatus = Download.Status.Enqueued;
+                fileDownload.PhysicalPath = directory;
+                fileDownload.DownloadUrl = url.SubItems[2].Text;
+                fileDownload.Lvi = url;
+                Downloads.Add(fileDownload);
             }
             if (CurrentDownloads != null && CurrentDownloads.IsAlive)
             {
@@ -2768,7 +2768,6 @@ namespace FOCA
                     while (activeDownloads >= Program.cfgCurrent.SimultaneousDownloads)
                         Thread.Sleep(1000);
 
-                    Download d;
                     // get an inactive download from the queue
                     for (var i = 0; i < Downloads.Count; i++)
                     {
@@ -2800,12 +2799,12 @@ namespace FOCA
                             break;
                         if (!exists || Downloads[i].DownloadStatus != Download.Status.Enqueued) continue;
                         Downloads[i].DownloadStatus = Download.Status.Downloading;
-                        d = Downloads[i];
+                        Download d = Downloads[i];
                         var fileName = Path.GetFileName(new Uri(d.Lvi.SubItems[2].Text).AbsolutePath);
                         //Delete incorrect filename characters
                         for (var j = 0; fileName.IndexOfAny(MyInvalidPathChars) != -1; j++)
                             fileName = fileName.Replace(MyInvalidPathChars[j], ' ');
-                        var downloadPath = GetNotExistsPath(d.PhysicalPath + fileName);
+                        string downloadPath = GetNotExistsPath(d.PhysicalPath + fileName);
                         // create an empty file to take over the filename and avoid other downloads overwriting it
                         if (!ValidatePathExist(d.PhysicalPath))
                         {
@@ -2814,11 +2813,10 @@ namespace FOCA
                         }
 
                         File.Create(downloadPath).Close();
-                        var fi = (FilesITem)d.Lvi.Tag;
+                        FilesITem fi = (FilesITem)d.Lvi.Tag;
                         if (fi != null)
                             fi.Path = downloadPath;
                         d.PhysicalPath = downloadPath;
-
 
                         Invoke(new MethodInvoker(() =>
                         {
