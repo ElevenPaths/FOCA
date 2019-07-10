@@ -1,11 +1,11 @@
-using System;
-using System.Text;
-using System.IO;
 using Ionic.Zip;
+using MetadataExtractCore.Metadata;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
-using MetadataExtractCore.Metadata;
+using System.Text;
 
 namespace MetadataExtractCore.Utilities
 {
@@ -42,17 +42,18 @@ namespace MetadataExtractCore.Utilities
         {
             try
             {
-                var br = new BinaryReader(stmFile);
-                byte[] start = null;
                 if (stmFile.Length < 8)
                 {
                     return string.Empty;
                 }
-                start = br.ReadBytes(8);
+
+                BinaryReader br = new BinaryReader(stmFile);
+                byte[] start = br.ReadBytes(8);
+
                 if (Encoding.ASCII.GetString(start).StartsWith("%PDF-"))
-                    return "pdf";
-                var magic_number = new byte[8] { 0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1 };
-                var isdoc = true;
+                    return ".pdf";
+                byte[] magic_number = new byte[8] { 0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1 };
+                bool isdoc = true;
                 for (var i = 0; i < magic_number.Length; i++)
                 {
                     if (start[i] != magic_number[i])
@@ -63,7 +64,7 @@ namespace MetadataExtractCore.Utilities
                 }
                 if (isdoc)
                 {
-                    var doc = new OleDocument(stmFile);
+                    OleDocument doc = new OleDocument(stmFile);
                     if (doc.isValid())
                     {
                         doc.readMSAT();
@@ -71,27 +72,27 @@ namespace MetadataExtractCore.Utilities
                         doc.readSSAT();
                         doc.readDir();
                         if (doc.OpenStream("WordDocument") != null)
-                            return "doc";
+                            return ".doc";
                         if (doc.OpenStream("Workbook") != null)
-                            return "xls";
+                            return ".xls";
                         if (doc.OpenStream("PowerPoint Document") != null)
-                            return "ppt";
+                            return ".ppt";
                     }
                 }
-                ZipFile z = null;
+                ZipFile zipFile = null;
                 try
                 {
-                    z = ZipFile.Read(stmFile);
-                    foreach (var s in z.EntryFileNames)
+                    zipFile = ZipFile.Read(stmFile);
+                    foreach (var s in zipFile.EntryFileNames)
                     {
                         if (s.StartsWith("word"))
-                            return "docx";
+                            return ".docx";
                         if (s.StartsWith("xl"))
-                            return "xlsx";
+                            return ".xlsx";
                         if (s.StartsWith("ppt"))
-                            return "pptx";
+                            return ".pptx";
                     }
-                    return "odt";
+                    return ".odt";
                 }
                 catch
                 {
@@ -99,7 +100,7 @@ namespace MetadataExtractCore.Utilities
                 }
                 finally
                 {
-                    z.Dispose();
+                    zipFile?.Dispose();
                 }
             }
             catch
@@ -195,8 +196,8 @@ namespace MetadataExtractCore.Utilities
         public static string GetPrintableCharacters(string str)
         {
             var sb = new StringBuilder(str);
-          
-            for (var i = sb.Length-1; i >= 0; i--)
+
+            for (var i = sb.Length - 1; i >= 0; i--)
             {
                 if (sb[i] < Convert.ToChar(32) || sb[i] > Convert.ToChar(126))
                     sb.Remove(i, 1);

@@ -49,7 +49,7 @@ namespace FOCA
         public static string GetNotExistsPath(string strPath)
         {
             if (Path.GetFileName(strPath) == string.Empty)
-                strPath = Path.GetDirectoryName(strPath) + "\\index.html";
+                strPath = Path.GetDirectoryName(strPath) + "\\tempfile";
             if (!File.Exists(strPath) && IsValidFilename(strPath))
                 return strPath;
             string strDirectory, strFilename;
