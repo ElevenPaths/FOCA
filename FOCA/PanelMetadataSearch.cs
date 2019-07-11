@@ -55,9 +55,11 @@ namespace FOCA
         /// <param name="o"></param>
         private void ProcessUrls(object o)
         {
-            List<Uri> lstUrLs = (List<Uri>)o;
+            List<Uri> lstUrLs = o as List<Uri>;
             if (lstUrLs != null)
+            {
                 HandleLinkFoundEvent(null, new EventsThreads.CollectionFound<Uri>(lstUrLs));
+            }
         }
 
         /// <summary>
@@ -67,11 +69,24 @@ namespace FOCA
         /// <param name="e"></param>
         private void addURLsFromFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (ofdURLList.ShowDialog() != DialogResult.OK) return;
-            var lstUrLs = new List<object>(File.ReadAllLines(ofdURLList.FileName));
+            if (ofdURLList.ShowDialog() != DialogResult.OK)
+            {
+                return;
+            }
 
-            var t = new Thread(ProcessUrls) { IsBackground = true };
-            t.Start(lstUrLs);
+            List<Uri> lstUrLs = new List<Uri>();
+            foreach (string line in File.ReadAllLines(ofdURLList.FileName))
+            {
+                if (Uri.TryCreate(line, UriKind.Absolute, out Uri currentUrl))
+                {
+                    lstUrLs.Add(currentUrl);
+                }
+            }
+
+            if (lstUrLs.Count > 0)
+            {
+                new Thread(ProcessUrls) { IsBackground = true }.Start(lstUrLs);
+            }
         }
 
         /// <summary>
