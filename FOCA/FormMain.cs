@@ -16,6 +16,7 @@ using MetadataExtractCore.Metadata;
 using Microsoft.WindowsAPICodePack.Taskbar;
 using NLog;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -479,11 +480,10 @@ namespace FOCA
         public void AbortThreads()
         {
             panelMetadataSearch.CurrentSearch?.Abort();
-            panelMetadataSearch.CurrentDownloads?.Abort();
             panelMetadataSearch.Metadata?.Abort();
             panelMetadataSearch.Analysis?.Abort();
+            panelMetadataSearch.StopAllDownloads();
             panelDNSSearch.Abort();
-
             ScannThread?.Abort();
         }
 
@@ -719,7 +719,6 @@ namespace FOCA
             child.ContextMenuStrip = Program.FormMainInstance.contextMenuStripDocuments;
 
             treeViewMetadata_UpdateDocumentsNumber();
-
             return child;
         }
 
@@ -1212,7 +1211,7 @@ namespace FOCA
                 InitializeInformationPanel();
                 panelInformation.lvwInformation.ListViewItemSorter = (ListViewColumnSorterValues)panelInformation.lvwInformation.Tag;
 
-                var users = (List<UserItem>)e.Node.Tag;
+                var users = (ConcurrentBag<UserItem>)e.Node.Tag;
 
                 panelInformation.lvwInformation.Groups.Add("UsersFound", string.Format("All users found ({0}) - Times found", users.Count));
                 if (users.Count == 0)
@@ -1236,7 +1235,7 @@ namespace FOCA
                 InitializeInformationPanel();
                 panelInformation.lvwInformation.ListViewItemSorter = (ListViewColumnSorterValues)panelInformation.lvwInformation.Tag;
 
-                var folders = (List<PathsItem>)e.Node.Tag;
+                var folders = (ConcurrentBag<PathsItem>)e.Node.Tag;
 
                 panelInformation.lvwInformation.Groups.Add("FoldersFound", string.Format("All folders found ({0}) - Times found", folders.Count));
                 if (folders.Count == 0)
@@ -1259,7 +1258,7 @@ namespace FOCA
                 InitializeInformationPanel();
                 panelInformation.lvwInformation.ListViewItemSorter = (ListViewColumnSorterValues)panelInformation.lvwInformation.Tag;
 
-                var printers = (List<PrintersItem>)e.Node.Tag;
+                var printers = (ConcurrentBag<PrintersItem>)e.Node.Tag;
 
                 panelInformation.lvwInformation.Groups.Add("PrintersFound", string.Format("All printers found ({0}) - Times found", printers.Count));
                 if (printers.Count == 0)
@@ -1282,7 +1281,7 @@ namespace FOCA
                 InitializeInformationPanel();
                 panelInformation.lvwInformation.ListViewItemSorter = (ListViewColumnSorterValues)panelInformation.lvwInformation.Tag;
 
-                var software = (List<ApplicationsItem>)e.Node.Tag;
+                var software = (ConcurrentBag<ApplicationsItem>)e.Node.Tag;
 
                 panelInformation.lvwInformation.Groups.Add("SoftwareFound", string.Format("All software found ({0}) - Times found", software.Count));
                 if (software.Count == 0)
@@ -1305,7 +1304,7 @@ namespace FOCA
                 InitializeInformationPanel();
                 panelInformation.lvwInformation.ListViewItemSorter = (ListViewColumnSorterValues)panelInformation.lvwInformation.Tag;
 
-                var email = (List<EmailsItem>)e.Node.Tag;
+                var email = (ConcurrentBag<EmailsItem>)e.Node.Tag;
 
                 panelInformation.lvwInformation.Groups.Add("EmailsFound", string.Format("All emails found ({0}) - Times found", email.Count));
                 if (email.Count == 0)
@@ -1328,7 +1327,7 @@ namespace FOCA
                 InitializeInformationPanel();
                 panelInformation.lvwInformation.ListViewItemSorter = (ListViewColumnSorterValues)panelInformation.lvwInformation.Tag;
 
-                var operatingsystems = (List<string>)e.Node.Tag;
+                var operatingsystems = (ConcurrentBag<string>)e.Node.Tag;
 
                 panelInformation.lvwInformation.Groups.Add("OperatingSystemsFound", string.Format("All operating systems found ({0}) - Times found", 0));
 
@@ -1352,7 +1351,7 @@ namespace FOCA
                 InitializeInformationPanel();
                 panelInformation.lvwInformation.ListViewItemSorter = (ListViewColumnSorterValues)panelInformation.lvwInformation.Tag;
 
-                var passwordsFound = (List<PasswordsItem>)e.Node.Tag;
+                var passwordsFound = (ConcurrentBag<PasswordsItem>)e.Node.Tag;
 
                 panelInformation.lvwInformation.Groups.Add("PasswordsFound", string.Format("Passwords found ({0}) - Times found", passwordsFound.Count));
                 if (passwordsFound.Count == 0)
@@ -1379,7 +1378,7 @@ namespace FOCA
                 InitializeInformationPanel();
                 panelInformation.lvwInformation.ListViewItemSorter = (ListViewColumnSorterValues)panelInformation.lvwInformation.Tag;
 
-                var serversFound = (List<ServersItem>)e.Node.Tag;
+                var serversFound = (ConcurrentBag<ServersItem>)e.Node.Tag;
 
                 panelInformation.lvwInformation.Groups.Add("ServersFound", string.Format("Servers found ({0}) - Times found", serversFound.Count));
                 if (serversFound.Count == 0)
@@ -1499,16 +1498,16 @@ namespace FOCA
 
             foreach (var vai in va.Items)
             {
-                if (String.IsNullOrEmpty(vai.Author))
+                if (String.IsNullOrWhiteSpace(vai.Author))
                     NewItemListView("Author", vai.Author, valueOldVersion);
 
-                if (String.IsNullOrEmpty(vai.Comments))
+                if (String.IsNullOrWhiteSpace(vai.Comments))
                     NewItemListView("Comments", vai.Comments, valueOldVersion);
 
                 if (vai.SpecificDate)
                     NewItemListView("Date", vai.Date.ToString(), valueOldVersion);
 
-                if (String.IsNullOrEmpty(vai.Path))
+                if (String.IsNullOrWhiteSpace(vai.Path))
                     NewItemListView("Path", vai.Path, valueOldVersion);
             }
         }

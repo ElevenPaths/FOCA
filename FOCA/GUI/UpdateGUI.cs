@@ -1,6 +1,7 @@
 ﻿using FOCA.ModifiedComponents;
 using MetadataExtractCore.Diagrams;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
@@ -688,21 +689,21 @@ namespace FOCA.GUI
         /// </summary>
         static private void NodeMetadataProcess()
         {
-            var users = (List<UserItem>)Program.FormMainInstance.TreeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Users"].Tag;
+            var users = (ConcurrentBag<UserItem>)Program.FormMainInstance.TreeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Users"].Tag;
 
-            var printers = (List<PrintersItem>)Program.FormMainInstance.TreeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Printers"].Tag;
+            var printers = (ConcurrentBag<PrintersItem>)Program.FormMainInstance.TreeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Printers"].Tag;
 
-            var folders = (List<PathsItem>)Program.FormMainInstance.TreeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Folders"].Tag;
+            var folders = (ConcurrentBag<PathsItem>)Program.FormMainInstance.TreeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Folders"].Tag;
 
-            var software = (List<ApplicationsItem>)Program.FormMainInstance.TreeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Software"].Tag;
+            var software = (ConcurrentBag<ApplicationsItem>)Program.FormMainInstance.TreeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Software"].Tag;
 
-            var emails = (List<EmailsItem>)Program.FormMainInstance.TreeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Emails"].Tag;
+            var emails = (ConcurrentBag<EmailsItem>)Program.FormMainInstance.TreeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Emails"].Tag;
 
-            var operatingsystems = (List<string>)Program.FormMainInstance.TreeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Operating Systems"].Tag;
+            var operatingsystems = (ConcurrentBag<string>)Program.FormMainInstance.TreeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Operating Systems"].Tag;
 
-            var passwords = (List<PasswordsItem>)Program.FormMainInstance.TreeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Passwords"].Tag;
+            var passwords = (ConcurrentBag<PasswordsItem>)Program.FormMainInstance.TreeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Passwords"].Tag;
 
-            var servers = (List<ServersItem>)Program.FormMainInstance.TreeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Servers"].Tag;
+            var servers = (ConcurrentBag<ServersItem>)Program.FormMainInstance.TreeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Servers"].Tag;
 
             Program.FormMainInstance.TreeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Users"].Text = string.Format("Users ({0})", users.Count);
             Program.FormMainInstance.TreeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Printers"].Text = string.Format("Printers ({0})", printers.Count);
@@ -733,49 +734,49 @@ namespace FOCA.GUI
                 TreeNode tn_users = tn_data.Nodes.Add("Users", "Users");
                 tn_users.ImageIndex =
                 tn_users.SelectedImageIndex = 116;
-                List<UserItem> users = new List<UserItem>();
+                ConcurrentBag<UserItem> users = new ConcurrentBag<UserItem>();
                 tn_users.Tag = users;
 
                 TreeNode tn_folders = tn_data.Nodes.Add("Folders", "Folders");
                 tn_folders.ImageIndex =
                 tn_folders.SelectedImageIndex = 117;
-                var folders = new List<PathsItem>();
+                var folders = new ConcurrentBag<PathsItem>();
                 tn_folders.Tag = folders;
 
                 TreeNode tn_printers = tn_data.Nodes.Add("Printers", "Printers");
                 tn_printers.ImageIndex =
                 tn_printers.SelectedImageIndex = 118;
-                var printers = new List<PrintersItem>();
+                var printers = new ConcurrentBag<PrintersItem>();
                 tn_printers.Tag = printers;
 
                 TreeNode tn_software = tn_data.Nodes.Add("Software", "Software");
                 tn_software.ImageIndex =
                 tn_software.SelectedImageIndex = 119;
-                var software = new List<ApplicationsItem>();
+                var software = new ConcurrentBag<ApplicationsItem>();
                 tn_software.Tag = software;
 
                 TreeNode tn_emails = tn_data.Nodes.Add("Emails", "Emails");
                 tn_emails.ImageIndex =
                 tn_emails.SelectedImageIndex = 120;
-                var emails = new List<EmailsItem>();
+                var emails = new ConcurrentBag<EmailsItem>();
                 tn_emails.Tag = emails;
 
                 TreeNode tn_operatingsystems = tn_data.Nodes.Add("Operating Systems", "Operating Systems");
                 tn_operatingsystems.ImageIndex =
                 tn_operatingsystems.SelectedImageIndex = 20;
-                var operatingsystems = new List<string>();
+                var operatingsystems = new ConcurrentBag<string>();
                 tn_operatingsystems.Tag = operatingsystems;
 
                 TreeNode tn_passwords = tn_data.Nodes.Add("Passwords", "Passwords");
                 tn_passwords.ImageIndex =
                 tn_passwords.SelectedImageIndex = 121;
-                var passwords = new List<PasswordsItem>();
+                var passwords = new ConcurrentBag<PasswordsItem>();
                 tn_passwords.Tag = passwords;
 
                 TreeNode tn_servers = tn_data.Nodes.Add("Servers", "Servers");
                 tn_servers.ImageIndex =
                 tn_servers.SelectedImageIndex = 112;
-                var servers = new List<ServersItem>();
+                var servers = new ConcurrentBag<ServersItem>();
                 tn_servers.Tag = servers;
             }
         }

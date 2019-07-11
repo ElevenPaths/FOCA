@@ -13,9 +13,8 @@ namespace FOCA
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null) && (Downloads != null))
+            if (disposing && (components != null) && (downloadQueue != null))
             {
-                Downloads.Dispose();
                 components.Dispose();
             }
             base.Dispose(disposing);
@@ -84,7 +83,7 @@ namespace FOCA
             // 
             // panelSearchConfiguration
             // 
-            this.panelSearchConfiguration.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.panelSearchConfiguration.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.panelSearchConfiguration.Controls.Add(this.chkDuck);
             this.panelSearchConfiguration.Controls.Add(this.lblAll);
@@ -134,7 +133,7 @@ namespace FOCA
             // 
             // checkedListBoxExtensions
             // 
-            this.checkedListBoxExtensions.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.checkedListBoxExtensions.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.checkedListBoxExtensions.CheckOnClick = true;
             this.checkedListBoxExtensions.ColumnWidth = 50;
@@ -217,7 +216,7 @@ namespace FOCA
             // 
             // panelCustomSearch
             // 
-            this.panelCustomSearch.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.panelCustomSearch.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.panelCustomSearch.Controls.Add(this.linkLabelCustomSearch);
             this.panelCustomSearch.Controls.Add(this.txtSearch);
@@ -241,7 +240,7 @@ namespace FOCA
             // 
             // txtSearch
             // 
-            this.txtSearch.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.txtSearch.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.txtSearch.Location = new System.Drawing.Point(3, 8);
             this.txtSearch.Name = "txtSearch";
@@ -514,8 +513,8 @@ namespace FOCA
             // 
             // listViewDocuments
             // 
-            this.listViewDocuments.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.listViewDocuments.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.listViewDocuments.BackColor = System.Drawing.SystemColors.Window;
             this.listViewDocuments.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
