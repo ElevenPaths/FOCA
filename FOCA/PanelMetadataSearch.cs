@@ -1,6 +1,4 @@
-using FOCA;
 using FOCA.GUI;
-using FOCA.ModifiedComponents;
 using FOCA.Properties;
 using FOCA.Search;
 using FOCA.Searcher;
@@ -11,6 +9,7 @@ using MetadataExtractCore.Diagrams;
 using MetadataExtractCore.Metadata;
 using MetadataExtractCore.Utilities;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -28,25 +27,33 @@ namespace FOCA
 {
     public partial class PanelMetadataSearch : UserControl
     {
-        private int activeDownloads;
-
         /// <summary>
         /// Threads used for download, extract and analyze the metadata
         /// </summary>
-        public Thread CurrentDownloads, Metadata, Analysis, CurrentSearch;
+        public Thread Metadata, Analysis, CurrentSearch;
 
-        public int DownloadedFiles;
-        public ThreadSafeList<Download> Downloads;
-        private int enqueuedFiles;
+
+
+        private ConcurrentQueue<Download> downloadQueue;
+        private ConcurrentDictionary<string, Download> downloadingFiles;
+        private int downloadedFileCount;
+        private CancellationTokenSource downloadTaskToken;
+        private CancellationTokenSource downloadDelayToken;
+
         // Thread that runs in background and obtains size of files from given URLs
         public HTTPSizeDaemon HttpSizeDaemonInst;
 
         public PanelMetadataSearch()
         {
             InitializeComponent();
-            // Create pending downloads list
-            Downloads = new ThreadSafeList<Download>();
-            HttpSizeDaemonInst = new HTTPSizeDaemon();
+            this.downloadQueue = new ConcurrentQueue<Download>();
+            this.downloadingFiles = new ConcurrentDictionary<string, Download>(StringComparer.OrdinalIgnoreCase);
+            this.HttpSizeDaemonInst = new HTTPSizeDaemon();
+
+            this.downloadTaskToken = new CancellationTokenSource();
+            this.downloadDelayToken = new CancellationTokenSource();
+
+            Task.Factory.StartNew(() => { ProcessDownloadQueue(); }, TaskCreationOptions.LongRunning);
         }
 
         /// <summary>
@@ -126,24 +133,6 @@ namespace FOCA
             t.Start();
         }
 
-        public class Download
-        {
-            public enum Status
-            {
-                Enqueued,
-                Downloading,
-                Inprogress
-            };
-
-            public CookieAwareWebClient CaClient;
-            public Status DownloadStatus;
-            public string DownloadUrl;
-            public ListViewItem Lvi;
-            public ProgressBar Pbar;
-            public string PhysicalPath;
-            public int Retries;
-        }
-
         #region contextMenuStrip events
 
         /// <summary>
@@ -180,10 +169,10 @@ namespace FOCA
                                     contextMenuStripLinks.Items["toolStripMenuItemAddFile"].Enabled =
                                         contextMenuStripLinks.Items["toolStripMenuItemAddFolder"].Enabled = true;
             var lv = (ListView)((ContextMenuStrip)sender).SourceControl;
-            var itemsDownloading =
-                (from ListViewItem lvi in lv.SelectedItems from d in Downloads where d.Lvi.Index == lvi.Index select lvi)
-                    .Count();
-            switch (itemsDownloading)
+            int downloadingItemCount =
+                (from ListViewItem lvi in lv.SelectedItems from d in this.downloadQueue where d.Lvi.Index == lvi.Index select lvi).Count() +
+                (from ListViewItem lvi in lv.SelectedItems from d in this.downloadingFiles.Values where d.Lvi.Index == lvi.Index select lvi).Count();
+            switch (downloadingItemCount)
             {
                 case 0:
                     contextMenuStripLinks.Items["toolStripMenuItemDownload"].Text = "&Download";
@@ -200,29 +189,19 @@ namespace FOCA
             }
 
             //If there're downloads and the menu "Stop All Downloads" hasn't been added yet, add menu
-            if (Downloads.Count > 0 && contextMenuStripLinks.Items[2] is ToolStripSeparator)
+            if ((downloadQueue.Count > 0 || this.downloadingFiles.Count > 0) && contextMenuStripLinks.Items[2] is ToolStripSeparator)
             {
                 ToolStripItem tsiStopDownloads = new ToolStripMenuItem("&Stop All Downloads");
                 tsiStopDownloads.Image = Resources.page_white_stack_go_stop;
                 tsiStopDownloads.Click +=
                     delegate
                     {
-                        for (var i = Downloads.Count - 1; i >= 0; i--)
-                        {
-                            var d = Downloads[i];
-                            if (d.CaClient != null)
-                                d.CaClient.CancelAsync();
-                            else
-                            {
-                                DownloadedFiles++;
-                                Downloads.RemoveAt(i);
-                            }
-                        }
+                        StopAllDownloads();
                     };
                 contextMenuStripLinks.Items.Insert(2, tsiStopDownloads);
             }
             //If there aren't donwloads but the menu is alredy added, delete menu
-            else if (Downloads.Count == 0 && !(contextMenuStripLinks.Items[2] is ToolStripSeparator))
+            else if (downloadQueue.IsEmpty && this.downloadingFiles.IsEmpty && !(contextMenuStripLinks.Items[2] is ToolStripSeparator))
             {
                 contextMenuStripLinks.Items.RemoveAt(2);
             }
@@ -234,22 +213,7 @@ namespace FOCA
             var someFileDownloaded = false;
             if (lv.SelectedItems != null)
             {
-                if (
-                    (from ListViewItem lvi in lv.SelectedItems select (FilesITem)lvi.Tag).Any(
-                        fi => fi != null && fi.Downloaded))
-                {
-                    someFileDownloaded = true;
-                }
-            }
-            // Look for an item already downloaded but unselected
-            if (!someFileDownloaded)
-            {
-                if (
-                    (from ListViewItem lvi in lv.Items select (FilesITem)lvi.Tag).Any(
-                        fi => fi != null && fi.Downloaded))
-                {
-                    someFileDownloaded = true;
-                }
+                someFileDownloaded = (from ListViewItem lvi in lv.SelectedItems select (FilesITem)lvi.Tag).Any(fi => fi != null && fi.Downloaded && !fi.Processed);
             }
             contextMenuStripLinks.Items["toolStripMenuItemExtractAllMetadata"].Enabled = someFileDownloaded;
             contextMenuStripLinks.Items["linkToolStripMenuItem"].Enabled = lv.SelectedItems != null &&
@@ -267,36 +231,29 @@ namespace FOCA
         /// <param name="e"></param>
         private void toolStripMenuItemDownload_Click(object sender, EventArgs e)
         {
-            var toolStripDropDownItem = sender as ToolStripDropDownItem;
-            if (toolStripDropDownItem != null && toolStripDropDownItem.Text == "&Download")
+            ToolStripDropDownItem toolStripDropDownItem = sender as ToolStripDropDownItem;
+            if (toolStripDropDownItem != null)
             {
-                var directory = Program.data.Project.FolderToDownload;
-                if (!directory.EndsWith("\\"))
-                    directory += "\\";
-                var urls =
-                    Program.FormMainInstance.panelMetadataSearch.listViewDocuments.SelectedItems.Cast<ListViewItem>()
-                        .ToList();
-                DownloadFiles(urls, directory);
-            }
-            else
-            {
-                var stripDropDownItem = sender as ToolStripDropDownItem;
-                if (stripDropDownItem == null || !stripDropDownItem.Text.StartsWith("&Stop Download")) return;
-                // Stop all selected items
-                foreach (
-                    ListViewItem lvi in Program.FormMainInstance.panelMetadataSearch.listViewDocuments.SelectedItems)
+                if (toolStripDropDownItem.Text == "&Download")
                 {
-                    for (var i = 0; i < Downloads.Count; i++)
+                    string directory = Program.data.Project.FolderToDownload;
+                    if (!directory.EndsWith("\\"))
+                        directory += "\\";
+                    List<ListViewItem> urls = Program.FormMainInstance.panelMetadataSearch.listViewDocuments.SelectedItems.Cast<ListViewItem>().ToList();
+                    this.EnqueueFilestoDownload(urls, directory);
+                }
+                else if (toolStripDropDownItem.Text.StartsWith("&Stop Download"))
+                {
+                    // Stop all selected items
+                    List<string> selectedUrls = Program.FormMainInstance.panelMetadataSearch.listViewDocuments.SelectedItems.OfType<ListViewItem>().Select(p => p.Tag as FilesITem).Where(p => p != null).Select(p => p.URL).ToList();
+
+                    List<Download> filesToCancel = new List<Download>();
+                    filesToCancel.AddRange(this.downloadingFiles.Where(p => selectedUrls.Contains(p.Key, StringComparer.OrdinalIgnoreCase)).Select(p => p.Value));
+                    filesToCancel.AddRange(this.downloadQueue.Where(p => selectedUrls.Contains(p.DownloadUrl, StringComparer.OrdinalIgnoreCase)));
+
+                    foreach (Download item in filesToCancel)
                     {
-                        var d = Downloads[i];
-                        if (d.Lvi.Index != lvi.Index) continue;
-                        if (d.CaClient != null)
-                            d.CaClient.CancelAsync();
-                        else
-                        {
-                            DownloadedFiles++;
-                            Downloads.Remove(d);
-                        }
+                        this.StopFileDownload(item);
                     }
                 }
             }
@@ -309,12 +266,11 @@ namespace FOCA
         /// <param name="e"></param>
         public void toolStripMenuItemDownloadAll_Click(object sender, EventArgs e)
         {
-            var directory = Program.data.Project.FolderToDownload;
+            string directory = Program.data.Project.FolderToDownload;
             if (!directory.EndsWith("\\"))
                 directory += "\\";
-            var urls =
-                Program.FormMainInstance.panelMetadataSearch.listViewDocuments.Items.Cast<ListViewItem>().ToList();
-            DownloadFiles(urls, directory);
+            List<ListViewItem> urls = Program.FormMainInstance.panelMetadataSearch.listViewDocuments.Items.Cast<ListViewItem>().ToList();
+            this.EnqueueFilestoDownload(urls, directory);
         }
 
         /// <summary>
@@ -755,168 +711,168 @@ namespace FOCA
         /// <param name="o">List which contains the documents from which the tool is going to extract metadata information</param>
         public void ExtractMetadata(object o)
         {
-            var itemsTree =
+            TreeNode itemsTree =
                 Program.FormMainInstance.TreeView.Nodes[GUI.UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
                     GUI.UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"];
 
             if (Program.data.Project.Id == 0)
             {
-                itemsTree.Nodes["Users"].Tag = new List<UserItem>();
-                itemsTree.Nodes["Printers"].Tag = new List<PrintersItem>();
-                itemsTree.Nodes["Folders"].Tag = new List<PathsItem>();
-                itemsTree.Nodes["Software"].Tag = new List<ApplicationsItem>();
-                itemsTree.Nodes["Emails"].Tag = new List<EmailsItem>();
-                itemsTree.Nodes["Operating Systems"].Tag = new List<string>();
-                itemsTree.Nodes["Passwords"].Tag = new List<PasswordsItem>();
-                itemsTree.Nodes["Servers"].Tag = new List<ServersItem>();
+                itemsTree.Nodes["Users"].Tag = new ConcurrentBag<UserItem>();
+                itemsTree.Nodes["Printers"].Tag = new ConcurrentBag<PrintersItem>();
+                itemsTree.Nodes["Folders"].Tag = new ConcurrentBag<PathsItem>();
+                itemsTree.Nodes["Software"].Tag = new ConcurrentBag<ApplicationsItem>();
+                itemsTree.Nodes["Emails"].Tag = new ConcurrentBag<EmailsItem>();
+                itemsTree.Nodes["Operating Systems"].Tag = new ConcurrentBag<string>();
+                itemsTree.Nodes["Passwords"].Tag = new ConcurrentBag<PasswordsItem>();
+                itemsTree.Nodes["Servers"].Tag = new ConcurrentBag<ServersItem>();
             }
 
-            var users = (List<UserItem>)itemsTree.Nodes["Users"].Tag;
-            var printers = (List<PrintersItem>)itemsTree.Nodes["Printers"].Tag;
-            var folders = (List<PathsItem>)itemsTree.Nodes["Folders"].Tag;
-            var software = (List<ApplicationsItem>)itemsTree.Nodes["Software"].Tag;
-            var emails = (List<EmailsItem>)itemsTree.Nodes["Emails"].Tag;
-            var operatingsystems = (List<string>)itemsTree.Nodes["Operating Systems"].Tag;
-            var passwords = (List<PasswordsItem>)itemsTree.Nodes["Passwords"].Tag;
-            var servers = (List<ServersItem>)itemsTree.Nodes["Servers"].Tag;
+            var users = (ConcurrentBag<UserItem>)itemsTree.Nodes["Users"].Tag;
+            var printers = (ConcurrentBag<PrintersItem>)itemsTree.Nodes["Printers"].Tag;
+            var folders = (ConcurrentBag<PathsItem>)itemsTree.Nodes["Folders"].Tag;
+            var software = (ConcurrentBag<ApplicationsItem>)itemsTree.Nodes["Software"].Tag;
+            var emails = (ConcurrentBag<EmailsItem>)itemsTree.Nodes["Emails"].Tag;
+            var operatingsystems = (ConcurrentBag<string>)itemsTree.Nodes["Operating Systems"].Tag;
+            var passwords = (ConcurrentBag<PasswordsItem>)itemsTree.Nodes["Passwords"].Tag;
+            var servers = (ConcurrentBag<ServersItem>)itemsTree.Nodes["Servers"].Tag;
 
             try
             {
-                var listlvi = o as List<ListViewItem>;
+                List<ListViewItem> listlvi = o as List<ListViewItem>;
                 if (listlvi == null)
                 {
                     return;
                 }
                 else
                 {
+                    List<FilesITem> filesToExtract = listlvi.Select(p => p.Tag as FilesITem).Where(p => p != null && p.Downloaded && p.Size > 0 && !p.Processed).ToList();
                     Program.LogThis(new Log(Log.ModuleType.MetadataSearch,
-                        $"Starting metadata extraction of {listlvi.Count} documents", Log.LogType.debug));
-                    Invoke(new MethodInvoker(() =>
+                        $"Starting metadata extraction of {filesToExtract.Count} documents", Log.LogType.debug));
+                    if (filesToExtract.Count > 0)
                     {
-                        // Disable interface elements while metadata search is running
-                        btnSearch.Enabled = false;
-                        btnSearchAll.Enabled = false;
-                        Program.FormMainInstance.programState = FormMain.ProgramState.ExtractingMetadata;
-                        Program.FormMainInstance.SetItemsMenu(null, null);
-                        Program.FormMainInstance.toolStripDropDownButtonStop.Enabled = true;
-                    }));
-                    var extractedFiles = 0; // counter
-                    var po = new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount };
-                    Parallel.For(0, listlvi.Count, po, delegate (int i)
-                    {
-                        // Refresh DownloadStatus with the number of documents being analyzed and the current progress
-                        var files = extractedFiles;
-                        Invoke(new MethodInvoker(delegate
+                        Invoke(new MethodInvoker(() =>
                         {
-                            Program.FormMainInstance.toolStripProgressBarDownload.Value = files * 100 /
-                                                                                          listlvi.Count;
-                            Program.FormMainInstance.toolStripStatusLabelLeft.Text = @"Extracting metadata from " +
-                                                                                     files + @"/" +
-                                                                                     listlvi.Count +
-                                                                                     @" documents";
-                            Program.FormMainInstance.ReportProgress(files, listlvi.Count);
+                            // Disable interface elements while metadata search is running
+                            btnSearch.Enabled = false;
+                            btnSearchAll.Enabled = false;
+                            Program.FormMainInstance.programState = FormMain.ProgramState.ExtractingMetadata;
+                            Program.FormMainInstance.SetItemsMenu(null, null);
+                            Program.FormMainInstance.toolStripDropDownButtonStop.Enabled = true;
                         }));
-                        var lvi = listlvi[i];
-                        var fi = (FilesITem)lvi.Tag;
-                        // Extract metadata only if the file has been downloaded and it is not empty
-                        if (fi != null && fi.Downloaded && fi.Size != 0)
+                        int extractedFileCount = 0; // counter
+
+                        int chunkSize = Environment.ProcessorCount;
+                        List<List<FilesITem>> chunkedFiles = new List<List<FilesITem>>();
+                        for (int i = 0; i < filesToExtract.Count; i += chunkSize)
+                            chunkedFiles.Add(filesToExtract.GetRange(i, Math.Min(chunkSize, filesToExtract.Count - i)));
+
+                        ParallelOptions po = new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount };
+                        foreach (List<FilesITem> fileChunk in chunkedFiles)
                         {
-                            TreeNode tnFile = null;
-                            Program.FormMainInstance.TreeView.Invoke(new MethodInvoker(delegate
-                            {
-                                tnFile = Program.FormMainInstance.TreeViewMetadataAddDocument(fi);
-                                // delete all it's subnodes in case that the document already existed
-                                tnFile.Nodes.Clear();
-                            }));
-                            // Processed == true --> document's metadata have been already extracted
-                            fi.Processed = true;
-                            tnFile.Tag = fi;
-                            MetaExtractor doc = null;
-                            if (!String.IsNullOrWhiteSpace(fi.Ext))
-                            {
-                                try
-                                {
-                                    using (var fs = new FileStream(fi.Path, FileMode.Open, FileAccess.Read))
-                                    {
-                                        doc = MetaExtractor.Create(fi.Ext, fs);
-                                    }
-
-                                    Program.FormMainInstance.TreeView.Invoke(new MethodInvoker(delegate
-                                    {
-                                        tnFile.ImageIndex =
-                                            tnFile.SelectedImageIndex =
-                                                Program.FormMainInstance.GetImageToExtension(fi.Ext);
-                                    }));
-                                }
-                                catch
-                                {
-                                    doc = null;
-                                }
-                            }
-                            // if any filetype has been assigned to doc, just continue
-                            if (doc != null)
-                            {
-                                // Analyze file and extract metadata
-                                doc.analyzeFile();
-                                // close the document
-                                doc.Close();
-                                // fi.Metadata contains the file's metadata so that other parts can also use them
-                                fi.Metadata = doc;
-
-                                Program.LogThis(new Log(Log.ModuleType.MetadataSearch,
-                                    $"Document metadata extracted: {fi.Path}", Log.LogType.low));
-
-                                // Extract primary metadata from the document
-                                Program.FormMainInstance.TreeView.Invoke(
-                                    new MethodInvoker(
-                                        delegate
-                                        {
-                                            ExtractGenericMetadata(doc, ref users, ref passwords, ref servers,
-                                                ref folders, ref printers, ref emails, ref software, ref operatingsystems);
-                                        }));
-                                // Add needed notes to show document's metadata
-                                AddDocumentNodes(doc, tnFile);
-                                // if any date has been found, use it for the 'Last modified' field into the ListView
-                                if (doc.FoundDates.ModificationDateSpecified)
-                                    fi.ModifiedDate = doc.FoundDates.ModificationDate;
-                                else if (doc.FoundDates.CreationDateSpecified)
-                                    fi.ModifiedDate = doc.FoundDates.CreationDate;
-                                // if there're no old versions, just existing ones in OpenOffice, extract the metadata summary from them
-                                var document = doc as OpenOfficeDocument;
-                                if (document != null)
-                                {
-                                    var dicOldVersions = document.dicOldVersions;
-                                    foreach (var oldVersion in dicOldVersions)
-                                    {
-                                        // Add every version's information to the summary
-                                        ExtractGenericMetadata(oldVersion.Value, ref users, ref passwords,
-                                            ref servers,
-                                            ref folders, ref printers, ref emails, ref software,
-                                            ref operatingsystems);
-                                    }
-                                }
-                            }
                             Invoke(new MethodInvoker(delegate
                             {
-                                listViewDocuments_Update(fi);
-                                Program.FormMainInstance.treeViewMetadata_UpdateDocumentsNumber();
+                                Program.FormMainInstance.toolStripProgressBarDownload.Value = extractedFileCount * 100 / filesToExtract.Count;
+                                Program.FormMainInstance.toolStripStatusLabelLeft.Text = $"Extracting metadata from {extractedFileCount} / {filesToExtract.Count} documents";
+                                Program.FormMainInstance.ReportProgress(extractedFileCount, filesToExtract.Count);
+                            }));
+
+                            Parallel.ForEach(fileChunk, po, currentFile =>
+                            {
+                                currentFile.Processed = true;
+
+                                if (!String.IsNullOrWhiteSpace(currentFile.Ext))
+                                {
+                                    try
+                                    {
+                                        MetaExtractor doc = null;
+                                        using (var fs = new FileStream(currentFile.Path, FileMode.Open, FileAccess.Read))
+                                        {
+                                            doc = MetaExtractor.Create(currentFile.Ext, fs);
+                                        }
+
+                                        // Analyze file and extract metadata
+                                        doc.analyzeFile();
+                                        // close the document
+                                        doc.Close();
+                                        // fi.Metadata contains the file's metadata so that other parts can also use them
+                                        currentFile.Metadata = doc;
+
+                                        Program.LogThis(new Log(Log.ModuleType.MetadataSearch, $"Document metadata extracted: {currentFile.Path}", Log.LogType.low));
+
+                                        // Extract primary metadata from the document
+                                        ExtractGenericMetadata(doc, users, passwords, servers,
+                                                folders, printers, emails, software, operatingsystems);
+                                        // if any date has been found, use it for the 'Last modified' field into the ListView
+                                        if (doc.FoundDates.ModificationDateSpecified)
+                                            currentFile.ModifiedDate = doc.FoundDates.ModificationDate;
+                                        else if (doc.FoundDates.CreationDateSpecified)
+                                            currentFile.ModifiedDate = doc.FoundDates.CreationDate;
+                                        // if there're no older versions, just the existing ones in OpenOffice, extract the metadata summary from them
+                                        if (doc is OpenOfficeDocument document)
+                                        {
+                                            SerializableDictionary<string, OpenOfficeDocument> dicOldVersions = document.dicOldVersions;
+                                            foreach (KeyValuePair<string, OpenOfficeDocument> oldVersion in dicOldVersions)
+                                            {
+                                                // Add every version's information to the summary
+                                                this.ExtractGenericMetadata(oldVersion.Value, users, passwords, servers, folders, printers, emails, software, operatingsystems);
+                                            }
+                                        }
+
+                                    }
+                                    catch
+                                    {
+                                    }
+                                }
+                                Interlocked.Increment(ref extractedFileCount);
+                            });
+
+                            Program.FormMainInstance.TreeView.Invoke(new MethodInvoker(delegate
+                            {
+                                foreach (FilesITem item in fileChunk)
+                                {
+                                    TreeNode tnFile = Program.FormMainInstance.TreeViewMetadataAddDocument(item);
+                                    tnFile.Tag = item;
+                                    tnFile.Nodes.Clear();
+                                    tnFile.ImageIndex = tnFile.SelectedImageIndex = Program.FormMainInstance.GetImageToExtension(item.Ext);
+                                    if (item.Metadata != null)
+                                    {
+                                        AddDocumentNodes(item.Metadata, tnFile);
+                                    }
+                                }
+                            }));
+
+                            Invoke(new MethodInvoker(delegate
+                            {
+                                foreach (FilesITem item in fileChunk)
+                                {
+                                    listViewDocuments_Update(item);
+                                }
                             }));
                         }
-                        Interlocked.Increment(ref extractedFiles);
-                    }
-                        );
-                }
-                Invoke(new MethodInvoker(delegate
-                {
-                    const string strMessage = "All documents were analyzed";
-                    Program.LogThis(new Log(Log.ModuleType.MetadataSearch, strMessage, Log.LogType.debug));
-                    Program.FormMainInstance.ChangeStatus(strMessage);
 
-                    Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
-                        UpdateGUI.TreeViewKeys.KMetadata.ToString()].Expand();
-                    Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
-                        UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Expand();
-                }));
+                        Invoke(new MethodInvoker(delegate
+                        {
+                            const string strMessage = "All documents were analyzed";
+                            Program.LogThis(new Log(Log.ModuleType.MetadataSearch, strMessage, Log.LogType.debug));
+                            Program.FormMainInstance.ChangeStatus(strMessage);
+
+                            Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
+                                UpdateGUI.TreeViewKeys.KMetadata.ToString()].Expand();
+                            Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
+                                UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Expand();
+                        }));
+                    }
+                    else
+                    {
+                        Invoke(new MethodInvoker(delegate
+                        {
+                            const string strMessage = "No documents to analyze metadata";
+                            Program.LogThis(new Log(Log.ModuleType.MetadataSearch, strMessage, Log.LogType.debug));
+                            Program.FormMainInstance.ChangeStatus(strMessage);
+                        }));
+                    }
+                }
+
             }
             catch (ThreadAbortException)
             {
@@ -990,25 +946,25 @@ namespace FOCA
         /// <param name="passwords"></param>
         /// <param name="software"></param>
         /// <param name="operatingsystems"></param>
-        internal void ExtractGenericMetadata(MetaExtractor doc, ref List<UserItem> users,
-            ref List<PasswordsItem> passwords, ref List<ServersItem> servers,
-            ref List<PathsItem> folders, ref List<PrintersItem> printers,
-            ref List<EmailsItem> emails, ref List<ApplicationsItem> software,
-            ref List<string> operatingsystems)
+        internal void ExtractGenericMetadata(MetaExtractor doc, ConcurrentBag<UserItem> users,
+            ConcurrentBag<PasswordsItem> passwords, ConcurrentBag<ServersItem> servers,
+            ConcurrentBag<PathsItem> folders, ConcurrentBag<PrintersItem> printers,
+            ConcurrentBag<EmailsItem> emails, ConcurrentBag<ApplicationsItem> software,
+            ConcurrentBag<string> operatingsystems)
         {
-            var s = doc.FoundServers;
+            Servers s = doc.FoundServers;
             foreach (var si in s.Items.Where(si => si.Name.Trim().Length > 1))
                 if (servers.Count(x => x.Name == si.Name.Trim()) == 0)
                     servers.Add(si);
             //else
             //    servers[si.Name.Trim()]++;
 
-            var u = doc.FoundUsers;
+            Users u = doc.FoundUsers;
             foreach (var ui in u.Items.Where(ui => ui.Name.Trim().Length > 1))
                 if (users.Count(x => x.Name == ui.Name.Trim()) == 0)
                     users.Add(ui);
 
-            var p = doc.FoundPasswords;
+            Passwords p = doc.FoundPasswords;
             foreach (var pi in p.Items.Where(pi => pi.Password.Trim().Length > 1))
                 if (passwords.Count(x => x.Password == pi.Password.Trim()) == 0)
                     passwords.Add(pi);
@@ -1022,22 +978,21 @@ namespace FOCA
             //else
             //    folders[ri.Path.Trim()]++;
 
-            var im = doc.FoundPrinters;
+            Printers im = doc.FoundPrinters;
             foreach (var ii in im.Items.Where(ii => ii.Printer.Trim().Length > 1))
                 if (printers.Count(x => x.Printer == ii.Printer.Trim()) == 0)
                     printers.Add(ii);
             //else
             //    printers[ii.Printer.Trim()]++;
 
-            var e = doc.FoundEmails;
+            Emails e = doc.FoundEmails;
             foreach (var ei in e.Items.Where(ei => ei.Mail.Trim().Length > 1))
                 if (emails.Count(x => x.Mail == ei.Mail.Trim()) == 0)
                     emails.Add(ei);
             //else
             //    emails[ei.Mail.Trim()]++;
 
-            foreach (
-                var strSoftware in
+            foreach (string strSoftware in
                     doc.FoundMetaData.Applications.Items.Select(aplicacion => aplicacion.Name)
                         .Where(strSoftware => strSoftware.Trim().Length > 1))
             {
@@ -1045,7 +1000,7 @@ namespace FOCA
                     software.Add(new ApplicationsItem(strSoftware));
             }
 
-            var strOs = doc.FoundMetaData.OperativeSystem;
+            string strOs = doc.FoundMetaData.OperativeSystem;
             if (string.IsNullOrEmpty(strOs)) return;
             strOs = strOs.Trim();
             if (operatingsystems.Count(i => i == strOs) == 0)
@@ -1059,77 +1014,65 @@ namespace FOCA
         /// <param name="trnParentNode">Parent node to which information will be added</param>
         internal void AddDocumentNodes(MetaExtractor doc, TreeNode trnParentNode)
         {
+            List<Action> methodsToInvoke = new List<Action>();
             if (doc.FoundUsers.Items.Count != 0)
             {
-                Program.FormMainInstance.TreeView.Invoke(new MethodInvoker(() =>
+                methodsToInvoke.Add(new Action(() =>
                 {
-                    var tnUsers = trnParentNode.Nodes.Add("Users", "Users");
-                    tnUsers.ImageIndex =
-                        tnUsers.SelectedImageIndex = 14;
+                    var tnUsers = trnParentNode.Nodes.Add("Users", "Users", 14, 14);
                     tnUsers.Tag = doc.FoundUsers;
                 }));
             }
             if (doc.FoundPasswords.Items.Count != 0)
             {
-                Program.FormMainInstance.TreeView.Invoke(new MethodInvoker(() =>
+                methodsToInvoke.Add(new Action(() =>
                 {
-                    var tnPasswords = trnParentNode.Nodes.Add("Passwords", "Passwords");
-                    tnPasswords.ImageIndex =
-                        tnPasswords.SelectedImageIndex = 75;
+                    var tnPasswords = trnParentNode.Nodes.Add("Passwords", "Passwords", 75, 75);
                     tnPasswords.Tag = doc.FoundPasswords;
                 }));
             }
             if (doc.FoundServers.Items.Count != 0)
             {
-                Program.FormMainInstance.TreeView.Invoke(new MethodInvoker(() =>
+                methodsToInvoke.Add(new Action(() =>
                 {
-                    var tnServers = trnParentNode.Nodes.Add("Servers", "Servers");
-                    tnServers.ImageIndex =
-                        tnServers.SelectedImageIndex = 45;
+                    var tnServers = trnParentNode.Nodes.Add("Servers", "Servers", 45, 45);
                     tnServers.Tag = doc.FoundServers;
                 }));
             }
             if (doc.FoundPaths.Items.Count != 0)
             {
-                Program.FormMainInstance.TreeView.Invoke(new MethodInvoker(() =>
+                methodsToInvoke.Add(new Action(() =>
                 {
-                    var tnFolders = trnParentNode.Nodes.Add("Folders", "Folders");
-                    tnFolders.ImageIndex =
-                        tnFolders.SelectedImageIndex = 13;
+                    var tnFolders = trnParentNode.Nodes.Add("Folders", "Folders", 13, 13);
                     tnFolders.Tag = doc.FoundPaths;
                 }));
             }
             if (doc.FoundPrinters.Items.Count != 0)
             {
-                Program.FormMainInstance.TreeView.Invoke(new MethodInvoker(() =>
+                methodsToInvoke.Add(new Action(() =>
                 {
-                    var tnPrinters = trnParentNode.Nodes.Add("Printers", "Printers");
-                    tnPrinters.ImageIndex =
-                        tnPrinters.SelectedImageIndex = 15;
+                    var tnPrinters = trnParentNode.Nodes.Add("Printers", "Printers", 15, 15);
                     tnPrinters.Tag = doc.FoundPrinters;
                 }));
             }
             if (doc.FoundEmails.Items.Count != 0)
             {
-                Program.FormMainInstance.TreeView.Invoke(new MethodInvoker(() =>
+                methodsToInvoke.Add(new Action(() =>
                 {
-                    var tnEmails = trnParentNode.Nodes.Add("Emails", "Emails");
-                    tnEmails.ImageIndex =
-                        tnEmails.SelectedImageIndex = 23;
+                    var tnEmails = trnParentNode.Nodes.Add("Emails", "Emails", 23, 23);
                     tnEmails.Tag = doc.FoundEmails;
                 }));
             }
             if (doc.FoundDates.CreationDateSpecified || doc.FoundDates.DatePrintingSpecified ||
                 doc.FoundDates.ModificationDateSpecified)
             {
-                Program.FormMainInstance.TreeView.Invoke(new MethodInvoker(() =>
+                methodsToInvoke.Add(new Action(() =>
                 {
-                    var tnDates = trnParentNode.Nodes.Add("Dates", "Dates");
-                    tnDates.ImageIndex =
-                        tnDates.SelectedImageIndex = 24;
+                    var tnDates = trnParentNode.Nodes.Add("Dates", "Dates", 24, 24);
                     tnDates.Tag = doc.FoundDates;
                 }));
             }
+
             var m = doc.FoundMetaData;
             // if any metadata as found
             if ((m.Applications != null && m.Applications.Items.Count > 0) ||
@@ -1151,110 +1094,83 @@ namespace FOCA
                 !string.IsNullOrEmpty(m.Title) ||
                 !string.IsNullOrEmpty(m.Model))
             {
-                Program.FormMainInstance.TreeView.Invoke(new MethodInvoker(() =>
+                methodsToInvoke.Add(new Action(() =>
                 {
-                    var tnMetadata = trnParentNode.Nodes.Add("Other Metadata", "Other Metadata");
-                    tnMetadata.ImageIndex =
-                        tnMetadata.SelectedImageIndex = 25;
+                    var tnMetadata = trnParentNode.Nodes.Add("Other Metadata", "Other Metadata", 25, 25);
                     tnMetadata.Tag = doc.FoundMetaData;
                 }));
             }
             if (doc.FoundOldVersions.Items.Count != 0)
             {
-                Program.FormMainInstance.TreeView.Invoke(new MethodInvoker(() =>
+                methodsToInvoke.Add(new Action(() =>
                 {
-                    var tnOld = trnParentNode.Nodes.Add("Old versions", "Old versions");
-                    tnOld.ImageIndex =
-                        tnOld.SelectedImageIndex = 26;
+                    var tnOld = trnParentNode.Nodes.Add("Old versions", "Old versions", 26, 26);
                     tnOld.Tag = doc.FoundOldVersions;
                 }));
             }
             if (doc.FoundHistory.Items.Count != 0)
             {
-                Program.FormMainInstance.TreeView.Invoke(new MethodInvoker(() =>
+                methodsToInvoke.Add(new Action(() =>
                 {
-                    var tnOld = trnParentNode.Nodes.Add("History", "History");
-                    tnOld.ImageIndex =
-                        tnOld.SelectedImageIndex = 31;
+                    var tnOld = trnParentNode.Nodes.Add("History", "History", 31, 31);
                     tnOld.Tag = doc.FoundHistory;
                 }));
             }
             if (doc.FoundMetaData.Applications.Items.Count > 0)
             {
-                Program.FormMainInstance.TreeView.Invoke(new MethodInvoker(() =>
+                methodsToInvoke.Add(new Action(() =>
                 {
-                    var tnSoftware = trnParentNode.Nodes.Add("Software", "Software");
-                    tnSoftware.ImageIndex =
-                        tnSoftware.SelectedImageIndex = 30;
+                    var tnSoftware = trnParentNode.Nodes.Add("Software", "Software", 30, 30);
                     tnSoftware.Tag = doc.FoundMetaData.Applications;
                 }));
             }
-            var document = doc as EXIFDocument;
-            if (document != null)
+            if (doc is EXIFDocument exifDoc)
             {
-                if (document.dicAnotherMetadata.Count != 0 || document.Thumbnail != null)
+                if (exifDoc.dicAnotherMetadata.Count != 0 || exifDoc.Thumbnail != null)
                 {
-                    Program.FormMainInstance.TreeView.Invoke(new MethodInvoker(() =>
+                    methodsToInvoke.Add(new Action(() =>
                     {
-                        var tnExif = trnParentNode.Nodes.Add("EXIF", "EXIF");
-                        tnExif.ImageIndex = tnExif.SelectedImageIndex = 33;
+                        var tnExif = trnParentNode.Nodes.Add("EXIF", "EXIF", 33, 33);
                         tnExif.Tag = doc;
                     }));
                 }
             }
+
             // extract EXIF information from embeded images
-            var office972004 = doc as Office972003;
-            var openOfficeDocument = doc as OpenOfficeDocument;
-            var xmlDocument = doc as OfficeOpenXMLDocument;
-            if (office972004 != null ||
-                openOfficeDocument != null ||
-                xmlDocument != null)
+            SerializableDictionary<string, EXIFDocument> dicPictureExif = null;
+            SerializableDictionary<string, OpenOfficeDocument> dicOldVersions = null;
+            if (doc is Office972003 office972003)
+                dicPictureExif = office972003.dicPictureEXIF;
+            else if (doc is OpenOfficeDocument officeDocument)
             {
-                SerializableDictionary<string, EXIFDocument> dicPictureExif = null;
-                var office972003 = doc as Office972003;
-                if (office972003 != null)
-                    dicPictureExif = office972003.dicPictureEXIF;
-                var officeDocument = doc as OpenOfficeDocument;
-                if (officeDocument != null)
-                    dicPictureExif = officeDocument.dicPictureEXIF;
-                var openXmlDocument = doc as OfficeOpenXMLDocument;
-                if (openXmlDocument != null)
-                    dicPictureExif = openXmlDocument.dicPictureEXIF;
-                if (dicPictureExif.Count != 0)
+                dicPictureExif = officeDocument.dicPictureEXIF;
+                dicOldVersions = officeDocument.dicOldVersions;
+            }
+            else if (doc is OfficeOpenXMLDocument openXmlDocument)
+                dicPictureExif = openXmlDocument.dicPictureEXIF;
+
+            if (dicPictureExif != null && dicPictureExif.Count != 0)
+            {
+                methodsToInvoke.Add(new Action(delegate
                 {
-                    Program.FormMainInstance.TreeView.Invoke(new MethodInvoker(delegate
+                    IEnumerable<KeyValuePair<string, EXIFDocument>> filesWithExif = dicPictureExif.Where(p => p.Value.dicAnotherMetadata.Count > 0 || p.Value.Thumbnail != null);
+                    if (filesWithExif.Any())
                     {
-                        // there's at least one image with EXIF information
-                        var bPictureExif =
-                            dicPictureExif.Any(
-                                dicPicture =>
-                                    dicPicture.Value.dicAnotherMetadata.Count != 0 || dicPicture.Value.Thumbnail != null);
-                        if (!bPictureExif) return;
-                        var tnExifRoot = trnParentNode.Nodes.Add("EXIF in pictures", "EXIF in pictures");
-                        tnExifRoot.ImageIndex =
-                            tnExifRoot.SelectedImageIndex = 32;
-                        foreach (var dicPicture in dicPictureExif)
+                        TreeNode tnExifRoot = trnParentNode.Nodes.Add("EXIF in pictures", "EXIF in pictures", 32, 32);
+                        foreach (KeyValuePair<string, EXIFDocument> dicPicture in filesWithExif)
                         {
-                            if (dicPicture.Value.dicAnotherMetadata.Count == 0 && dicPicture.Value.Thumbnail == null)
-                                continue;
-                            var tnExifPic = tnExifRoot.Nodes.Add(Path.GetFileName(dicPicture.Key),
-                                Path.GetFileName(dicPicture.Key));
-                            tnExifPic.ImageIndex =
-                                tnExifPic.SelectedImageIndex = 34;
-                            var tnExif = tnExifPic.Nodes.Add("EXIF", "EXIF");
-                            tnExif.ImageIndex =
-                                tnExif.SelectedImageIndex = 33;
+                            TreeNode tnExifPic = tnExifRoot.Nodes.Add(Path.GetFileName(dicPicture.Key), Path.GetFileName(dicPicture.Key), 34, 34);
+                            TreeNode tnExif = tnExifPic.Nodes.Add("EXIF", "EXIF", 33, 33);
                             tnExif.Tag = dicPicture.Value;
                         }
-                    }));
-                }
+                    }
+                }));
             }
+
             // extract old versions from OpenOffice documents
-            if (!(doc is OpenOfficeDocument)) return;
-            var dicOldVersions = ((OpenOfficeDocument)doc).dicOldVersions;
-            if (dicOldVersions.Count != 0)
+            if (dicOldVersions != null && dicOldVersions.Count != 0)
             {
-                Program.FormMainInstance.TreeView.Invoke(new MethodInvoker(() =>
+                methodsToInvoke.Add(new Action(() =>
                 {
                     var tnOldVersionsRoot = trnParentNode.Nodes["Old versions"];
                     foreach (var oldVersion in dicOldVersions)
@@ -1266,6 +1182,14 @@ namespace FOCA
                     }
                 }));
             }
+
+            Program.FormMainInstance.TreeView.Invoke(new MethodInvoker(() =>
+            {
+                foreach (var item in methodsToInvoke)
+                {
+                    item.Invoke();
+                }
+            }));
         }
 
         #endregion
@@ -1429,10 +1353,10 @@ namespace FOCA
             {
                 // only use those files where metadata was found
                 if (fi.Metadata == null) continue;
-                var machineUsers = new List<UserItem>(fi.Metadata.FoundUsers.Items.Where(u => u.IsComputerUser));
-                var machinePaths = new List<PathsItem>(fi.Metadata.FoundPaths.Items.Where(r => r.IsComputerFolder));
-                var servers = new List<ServersItem>(fi.Metadata.FoundServers.Items);
-                var passwords = new List<PasswordsItem>(fi.Metadata.FoundPasswords.Items);
+                var machineUsers = new ConcurrentBag<UserItem>(fi.Metadata.FoundUsers.Items.Where(u => u.IsComputerUser));
+                var machinePaths = new ConcurrentBag<PathsItem>(fi.Metadata.FoundPaths.Items.Where(r => r.IsComputerFolder));
+                var servers = new ConcurrentBag<ServersItem>(fi.Metadata.FoundServers.Items);
+                var passwords = new ConcurrentBag<PasswordsItem>(fi.Metadata.FoundPasswords.Items);
 
                 if (servers.Count > 0 || machineUsers.Count > 0 || machinePaths.Count > 0 ||
                     fi.Metadata.FoundPrinters.Items.Count > 0)
@@ -2625,8 +2549,9 @@ namespace FOCA
         {
             Invoke(new MethodInvoker(() =>
             {
-                ((Download)dpce.UserState).Pbar.Value = dpce.ProgressPercentage;
-                ((Download)dpce.UserState).DownloadStatus = Download.Status.Inprogress;
+                Download file = ((DownloadableUri)((TaskCompletionSource<object>)dpce.UserState).Task.AsyncState).File;
+                file.Pbar.Value = dpce.ProgressPercentage;
+                file.DownloadStatus = Download.Status.InProgress;
             }));
         }
 
@@ -2634,315 +2559,307 @@ namespace FOCA
         ///     Event launched each time a download is completed
         /// </summary>
         /// <param name="o"></param>
-        /// <param name="acea"></param>
-        private void DownloadProgressCompleted(object o, AsyncCompletedEventArgs acea)
+        /// <param name="completedArgs"></param>
+        private void DownloadProgressCompleted(object o, AsyncCompletedEventArgs completedArgs)
         {
-            // no data was downloaded, retry 5 times
-            if (((Download)acea.UserState).DownloadStatus == Download.Status.Downloading &&
-                ((Download)acea.UserState).Retries < 3)
-            {
-                var d = ((Download)acea.UserState);
-                d.CaClient = new CookieAwareWebClient();
-                d.CaClient.DownloadFileCompleted += DownloadProgressCompleted;
-                d.CaClient.DownloadProgressChanged += DownloadProgressChanged;
-                var killer = new Destructor(d, 10000);
-                new Thread(killer.Kill).Start();
+            Download file = ((DownloadableUri)((TaskCompletionSource<object>)completedArgs.UserState).Task.AsyncState).File;
+            file.CaClient?.Dispose();
 
-                d.CaClient.DownloadFileAsync(new Uri(d.DownloadUrl), d.PhysicalPath, d);
-                d.Retries++;
-                Program.LogThis(new Log(Log.ModuleType.MetadataSearch, "Retrying download " + d.DownloadUrl,
-                    Log.LogType.debug));
+            if (completedArgs.Cancelled)
+            {
+                Invoke(new MethodInvoker(() =>
+                {
+                    File.Delete(file.PhysicalPath);
+                    FilesITem fi = (FilesITem)file.Lvi.Tag;
+                    if (fi == null) return;
+                    fi.Downloaded = false;
+                    listViewDocuments.RemoveEmbeddedControl(file.Pbar);
+                    this.downloadingFiles.TryRemove(file.DownloadUrl, out Download value);
+                    this.UpdateProgressDownloadControls();
+                }));
+
+                if (file.Retries < 3 && !file.IsCanceled)
+                {
+                    file.Retries++;
+                    this.downloadQueue.Enqueue(file);
+                    this.downloadDelayToken.Cancel();
+                    Program.LogThis(new Log(Log.ModuleType.MetadataSearch, "Retrying download " + file.DownloadUrl, Log.LogType.debug));
+                }
+                else
+                {
+                    file.IsCanceled = true;
+                    Invoke(new MethodInvoker(() =>
+                    {
+                        this.downloadedFileCount++;
+                        FilesITem fi = (FilesITem)file.Lvi.Tag;
+                        if (fi == null) return;
+                        Program.LogThis(new Log(Log.ModuleType.MetadataSearch, $"Document download has been cancelled. Too many retries: {fi.URL}", Log.LogType.debug));
+                    }));
+                }
             }
             else // successful download
             {
                 Invoke(new MethodInvoker(() =>
                 {
-                    ((WebClient)o).Dispose();
-                    activeDownloads--;
-                    if (acea.Cancelled)
-                        File.Delete(((Download)acea.UserState).PhysicalPath);
-                    var lvi = ((Download)acea.UserState).Lvi;
-                    listViewDocuments.RemoveEmbeddedControl(((Download)acea.UserState).Pbar);
-                    var fi = (FilesITem)lvi.Tag;
+                    ListViewItem lvi = file.Lvi;
+                    listViewDocuments.RemoveEmbeddedControl(file.Pbar);
+                    FilesITem fi = (FilesITem)lvi.Tag;
                     if (fi == null) return;
-                    fi.Downloaded = !acea.Cancelled;
-                    if (!acea.Cancelled)
+                    fi.Downloaded = true;
+                    fi.Date = DateTime.Now;
+                    fi.Size = (int)new FileInfo(file.PhysicalPath).Length;
+                    bool unknownExtension = String.IsNullOrWhiteSpace(fi.Ext) || !Program.FormMainInstance.AstrSuportedExtensions.Any(ext => String.Equals("." + ext, fi.Ext, StringComparison.OrdinalIgnoreCase));
+
+                    if (unknownExtension)
                     {
-                        fi.Date = DateTime.Now;
-                        fi.Size = (int)new FileInfo(((Download)acea.UserState).PhysicalPath).Length;
-                        fi.Ext = Path.GetExtension(new Uri(fi.URL).AbsolutePath).ToLower();
-                        var knownExtension =
-                            Program.FormMainInstance.AstrSuportedExtensions.Any(ext => "." + ext == fi.Ext);
-                        if (!knownExtension)
+                        using (var fs = new FileStream(fi.Path, FileMode.Open, FileAccess.Read))
                         {
-                            using (var fs = new FileStream(fi.Path, FileMode.Open, FileAccess.Read))
-                            {
-                                fi.Ext = MetadataExtractCore.Utilities.Functions.GetFormatFile(fs);
-                            }
-                            if (!string.IsNullOrEmpty(lvi.SubItems[1].Text)) // rename the file
-                            {
-                                var newFile = GetNotExistsPath(fi.Path + "." + lvi.SubItems[1].Text);
-                                File.Move(fi.Path, newFile);
-                                fi.Path = newFile;
-                                fi.Ext = Path.GetExtension(fi.Path);
-                            }
+                            fi.Ext = MetadataExtractCore.Utilities.Functions.GetFormatFile(fs);
                         }
-                        listViewDocuments_Update(fi);
-                    }
-                    DownloadedFiles++;
-                    Program.LogThis(new Log(Log.ModuleType.MetadataSearch,
-                        $"Downloaded document: {fi.URL}", Log.LogType.low));
-                    if (enqueuedFiles - DownloadedFiles == 0)
-                    {
-                        Program.FormMainInstance.ReportProgress(0, 100);
-                        Program.FormMainInstance.toolStripProgressBarDownload.Value = 0;
-                        Program.FormMainInstance.toolStripStatusLabelLeft.Text = @"All documents are downloaded";
-                        Program.LogThis(new Log(Log.ModuleType.MetadataSearch, "All documents are downloaded",
-                            Log.LogType.debug));
-                    }
-                    else
-                    {
-                        if (enqueuedFiles > 0 && DownloadedFiles <= enqueuedFiles)
+
+                        if (!string.IsNullOrEmpty(lvi.SubItems[1].Text)) // rename the file
                         {
-                            Program.FormMainInstance.ReportProgress(DownloadedFiles, enqueuedFiles);
-                            Program.FormMainInstance.toolStripProgressBarDownload.Value = DownloadedFiles == 0
-                                ? 0
-                                : DownloadedFiles * 100 / enqueuedFiles;
-                            Program.FormMainInstance.toolStripStatusLabelLeft.Text =
-                                $"Downloading {DownloadedFiles}/{enqueuedFiles}";
+                            string newFile = GetNotExistsPath(fi.Path + "." + lvi.SubItems[1].Text);
+                            File.Move(fi.Path, newFile);
+                            fi.Path = newFile;
+                            fi.Ext = Path.GetExtension(fi.Path);
                         }
                     }
-                    Downloads.Remove((Download)acea.UserState);
+
+                    listViewDocuments_Update(fi);
+                    this.downloadedFileCount++;
+                    Program.LogThis(new Log(Log.ModuleType.MetadataSearch, $"Downloaded document: {fi.URL}", Log.LogType.low));
+                    this.downloadingFiles.TryRemove(file.DownloadUrl, out Download value);
+                    this.UpdateProgressDownloadControls();
                 }));
             }
         }
 
-        /// <summary>
-        ///     Download list of files to a given path
-        /// </summary>
-        /// <param name="urls"></param>
-        /// <param name="directory"></param>
-        public void DownloadFiles(List<ListViewItem> urls, string directory)
+        private void UpdateProgressDownloadControls()
         {
-            //Enqueued all files with their url and bind it a physical path in hard disk
-            foreach (var url in urls)
+            int totalFiles = this.downloadQueue.Count + this.downloadingFiles.Count + this.downloadedFileCount;
+            if (this.downloadQueue.IsEmpty && this.downloadingFiles.IsEmpty)
             {
-                Download fileDownload = new Download();
-                fileDownload.DownloadStatus = Download.Status.Enqueued;
-                fileDownload.PhysicalPath = directory;
-                fileDownload.DownloadUrl = url.SubItems[2].Text;
-                fileDownload.Lvi = url;
-                Downloads.Add(fileDownload);
+                Program.FormMainInstance.ReportProgress(0, 100);
+                Program.FormMainInstance.toolStripProgressBarDownload.Value = 0;
+                Program.FormMainInstance.toolStripStatusLabelLeft.Text = @"All documents have been downloaded";
+                Program.LogThis(new Log(Log.ModuleType.MetadataSearch, "All documents have been downloaded", Log.LogType.debug));
+
+                if (this.IsHandleCreated)
+                {
+                    Invoke(new MethodInvoker(() => { Program.FormMainInstance.toolStripDropDownButtonStop.Enabled = false; }));
+                }
             }
-            if (CurrentDownloads != null && CurrentDownloads.IsAlive)
+            else if (totalFiles > 0)
             {
-                enqueuedFiles += urls.Count;
+                Program.FormMainInstance.ReportProgress(this.downloadedFileCount, totalFiles);
+                Program.FormMainInstance.toolStripProgressBarDownload.Value = totalFiles == 0 ? 0 : this.downloadedFileCount * 100 / totalFiles;
+                Program.FormMainInstance.toolStripStatusLabelLeft.Text = $"Downloading {this.downloadedFileCount}/{totalFiles}";
             }
-            else
+        }
+
+        private void EnqueueFilestoDownload(List<ListViewItem> urls, string directory)
+        {
+            if (!Directory.Exists(directory))
             {
-                enqueuedFiles = urls.Count;
-                DownloadedFiles = 0;
-                CurrentDownloads = new Thread(DownloadQueque) { IsBackground = true };
-                CurrentDownloads.Start();
+                MessageBox.Show("The selected folder does not exist, please check the project configuration - " + directory, "Message for User", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
             }
-            Program.LogThis(new Log(Log.ModuleType.MetadataSearch,
-                $"Enquequed {urls.Count} documents to download, total enquequed: {enqueuedFiles}",
-                Log.LogType.debug));
-            Program.FormMainInstance.ReportProgress(DownloadedFiles, enqueuedFiles);
-            Program.FormMainInstance.toolStripProgressBarDownload.Value = DownloadedFiles == 0
-                ? 0
-                : DownloadedFiles * 100 / enqueuedFiles;
-            Program.ChangeStatus($"Downloading {DownloadedFiles}/{enqueuedFiles}");
+
+            if (this.downloadQueue.Count + this.downloadingFiles.Count == 0)
+            {
+                this.downloadedFileCount = 0;
+            }
+
+            bool filesAdded = false;
+            foreach (ListViewItem url in urls)
+            {
+                FilesITem currentFile = (FilesITem)url.Tag;
+                if (!currentFile.Downloaded || !File.Exists(currentFile.Path))
+                {
+                    Download fileDownload = new Download()
+                    {
+                        DownloadStatus = Download.Status.Enqueued,
+                        PhysicalPath = directory,
+                        DownloadUrl = url.SubItems[2].Text,
+                        Lvi = url,
+                        IsCanceled = false
+                    };
+                    downloadQueue.Enqueue(fileDownload);
+                    filesAdded = true;
+                }
+            }
+
+            if (filesAdded)
+            {
+                Invoke(new MethodInvoker(() => { Program.FormMainInstance.toolStripDropDownButtonStop.Enabled = true; }));
+                this.UpdateProgressDownloadControls();
+                this.downloadDelayToken.Cancel();
+            }
+        }
+
+        public void StopAllDownloads()
+        {
+            while (!this.downloadQueue.IsEmpty)
+            {
+                if (this.downloadQueue.TryDequeue(out Download value))
+                {
+                    this.StopFileDownload(value);
+                }
+            }
+
+            foreach (var item in this.downloadingFiles)
+            {
+                this.StopFileDownload(item.Value);
+            }
+
+            this.UpdateProgressDownloadControls();
+        }
+
+        private void StopFileDownload(Download file)
+        {
+            file.CaClient?.CancelAsync();
+            file.IsCanceled = true;
         }
 
         /// <summary>
         /// Download files from the queue
         /// </summary>
-        private void DownloadQueque()
+        private void ProcessDownloadQueue()
         {
-            Invoke(new MethodInvoker(() => { Program.FormMainInstance.toolStripDropDownButtonStop.Enabled = true; }));
             try
             {
-                while (Downloads.Count != 0)
+                do
                 {
-                    while (activeDownloads >= Program.cfgCurrent.SimultaneousDownloads)
-                        Thread.Sleep(1000);
-
-                    // get an inactive download from the queue
-                    for (var i = 0; i < Downloads.Count; i++)
+                    while (this.downloadingFiles.Count < Program.cfgCurrent.SimultaneousDownloads && downloadQueue.TryDequeue(out Download currentDownload))
                     {
-                        var exists = true;
-                        var i1 = i;
-                        Invoke(new MethodInvoker(() =>
+                        FilesITem fi = currentDownload.Lvi.Tag as FilesITem;
+                        if (!currentDownload.IsCanceled && fi != null && !fi.Downloaded)
                         {
-                            // the enqueued file was deleted
-                            try
-                            {
-                                if (Downloads[i1].Lvi.Index != -1) return;
-                                DownloadedFiles++;
-                                try
-                                {
-                                    File.Delete(Downloads[i1].PhysicalPath);
-                                }
-                                catch
-                                {
-                                }
-                                Downloads.RemoveAt(i1);
-                                exists = false;
-                            }
-                            catch
-                            {
-                            }
-                        }));
+                            currentDownload.DownloadStatus = Download.Status.Downloading;
+                            string fileName = Path.GetFileName(new Uri(currentDownload.Lvi.SubItems[2].Text).AbsolutePath);
 
-                        if (i >= Downloads.Count)
-                            break;
-                        if (!exists || Downloads[i].DownloadStatus != Download.Status.Enqueued) continue;
-                        Downloads[i].DownloadStatus = Download.Status.Downloading;
-                        Download d = Downloads[i];
-                        var fileName = Path.GetFileName(new Uri(d.Lvi.SubItems[2].Text).AbsolutePath);
-                        //Delete incorrect filename characters
-                        for (var j = 0; fileName.IndexOfAny(MyInvalidPathChars) != -1; j++)
-                            fileName = fileName.Replace(MyInvalidPathChars[j], ' ');
-                        string downloadPath = GetNotExistsPath(d.PhysicalPath + fileName);
-                        // create an empty file to take over the filename and avoid other downloads overwriting it
-                        if (!ValidatePathExist(d.PhysicalPath))
-                        {
-                            MessageBox.Show("The selected folder does not exist, please check in the project configuration - " + d.PhysicalPath, "Message for User", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                            return;
-                        }
+                            //Delete incorrect filename characters
+                            for (var j = 0; fileName.IndexOfAny(MyInvalidPathChars) != -1; j++)
+                                fileName = fileName.Replace(MyInvalidPathChars[j], ' ');
+                            string downloadPath = GetNotExistsPath(currentDownload.PhysicalPath + fileName);
 
-                        File.Create(downloadPath).Close();
-                        FilesITem fi = (FilesITem)d.Lvi.Tag;
-                        if (fi != null)
+                            File.Create(downloadPath).Close();
+
                             fi.Path = downloadPath;
-                        d.PhysicalPath = downloadPath;
+                            currentDownload.PhysicalPath = downloadPath;
 
-                        Invoke(new MethodInvoker(() =>
-                        {
-                            var pb = new ProgressBar
+                            Invoke(new MethodInvoker(() =>
                             {
-                                Top = -1000,
-                                Left = -1000,
-                                ForeColor = Color.Green
-                            };
-                            d.Pbar = pb;
-                            listViewDocuments.AddEmbeddedControl(pb, 3, d.Lvi.Index);
-                            pb.Value = 0;
-                            listViewDocuments.Refresh();
-                        }));
-                        d.CaClient = new CookieAwareWebClient();
-                        d.CaClient.Headers.Add(HttpRequestHeader.Accept,
-                            "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
+                                ProgressBar pb = new ProgressBar
+                                {
+                                    Top = -1000,
+                                    Left = -1000,
+                                    ForeColor = Color.Green,
+                                    Value = 0
+                                };
+                                currentDownload.Pbar = pb;
+                                listViewDocuments.AddEmbeddedControl(pb, 3, currentDownload.Lvi.Index);
+                                listViewDocuments.Refresh();
+                            }));
+                            currentDownload.CaClient = new CookieAwareWebClient();
+                            currentDownload.CaClient.Headers.Add(HttpRequestHeader.Accept, "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
 
-                        #region moodle requires cookies to download files from it
+                            #region moodle requires cookies to download files from it
 
-                        if (d.DownloadUrl.Contains("/moodle/"))
-                        {
-                            Program.LogThis(new Log(Log.ModuleType.MetadataSearch,
-                                "Found moodle application, adding cookies to download document", Log.LogType.debug));
-                            var cc = new CookieContainer();
-                            HttpWebRequest req;
-                            HttpWebResponse resp;
-                            var location = d.DownloadUrl;
-                            do
+                            if (currentDownload.DownloadUrl.Contains("/moodle/"))
                             {
-                                req = (HttpWebRequest)WebRequest.Create(location);
-                                req.AllowAutoRedirect = false;
-                                req.CookieContainer = cc;
-                                try
+                                Program.LogThis(new Log(Log.ModuleType.MetadataSearch, "Moodle application found, adding cookies to download document", Log.LogType.debug));
+                                var cc = new CookieContainer();
+                                HttpWebRequest req;
+                                HttpWebResponse resp;
+                                var location = currentDownload.DownloadUrl;
+                                do
                                 {
-                                    resp = (HttpWebResponse)req.GetResponse();
-                                }
-                                catch
-                                {
-                                    break;
-                                }
-                                resp.Close();
-                                cc.Add(resp.Cookies);
-                                location = resp.Headers["Location"];
-                            } while (resp.StatusCode == HttpStatusCode.SeeOther &&
-                                     location != req.RequestUri.ToString());
-                            d.CaClient.m_container = cc;
+                                    req = (HttpWebRequest)WebRequest.Create(location);
+                                    req.AllowAutoRedirect = false;
+                                    req.CookieContainer = cc;
+                                    try
+                                    {
+                                        resp = (HttpWebResponse)req.GetResponse();
+                                    }
+                                    catch
+                                    {
+                                        break;
+                                    }
+                                    resp.Close();
+                                    cc.Add(resp.Cookies);
+                                    location = resp.Headers["Location"];
+                                } while (resp.StatusCode == HttpStatusCode.SeeOther &&
+                                         location != req.RequestUri.ToString());
+                                currentDownload.CaClient.m_container = cc;
+                            }
+
+                            #endregion
+
+                            currentDownload.CaClient.DownloadFileCompleted += DownloadProgressCompleted;
+                            currentDownload.CaClient.DownloadProgressChanged += DownloadProgressChanged;
+
+                            this.downloadingFiles.AddOrUpdate(currentDownload.DownloadUrl, currentDownload, (k, v) => { return v; });
+
+                            CancellationToken cancelT = new CancellationTokenSource(TimeSpan.FromSeconds(10 + currentDownload.Retries * 10)).Token;
+                            cancelT.Register(() => currentDownload.CaClient.CancelAsync(), true);
+                            currentDownload.CaClient.DownloadFileTaskAsync(new DownloadableUri(currentDownload), currentDownload.PhysicalPath);
                         }
-
-                        #endregion
-
-                        d.CaClient.DownloadFileCompleted += DownloadProgressCompleted;
-                        d.CaClient.DownloadProgressChanged += DownloadProgressChanged;
-                        Invoke(new MethodInvoker(() => { activeDownloads++; }));
-
-                        // 30 delay seconds before retrying the download
-                        var killer = new Destructor(d, 30000);
-                        var t = new Thread(killer.Kill) { IsBackground = true };
-                        t.Start();
-
-                        d.CaClient.DownloadFileAsync(new Uri(d.DownloadUrl), d.PhysicalPath, d);
-                        break;
                     }
-                }
-            }
-            catch (ThreadAbortException)
-            {
-                Invoke(new MethodInvoker(() =>
-                {
-                    for (var i = Downloads.Count - 1; i >= 0; i--)
+
+                    this.downloadDelayToken = new CancellationTokenSource();
+
+                    if (this.downloadQueue.IsEmpty)
                     {
-                        var d = Downloads[i];
-                        if (d.CaClient != null)
-                            d.CaClient.CancelAsync();
-                        else
+                        try
                         {
-                            DownloadedFiles++;
-                            Downloads.RemoveAt(i);
+                            Task.Delay(TimeSpan.FromSeconds(20), this.downloadDelayToken.Token).Wait();
+                        }
+                        catch (AggregateException)
+                        {
                         }
                     }
-                }));
-                while (Downloads.Count != 0)
-                    Thread.Sleep(100);
+                    else
+                    {
+                        Task.Delay(TimeSpan.FromSeconds(1)).Wait();
+                    }
+
+                } while (!this.downloadTaskToken.IsCancellationRequested);
             }
-            finally
+            catch
             {
-                Invoke(
-                    new MethodInvoker(() => { Program.FormMainInstance.toolStripDropDownButtonStop.Enabled = false; }));
-                CurrentDownloads = null;
             }
         }
-
-        /// <summary>
-        /// Validate if path exist
-        /// </summary>
-        /// <param name="downloadPath"></param>
-        /// <returns></returns>
-        private bool ValidatePathExist(string downloadPath)
-        {
-            return Directory.Exists(downloadPath);
-        }
-
         #endregion
     }
-}
 
-public class Destructor
-{
-    private readonly PanelMetadataSearch.Download d;
-    private readonly int time;
-
-    public Destructor(PanelMetadataSearch.Download d, int time)
+    public class Download
     {
-        this.d = d;
-        this.time = time;
+        public enum Status
+        {
+            Enqueued,
+            Downloading,
+            InProgress
+        };
+
+        public CookieAwareWebClient CaClient;
+        public Status DownloadStatus;
+        public string DownloadUrl;
+        public ListViewItem Lvi;
+        public ProgressBar Pbar;
+        public string PhysicalPath;
+        public int Retries;
+        public bool IsCanceled;
     }
 
-    /// <summary>
-    ///     Kill a download
-    /// </summary>
-    public void Kill()
+    public class DownloadableUri : Uri
     {
-        Thread.Sleep(time);
-        if (d != null && d.DownloadStatus != PanelMetadataSearch.Download.Status.Inprogress)
+        public Download File { get; }
+
+        public DownloadableUri(Download downloadFile) : base(downloadFile.DownloadUrl)
         {
-            d.CaClient.CancelAsync();
+            this.File = downloadFile;
         }
     }
 }
