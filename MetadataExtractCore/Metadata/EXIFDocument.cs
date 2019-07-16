@@ -97,7 +97,7 @@ namespace MetadataExtractCore.Metadata
             }
             catch (Exception e)
             {
-                System.Diagnostics.Debug.WriteLine("Error analizing EXIF metadata ({0})", e.ToString());
+                System.Diagnostics.Debug.WriteLine($"Error analizing EXIF metadata ({e.ToString()})");
             }
             finally
             {

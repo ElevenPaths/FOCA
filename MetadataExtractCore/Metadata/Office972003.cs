@@ -1,12 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using System.Text.RegularExpressions;
-using MetadataExtractCore.Utilities;
 using MetadataExtractCore.Analysis;
 using MetadataExtractCore.Diagrams;
+using MetadataExtractCore.Utilities;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace MetadataExtractCore.Metadata
 {
@@ -20,7 +20,7 @@ namespace MetadataExtractCore.Metadata
             dicPictureEXIF = new SerializableDictionary<string, EXIFDocument>();
         }
 
-        public Office972003(Stream stm): this()
+        public Office972003(Stream stm) : this()
         {
             this.stm = new MemoryStream();
             Functions.CopyStream(stm, this.stm);
@@ -189,7 +189,7 @@ namespace MetadataExtractCore.Metadata
                     return;
                 BinaryReader br = new BinaryReader(Workbook);
                 Workbook.Seek(0, SeekOrigin.Begin);
-                while (Workbook.Position <= Workbook.Length - 2)
+                while (Workbook.Position <= Workbook.Length - 4)
                 {
                     try
                     {
@@ -200,14 +200,14 @@ namespace MetadataExtractCore.Metadata
                         if (Tipo == 0x4D)
                         {
                             long PosOri = Workbook.Position;
-                            if (br.ReadInt16() == 0) 
+                            if (br.ReadInt16() == 0)
                             {
                                 String PrinterName = Encoding.Unicode.GetString(br.ReadBytes(32 * 2)).Replace('\0', ' ');
                                 br.ReadInt16();
                                 br.ReadInt16();
                                 Int16 StructSize = br.ReadInt16();
                                 Int16 DriverSize = br.ReadInt16();
-                               
+
                                 if (DriverSize != 0)
                                 {
                                     Workbook.Seek(StructSize - (8 + 64), SeekOrigin.Current);
@@ -233,7 +233,7 @@ namespace MetadataExtractCore.Metadata
             }
         }
 
-         private void GetHistory(OleDocument doc)
+        private void GetHistory(OleDocument doc)
         {
             using (Stream WordDocument = doc.OpenStream("WordDocument"))
             {
@@ -323,29 +323,36 @@ namespace MetadataExtractCore.Metadata
                 case 4:
                     switch (intLowVersion)
                     {
-                        case 0: FoundMetaData.OperativeSystem = "Windows NT 4.0";
+                        case 0:
+                            FoundMetaData.OperativeSystem = "Windows NT 4.0";
                             break;
-                        case 10: FoundMetaData.OperativeSystem = "Windows 98";
+                        case 10:
+                            FoundMetaData.OperativeSystem = "Windows 98";
                             break;
                     }
                     break;
                 case 5:
                     switch (intLowVersion)
                     {
-                        case 0: FoundMetaData.OperativeSystem = "Windows Server 2000";
+                        case 0:
+                            FoundMetaData.OperativeSystem = "Windows Server 2000";
                             break;
-                        case 1: FoundMetaData.OperativeSystem = "Windows XP";
+                        case 1:
+                            FoundMetaData.OperativeSystem = "Windows XP";
                             break;
-                        case 2: FoundMetaData.OperativeSystem = "Windows Server 2003";
+                        case 2:
+                            FoundMetaData.OperativeSystem = "Windows Server 2003";
                             break;
                     }
                     break;
                 case 6:
                     switch (intLowVersion)
                     {
-                        case 0: FoundMetaData.OperativeSystem = "Windows Vista";
+                        case 0:
+                            FoundMetaData.OperativeSystem = "Windows Vista";
                             break;
-                        case 1: FoundMetaData.OperativeSystem = "Windows 7";
+                        case 1:
+                            FoundMetaData.OperativeSystem = "Windows 7";
                             break;
                     }
                     break;
@@ -354,7 +361,8 @@ namespace MetadataExtractCore.Metadata
 
         private void GetPathPpt(OleDocument doc)
         {
-            using (var WordDocument = doc.OpenStream("PowerPoint Document")) {
+            using (var WordDocument = doc.OpenStream("PowerPoint Document"))
+            {
                 if (WordDocument == null)
                     return;
                 try
@@ -424,7 +432,7 @@ namespace MetadataExtractCore.Metadata
                                         }
                                     }
 
-                                    List<int> lstJPEG = Functions.SearchBytesInBytes(bufferPIC, new byte[] { 0xFF, 0xD8 });
+                                    List<int> lstJPEG = Functions.SearchBytesInBytes(bufferPIC, new byte[] { 0xFF, 0xD8, 0xFF });
                                     if (lstJPEG.Count > 0)
                                     {
                                         using (MemoryStream msJPG = new MemoryStream(bufferPIC, lstJPEG[0], bufferPIC.Length - lstJPEG[0]))
@@ -468,17 +476,13 @@ namespace MetadataExtractCore.Metadata
                     if (PICLength == 0 || stmPictures.Position + PICLength > stmPictures.Length) break;
                     byte[] bufferPIC = brData.ReadBytes((int)PICLength);
                     string strImageName = "Image" + ImagesFound++;
+
                     using (MemoryStream msJPG = new MemoryStream(bufferPIC, 0x11, bufferPIC.Length - 0x11))
                     {
                         EXIFDocument eDoc = new EXIFDocument(msJPG, ".jpg");
-       
+
                         eDoc.analyzeFile();
                         eDoc.Close();
-                        if (eDoc.Thumbnail != null)
-                            lon += eDoc.Thumbnail.Length;
-                        cont++;
-                        System.Diagnostics.Debug.WriteLine(cont.ToString());
-                        System.Diagnostics.Debug.WriteLine(lon /(1024*1024) + " Megacas");
 
                         dicPictureEXIF.Add(strImageName, eDoc);
 
@@ -495,9 +499,6 @@ namespace MetadataExtractCore.Metadata
                 }
             }
         }
-
-        static int cont = 0;
-        static long lon = 0;
 
         private void GetLinksBinary(OleDocument doc)
         {
@@ -566,9 +567,9 @@ namespace MetadataExtractCore.Metadata
                             continue;
 
                         string aux = link;
-                        aux = aux.Trim(new char[] { (char)18 }); 
+                        aux = aux.Trim(new char[] { (char)18 });
 
-                        if (!link.EndsWith("/"))    
+                        if (!link.EndsWith("/"))
                         {
                             int cuentaSlash = 0;
                             for (int i = 0; i < aux.Length; i++)
@@ -603,7 +604,7 @@ namespace MetadataExtractCore.Metadata
         }
 
 
-      private bool IsInterestingLink(string href)
+        private bool IsInterestingLink(string href)
         {
             if (href != string.Empty)
             {
@@ -642,9 +643,9 @@ namespace MetadataExtractCore.Metadata
                             return true;
                         }
                     }
-                    catch (UriFormatException)  
+                    catch (UriFormatException)
                     {
-                        if (!href.StartsWith("#")) 
+                        if (!href.StartsWith("#"))
                         {
                             return true;
                         }
