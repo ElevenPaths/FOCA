@@ -1,8 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using MetadataExtractCore.Utilities;
+using System;
 
 namespace MetadataExtractCore.Analysis
 {
@@ -18,7 +15,7 @@ namespace MetadataExtractCore.Analysis
             string resultUser;
 
             if (GetUserFromPathValue(pathValue, @":\winnt\profiles\", out resultUser)) return resultUser;
-            
+
             if (GetUserFromPathValue(pathValue, @":\documents and settings\", out resultUser)) return resultUser;
 
             if (GetUserFromPathValue(pathValue, @":\dokumente und einstellungen\", out resultUser)) return resultUser;
@@ -68,14 +65,14 @@ namespace MetadataExtractCore.Analysis
             pathValue = pathValue.ToLower();
             if (!Functions.StringContainAnyLetter(pathValue))
                 return false;
-            
+
             if (pathValue.Length > 2 && char.IsLetter(pathValue[0]) && pathValue[1] == ':' && pathValue[2] == '\\')
                 return true;
 
             if (pathValue.StartsWith("\\\\") &&
                 pathValue.Length > 2 && pathValue[2] != '\\')
                 return true;
-            
+
             if (pathValue.StartsWith("\\") &&
                 pathValue.Length > 1 && pathValue[1] != '\\')
                 return true;
@@ -109,7 +106,7 @@ namespace MetadataExtractCore.Analysis
                 return pathValue.Remove(pathValue.LastIndexOf('\\') + 1);
             if (pathValue.LastIndexOf('/') > pathValue.LastIndexOf('\\') && pathValue.LastIndexOf('/') < pathValue.Length - 1)
                 return pathValue.Remove(pathValue.LastIndexOf('/') + 1);
-            
+
             return pathValue;
         }
 
@@ -120,19 +117,24 @@ namespace MetadataExtractCore.Analysis
         /// <returns></returns>
         public static string CleanPath(string pathValue)
         {
-            var uriValue = new Uri(pathValue);
-            pathValue = uriValue.AbsoluteUri;
-           
-            pathValue = RemoveNamePath(pathValue);
+            if (Uri.TryCreate(pathValue, UriKind.Absolute, out Uri uriValue))
+            {
+                pathValue = uriValue.AbsoluteUri;
+                pathValue = RemoveNamePath(pathValue);
+                if (pathValue.IndexOf("file://") != -1)
+                    pathValue = pathValue.Substring(pathValue.IndexOf("file://") + 7, pathValue.Length - pathValue.IndexOf("file://") - 7);
+                if (pathValue.IndexOf(':') != 2)
+                    return IsValidPath(pathValue) ? pathValue.Trim() : String.Empty;
 
-            if (pathValue.IndexOf("file://") != -1)
-                pathValue = pathValue.Substring(pathValue.IndexOf("file://") + 7, pathValue.Length - pathValue.IndexOf("file://") - 7);
-            if (pathValue.IndexOf(':') != 2) return IsValidPath(pathValue) ? pathValue.Trim() : string.Empty;
+                pathValue = pathValue.Replace('/', '\\');
+                pathValue = pathValue.Substring(1, pathValue.Length - 1);
 
-            pathValue = pathValue.Replace('/', '\\');
-            pathValue = pathValue.Substring(1, pathValue.Length - 1);
-
-            return IsValidPath(pathValue) ? pathValue.Trim() : string.Empty;
+                return IsValidPath(pathValue) ? pathValue.Trim() : String.Empty;
+            }
+            else
+            {
+                return String.Empty;
+            }
         }
     }
 }

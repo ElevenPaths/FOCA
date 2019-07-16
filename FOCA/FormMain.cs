@@ -1017,13 +1017,13 @@ namespace FOCA
                     var h = (History)e.Node.Nodes["History"].Tag;
                     foreach (var hi in h.Items)
                     {
-                        if (string.IsNullOrEmpty(hi.Author.Trim()))
+                        if (String.IsNullOrWhiteSpace(hi.Author))
                             NewItemListView("Author", hi.Author, "History");
 
-                        if (string.IsNullOrEmpty(hi.Comments.Trim()))
+                        if (String.IsNullOrWhiteSpace(hi.Comments))
                             NewItemListView("Comments", hi.Comments, "History");
 
-                        if (string.IsNullOrEmpty(hi.Path.Trim()))
+                        if (String.IsNullOrWhiteSpace(hi.Path))
                             NewItemListView("Path", hi.Path, "History");
                     }
                 }
@@ -1499,16 +1499,16 @@ namespace FOCA
 
             foreach (var vai in va.Items)
             {
-                if (string.IsNullOrEmpty(vai.Author.Trim()))
+                if (String.IsNullOrEmpty(vai.Author))
                     NewItemListView("Author", vai.Author, valueOldVersion);
 
-                if (string.IsNullOrEmpty(vai.Comments.Trim()))
+                if (String.IsNullOrEmpty(vai.Comments))
                     NewItemListView("Comments", vai.Comments, valueOldVersion);
 
                 if (vai.SpecificDate)
                     NewItemListView("Date", vai.Date.ToString(), valueOldVersion);
 
-                if (string.IsNullOrEmpty(vai.Path.Trim()))
+                if (String.IsNullOrEmpty(vai.Path))
                     NewItemListView("Path", vai.Path, valueOldVersion);
             }
         }
@@ -1525,13 +1525,13 @@ namespace FOCA
             var historyItems = (History)e.Node.Tag;
             foreach (var hi in historyItems.Items)
             {
-                if (hi.Author != null && hi.Author.Trim() != string.Empty)
+                if (!String.IsNullOrWhiteSpace(hi.Author))
                     NewItemListView("Author", hi.Author, historyValue);
 
-                if (hi.Comments != null && hi.Comments.Trim() != string.Empty)
+                if (!String.IsNullOrWhiteSpace(hi.Comments))
                     NewItemListView("Comments", hi.Comments, historyValue);
 
-                if (hi.Path != null && hi.Path.Trim() != string.Empty)
+                if (!String.IsNullOrWhiteSpace(hi.Path))
                     NewItemListView("Path", hi.Path, historyValue);
             }
         }
@@ -1548,16 +1548,16 @@ namespace FOCA
             var va = (OldVersions)e.Node.Tag;
             foreach (var vai in va.Items)
             {
-                if (vai.Author != null && vai.Author.Trim() != string.Empty)
+                if (!String.IsNullOrWhiteSpace(vai.Author))
                     NewItemListView("Author", vai.Author, oldVersionValue);
 
-                if (vai.Comments != null && vai.Comments.Trim() != string.Empty)
+                if (!String.IsNullOrWhiteSpace(vai.Comments))
                     NewItemListView("Comments", vai.Comments, oldVersionValue);
 
                 if (vai.SpecificDate)
                     NewItemListView("Date", vai.Date.ToString(), oldVersionValue);
 
-                if (vai.Path != null && vai.Path.Trim() != string.Empty)
+                if (!String.IsNullOrWhiteSpace(vai.Path))
                     NewItemListView("Path", vai.Path, oldVersionValue);
             }
         }
@@ -1568,10 +1568,10 @@ namespace FOCA
         /// <param name="e"></param>
         private void SetOtherMetadataNode(TreeViewEventArgs e)
         {
-            var otherMetaValue = "Other Metadata";
+            string otherMetaValue = "Other Metadata";
 
             panelInformation.lvwInformation.Groups.Add("Other Metadata", "Other Metadata");
-            var metaDatadosValue = (MetaData)e.Node.Tag;
+            MetaData metaDatadosValue = (MetaData)e.Node.Tag;
 
             if (metaDatadosValue.Applications != null && metaDatadosValue.Applications.Items.Count > 0)
                 foreach (var aplicacion in metaDatadosValue.Applications.Items)

@@ -277,7 +277,7 @@ namespace MetadataExtractCore.Metadata
                     foreach (XmlNode xn in xnl)
                         FoundPaths.AddUniqueItem(PathAnalysis.CleanPath(xn.Attributes.GetNamedItem("xlink:href").Value), true);
                 xnl = doc.GetElementsByTagName("meta:document-statistic");
-                if (xnl != null)
+                if (xnl != null && xnl.Count > 0)
                 {
                     String estadisticas = string.Empty;
                     if (xnl[0].Attributes.GetNamedItem("meta:table-count") != null)
