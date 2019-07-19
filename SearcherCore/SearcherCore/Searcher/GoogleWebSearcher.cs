@@ -244,7 +244,7 @@ namespace FOCA.Searcher
             OnSearcherLogEvent(new EventsThreads.ThreadStringEventArgs(string.Format("[{0}] Found {1} links", this.Name, lstCurrentResults.Count)));
             OnSearcherLinkFoundEvent(new EventsThreads.CollectionFound<Uri>(lstCurrentResults));
 
-            moreResults = html.ToLower().Contains("<span class=\"csb ch\" style=\"background-position:-96px 0;width:71px\"></span>".ToLower());
+            moreResults = html.Contains($"start={currentOffset + currentResultPerPage}&amp;");
 
             return lstCurrentResults.Count;
         }
