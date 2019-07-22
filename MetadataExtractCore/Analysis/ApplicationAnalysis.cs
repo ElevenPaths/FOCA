@@ -35,7 +35,7 @@ namespace MetadataExtractCore.Analysis
                 return "Internet Explorer";
 
             if (strApplication.Contains("distiller"))
-                return "Acrobat Distillier" + (strVersion != string.Empty ? " " + strVersion : string.Empty);
+                return "Acrobat Distiller" + (strVersion != string.Empty ? " " + strVersion : string.Empty);
 
             if (strApplication.Contains("acrobat") && strApplication.Contains("paper") && strApplication.Contains("capture"))
                 return "Adobe Acrobat" + (strVersion != string.Empty ? " " + strVersion : string.Empty) + " Paper Capture Plug-in";

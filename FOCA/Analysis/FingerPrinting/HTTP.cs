@@ -74,7 +74,7 @@ namespace FOCA.Analysis.FingerPrinting
                 return;
             }
 
-            Version = response.Headers["Server"] ?? "(Unavaliable)";
+            Version = response.Headers["Server"] ?? "(Unavailable)";
             response.Close();
 
             // try to guess the OS (sometimes the banner leaks that information)

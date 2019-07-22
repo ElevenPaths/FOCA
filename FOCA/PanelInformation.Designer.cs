@@ -169,7 +169,7 @@ namespace FOCA
             this.openUrlToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("openUrlToolStripMenuItem.Image")));
             this.openUrlToolStripMenuItem.Name = "openUrlToolStripMenuItem";
             this.openUrlToolStripMenuItem.Size = new System.Drawing.Size(439, 30);
-            this.openUrlToolStripMenuItem.Text = "Open url";
+            this.openUrlToolStripMenuItem.Text = "Open URL";
             this.openUrlToolStripMenuItem.Click += new System.EventHandler(this.openUrlToolStripMenuItem_Click);
             // 
             // btnHide

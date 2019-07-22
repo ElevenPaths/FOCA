@@ -475,7 +475,7 @@ namespace FOCA
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(802, 82);
             this.label1.TabIndex = 3;
-            this.label1.Text = "Using a web searcher like Google or Bing the program searchs links pointing to th" +
+            this.label1.Text = "Using a web searcher like Google or Bing the program searches for links pointing to th" +
     "e domain site to identify new subdomains.";
             // 
             // cbWebSearch

@@ -155,7 +155,7 @@ namespace FOCA
             this.cbFingerprintingShodan.Name = "cbFingerprintingShodan";
             this.cbFingerprintingShodan.Size = new System.Drawing.Size(108, 29);
             this.cbFingerprintingShodan.TabIndex = 17;
-            this.cbFingerprintingShodan.Text = "FPrinting Shodan";
+            this.cbFingerprintingShodan.Text = "Shodan fingerprinting";
             this.cbFingerprintingShodan.UseVisualStyleBackColor = false;
             this.cbFingerprintingShodan.Click += new System.EventHandler(this.checkedButtonFingerPrintingShodan_Click);
             //
@@ -196,7 +196,7 @@ namespace FOCA
             this.btnUnselectAll.Name = "btnUnselectAll";
             this.btnUnselectAll.Size = new System.Drawing.Size(94, 25);
             this.btnUnselectAll.TabIndex = 7;
-            this.btnUnselectAll.Text = "&Unselect all";
+            this.btnUnselectAll.Text = "&Uncheck all";
             this.btnUnselectAll.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
             this.btnUnselectAll.UseVisualStyleBackColor = true;
             this.btnUnselectAll.Click += new System.EventHandler(this.btUnselectAll_Click);
@@ -283,7 +283,7 @@ namespace FOCA
             this.label14.Name = "label14";
             this.label14.Size = new System.Drawing.Size(169, 13);
             this.label14.TabIndex = 2;
-            this.label14.Text = "Webserver fingerprinting based on";
+            this.label14.Text = "Web server fingerprinting based on";
             //
             // label4
             //
@@ -293,7 +293,7 @@ namespace FOCA
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(131, 13);
             this.label4.TabIndex = 0;
-            this.label4.Text = "Shodan Fingerprinting";
+            this.label4.Text = "Shodan fingerprinting";
             //
             // panelFPrintingSMTP
             //
@@ -332,7 +332,7 @@ namespace FOCA
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(122, 13);
             this.label3.TabIndex = 0;
-            this.label3.Text = "SMTP Fingerprinting";
+            this.label3.Text = "SMTP fingerprinting";
             //
             // panelFPrintingHTTP
             //
@@ -381,7 +381,7 @@ namespace FOCA
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(169, 13);
             this.label8.TabIndex = 1;
-            this.label8.Text = "Webserver fingerprinting based on";
+            this.label8.Text = "Web server fingerprinting based on";
             //
             // label1
             //
@@ -391,7 +391,7 @@ namespace FOCA
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(121, 13);
             this.label1.TabIndex = 0;
-            this.label1.Text = "HTTP Fingerprinting";
+            this.label1.Text = "HTTP fingerprinting";
             //
             // lbCurrentSearch
             //

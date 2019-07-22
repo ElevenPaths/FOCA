@@ -1189,17 +1189,17 @@ namespace FOCA
                     }
 
                     pc.Height = pc.Image.Height;
-                    panelInformation.lvwInformation.Groups.Add("Thumbail", "Thumbail");
+                    panelInformation.lvwInformation.Groups.Add("Thumbnail", "Thumbnail");
                     var lvi = panelInformation.lvwInformation.Items.Add("Picture");
                     lvi.SubItems.Add(string.Empty);
-                    lvi.Group = panelInformation.lvwInformation.Groups["Thumbail"];
+                    lvi.Group = panelInformation.lvwInformation.Groups["Thumbnail"];
                     panelInformation.lvwInformation.AddEmbeddedControl(pc, 1, lvi.Index, DockStyle.None);
 
                     var itemHeight = lvi.GetBounds(ItemBoundsPortion.Entire).Height;
                     for (var i = itemHeight; i < pc.Height; i += itemHeight)
                     {
                         lvi = panelInformation.lvwInformation.Items.Add("");
-                        lvi.Group = panelInformation.lvwInformation.Groups["Thumbail"];
+                        lvi.Group = panelInformation.lvwInformation.Groups["Thumbnail"];
                     }
                 }
                 catch
@@ -1443,7 +1443,7 @@ namespace FOCA
                     NewItemListView("Statistics", metaDatos.Statistic, valueGroupMetadata);
 
                 if (metaDatos.Language != null)
-                    NewItemListView("Languaje", metaDatos.Language, valueGroupMetadata);
+                    NewItemListView("Language", metaDatos.Language, valueGroupMetadata);
 
                 if (metaDatos.UserInfo != null)
                 {
@@ -1602,7 +1602,7 @@ namespace FOCA
                 NewItemListView("Statistics", metaDatadosValue.Statistic, otherMetaValue);
 
             if (metaDatadosValue.Language != null && metaDatadosValue.Language.Trim() != string.Empty)
-                NewItemListView("Languaje", metaDatadosValue.Language, otherMetaValue);
+                NewItemListView("Language", metaDatadosValue.Language, otherMetaValue);
 
             if (metaDatadosValue.UserInfo != null &&
                 metaDatadosValue.UserInfo.Trim() != string.Empty)
@@ -1655,7 +1655,7 @@ namespace FOCA
                             tn.Remove();
                         }));
 
-                    else if (tn.Parent != null && tn.Parent.Text == "Unlocated Servers")
+                    else if (tn.Parent != null && tn.Parent.Text == "Unknown Servers")
                     {
                         if (Program.data.computerIPs.Items.Any(c => c.Computer == ci))
                             Program.FormMainInstance.TreeView.Invoke(new MethodInvoker(delegate
@@ -2797,10 +2797,10 @@ namespace FOCA
             }
 
 
-            if (ExistsTab("Parametrized"))
+            if (ExistsTab("Parameterized"))
             {
-                var tab = panelInformation.tabMap.TabPages["Parametrized"];
-                tab.Text = "Parametrized (" + domain.map.Parametrized.Count() + " found)";
+                var tab = panelInformation.tabMap.TabPages["Parameterized"];
+                tab.Text = "Parameterized (" + domain.map.Parametrized.Count() + " found)";
 
                 var list = (PanelUrlsList)tab.Controls[0];
                 for (var i = list.lstView.Items.Count; i < domain.map.Parametrized.Count(); i++)
@@ -2936,9 +2936,9 @@ namespace FOCA
                 list.lstView.Columns.Add("Code", "Code").Width = 80;
             }
 
-            if (!ExistsTab("Parametrized"))
+            if (!ExistsTab("Parameterized"))
             {
-                var tab = CreateTab("Parametrized");
+                var tab = CreateTab("Parameterized");
                 var list = new PanelUrlsList();
                 list.Domain = domain.Domain;
                 list.Dock = DockStyle.Fill;
@@ -3222,7 +3222,7 @@ namespace FOCA
                         case "Servers":
                             Contextual.ShowNetworkServersMenu(tn, sourceControl);
                             break;
-                        case "Unlocated Servers":
+                        case "Unknown Servers":
                             Contextual.ShowNetworkUnlocatedMenu(tn, sourceControl);
                             break;
                         default:
@@ -3232,10 +3232,10 @@ namespace FOCA
                             else if ((tn?.Tag is ComputersItem) && (tn.Parent.Name == "Clients"))
                                 Contextual.ShowNetworkClientsItemMenu(tn, sourceControl);
 
-                            else if ((tn?.Tag is ComputersItem) && (tn.Parent.Name != "Unlocated Servers") && ((tn.Parent.Parent.Parent.Name == "Servers") || (tn.Parent.Parent.Name == "Servers") || (tn.Parent.Parent.Parent.Parent.Name == "Servers")))
+                            else if ((tn?.Tag is ComputersItem) && (tn.Parent.Name != "Unknown Servers") && ((tn.Parent.Parent.Parent.Name == "Servers") || (tn.Parent.Parent.Name == "Servers") || (tn.Parent.Parent.Parent.Parent.Name == "Servers")))
                                 Contextual.ShowNetworkServersItemMenu(tn, sourceControl);
 
-                            else if ((tn?.Tag is ComputersItem) && (tn.Parent.Name == "Unlocated Servers"))
+                            else if ((tn?.Tag is ComputersItem) && (tn.Parent.Name == "Unknown Servers"))
                                 Contextual.ShowNetworkUnlocatedItemMenu(tn, sourceControl);
 
                             else if ((tn?.Tag is ComputerDomainsItem) && (tn.Parent.Tag is ComputersItem))

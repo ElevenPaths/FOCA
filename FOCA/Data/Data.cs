@@ -171,7 +171,7 @@ namespace FOCA
             {
                 currentdomain = domainParts[domainParts.Length - i] + "." + currentdomain;
 
-                AddDomain(currentdomain, string.Format("{0} > Infered by {2} [{1}]", GetDomainSource(domain), currentdomain, domain), maxRecursion - 1, cfgCurrent);
+                AddDomain(currentdomain, string.Format("{0} > Inferred by {2} [{1}]", GetDomainSource(domain), currentdomain, domain), maxRecursion - 1, cfgCurrent);
             }
 
             if (maxRecursion <= 0)

@@ -149,7 +149,7 @@ namespace FOCA
             }
             catch (ConfigurationErrorsException)
             {
-                MessageBox.Show("The database connection string could not be saved to the config file.", "Unsaved connection string", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("The database connection string could not be saved to the configuration file.", "Unsaved connection string", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 

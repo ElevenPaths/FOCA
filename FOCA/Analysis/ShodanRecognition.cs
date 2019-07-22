@@ -309,7 +309,7 @@ namespace FOCA.Analysis
             }
             catch
             {
-                Program.LogThis(new Log(Log.ModuleType.ShodanSearch, "Couldn't parse Shodan JSON reponse",
+                Program.LogThis(new Log(Log.ModuleType.ShodanSearch, "Couldn't parse Shodan JSON response",
                     Log.LogType.debug));
             }
             return lstShodan;

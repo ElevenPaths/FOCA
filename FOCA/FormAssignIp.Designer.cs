@@ -56,7 +56,7 @@ namespace FOCA
             this.lblAsignIp.Name = "lblAsignIp";
             this.lblAsignIp.Size = new System.Drawing.Size(170, 20);
             this.lblAsignIp.TabIndex = 9;
-            this.lblAsignIp.Text = "Asign IP to a computer";
+            this.lblAsignIp.Text = "Assign IP to a computer";
             //
             // lstIps
             //
@@ -118,7 +118,7 @@ namespace FOCA
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
             this.Name = "FormAssignIp";
-            this.Text = "Asign IP";
+            this.Text = "Assign IP";
             this.Load += new System.EventHandler(this.FormAsignIp_Load);
             ((System.ComponentModel.ISupportInitialize)(this.picFOCA)).EndInit();
             this.ResumeLayout(false);

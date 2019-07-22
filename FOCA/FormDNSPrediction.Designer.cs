@@ -96,7 +96,7 @@ namespace FOCA
             this.lblNVariants.Name = "lblNVariants";
             this.lblNVariants.Size = new System.Drawing.Size(66, 13);
             this.lblNVariants.TabIndex = 4;
-            this.lblNVariants.Text = "Nº Variants: ";
+            this.lblNVariants.Text = "No. of variants: ";
             // 
             // lblVariants
             // 
