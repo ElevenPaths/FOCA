@@ -1322,7 +1322,7 @@ namespace FOCA
                     Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
                         UpdateGUI.TreeViewKeys.KPCServers.ToString()].Nodes["Servers"].Expand();
                     Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
-                        UpdateGUI.TreeViewKeys.KPCServers.ToString()].Nodes["Servers"].Nodes["Unlocated Servers"].Expand
+                        UpdateGUI.TreeViewKeys.KPCServers.ToString()].Nodes["Servers"].Nodes["Unknown Servers"].Expand
                         ();
                     Analysis = null;
                 }));

@@ -164,12 +164,12 @@ namespace FOCA.GUI
                                 if (!Program.data.computerIPs.Items.Any(C => C.Computer.name == computer.name))
                                 {
                                     Object x = Program.FormMainInstance.TreeView;
-                                    if (tnPCServers.Nodes["Servers"].Nodes["Unlocated Servers"].Nodes[computer.name] != null)
-                                        tn = tnPCServers.Nodes["Servers"].Nodes["Unlocated Servers"].Nodes[computer.name];
+                                    if (tnPCServers.Nodes["Servers"].Nodes["Unknown Servers"].Nodes[computer.name] != null)
+                                        tn = tnPCServers.Nodes["Servers"].Nodes["Unknown Servers"].Nodes[computer.name];
                                     else
                                     {
-                                        int insertAtIndex = Program.FormMainInstance.SearchTextInNodes(tnPCServers.Nodes["Servers"].Nodes["Unlocated Servers"].Nodes, computer.name);
-                                        tn = tnPCServers.Nodes["Servers"].Nodes["Unlocated Servers"].Nodes.Insert(insertAtIndex, computer.name, computer.name);
+                                        int insertAtIndex = Program.FormMainInstance.SearchTextInNodes(tnPCServers.Nodes["Servers"].Nodes["Unknown Servers"].Nodes, computer.name);
+                                        tn = tnPCServers.Nodes["Servers"].Nodes["Unknown Servers"].Nodes.Insert(insertAtIndex, computer.name, computer.name);
                                         tn.ContextMenuStrip = Program.FormMainInstance.contextMenu;
                                     }
                                     if (tn == null)
@@ -790,7 +790,7 @@ namespace FOCA.GUI
             tn.ImageIndex = tn.SelectedImageIndex = 111;
             tn = treeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KPCServers.ToString()].Nodes.Add("Servers", "Servers");
             tn.ImageIndex = tn.SelectedImageIndex = 112;
-            tn = tn.Nodes.Add("Unlocated Servers", "Unlocated Servers");
+            tn = tn.Nodes.Add("Unknown Servers", "Unknown Servers");
             tn.ImageIndex = tn.SelectedImageIndex = 113;
         }
 

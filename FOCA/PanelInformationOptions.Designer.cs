@@ -120,7 +120,7 @@ namespace FOCA
             this.btnAllLinksDuckduckgo.Name = "btnAllLinksDuckduckgo";
             this.btnAllLinksDuckduckgo.Size = new System.Drawing.Size(159, 63);
             this.btnAllLinksDuckduckgo.TabIndex = 91;
-            this.btnAllLinksDuckduckgo.Text = "Duckduckgo Crawling";
+            this.btnAllLinksDuckduckgo.Text = "DuckDuckGo crawling";
             this.btnAllLinksDuckduckgo.UseVisualStyleBackColor = true;
             this.btnAllLinksDuckduckgo.Click += new System.EventHandler(this.btAllLinksDuckduckGo_Click);
             // 

@@ -129,7 +129,7 @@ namespace MetadataExtractCore.Metadata
             }
             catch (Exception e)
             {
-                System.Diagnostics.Debug.WriteLine(String.Format("Error analizing OpenOffice document ({0})", e.ToString()));
+                System.Diagnostics.Debug.WriteLine(String.Format("Error analyzing OpenOffice document ({0})", e.ToString()));
             }
         }
 

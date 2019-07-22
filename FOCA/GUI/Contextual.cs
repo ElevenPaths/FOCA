@@ -231,7 +231,7 @@ namespace FOCA.GUI
 
             var tsiExportClient = new ToolStripMenuItem("Export client") { Image = Resources.report };
             var tsiRemoveClient = new ToolStripMenuItem("Remove Client") { Image = Resources.delete };
-            var tsiReferingDocuments = new ToolStripMenuItem("Refering documents") { Image = Resources.link };
+            var tsiReferingDocuments = new ToolStripMenuItem("Referring documents") { Image = Resources.link };
             var tsiModifyInformation = new ToolStripMenuItem("&Modify information") { Image = Resources.page_white_edit };
             var tsiModifySoftware = new ToolStripMenuItem("Add Software") { Image = Resources.tech };
             var tsiModifyUser = new ToolStripMenuItem("Add User") { Image = Resources.group };
@@ -663,7 +663,7 @@ namespace FOCA.GUI
 
         public static void ShowNetworkUnlocatedMenu(TreeNode tn, Control sourceControl)
         {
-            var tsiExport = new ToolStripMenuItem("&Export unlocated servers") { Image = Resources.exportDomain };
+            var tsiExport = new ToolStripMenuItem("&Export unknown servers") { Image = Resources.exportDomain };
             var tsiRemoveAll = new ToolStripMenuItem("&Remove all") { Image = Resources.delete };
 
             tsiExport.Click += delegate
@@ -672,12 +672,12 @@ namespace FOCA.GUI
                 if (sfd.ShowDialog() != DialogResult.OK) return;
 
                 var sb = new StringBuilder();
-                sb.Append("{\"Unlocated servers\": [");
+                sb.Append("{\"Unknown servers\": [");
                 foreach (
                     TreeNode tnn in
                         Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()]
                             .Nodes[UpdateGUI.TreeViewKeys.KPCServers.ToString()].Nodes["Servers"].Nodes[
-                                "Unlocated servers"].Nodes)
+                                "Unknown servers"].Nodes)
                     sb.Append(JsonConvert.SerializeObject(tnn.Text, Formatting.Indented, settings) + ",");
                 sb.Remove(sb.Length - 1, 1);
                 sb.Append("]}");

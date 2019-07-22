@@ -325,7 +325,7 @@ namespace FOCA
             // 
             // fbdMain
             // 
-            this.fbdMain.Description = "Selecciona la carpeta donde están los documentos de OpenOffice";
+            this.fbdMain.Description = "Select the folder that contains the OpenOffice files";
             // 
             // errorPorject
             // 

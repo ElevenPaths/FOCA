@@ -102,7 +102,7 @@ namespace FOCA
             this.pendientes.LabelWrap = false;
             this.pendientes.Location = new System.Drawing.Point(0, 0);
             this.pendientes.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.pendientes.Name = "pendientes";
+            this.pendientes.Name = "pending";
             this.pendientes.Size = new System.Drawing.Size(838, 300);
             this.pendientes.TabIndex = 9;
             this.pendientes.UseCompatibleStateImageBehavior = false;
@@ -125,7 +125,7 @@ namespace FOCA
             this.ejecucion.LabelWrap = false;
             this.ejecucion.Location = new System.Drawing.Point(0, 0);
             this.ejecucion.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.ejecucion.Name = "ejecucion";
+            this.ejecucion.Name = "execution";
             this.ejecucion.Size = new System.Drawing.Size(359, 300);
             this.ejecucion.TabIndex = 10;
             this.ejecucion.UseCompatibleStateImageBehavior = false;
@@ -148,7 +148,7 @@ namespace FOCA
             this.realizadas.LabelWrap = false;
             this.realizadas.Location = new System.Drawing.Point(0, 0);
             this.realizadas.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.realizadas.Name = "realizadas";
+            this.realizadas.Name = "done";
             this.realizadas.Size = new System.Drawing.Size(1203, 171);
             this.realizadas.TabIndex = 11;
             this.realizadas.UseCompatibleStateImageBehavior = false;
@@ -168,7 +168,7 @@ namespace FOCA
             this.btnAutoScroll.Name = "btnAutoScroll";
             this.btnAutoScroll.Size = new System.Drawing.Size(207, 38);
             this.btnAutoScroll.TabIndex = 15;
-            this.btnAutoScroll.Text = "&Activate AutoScroll";
+            this.btnAutoScroll.Text = "&Activate autoScroll";
             this.btnAutoScroll.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.btnAutoScroll.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
             this.btnAutoScroll.UseVisualStyleBackColor = true;

@@ -372,7 +372,7 @@ namespace FOCA
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(68, 20);
             this.label1.TabIndex = 88;
-            this.label1.Text = "Licence:";
+            this.label1.Text = "License:";
             // 
             // picAbout
             // 

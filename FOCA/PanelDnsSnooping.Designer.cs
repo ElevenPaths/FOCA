@@ -72,7 +72,7 @@ namespace FOCA
             this.lblDns.Name = "lblDns";
             this.lblDns.Size = new System.Drawing.Size(38, 20);
             this.lblDns.TabIndex = 7;
-            this.lblDns.Text = "Dns";
+            this.lblDns.Text = "DNS";
             // 
             // txtDomain
             // 
@@ -150,7 +150,7 @@ namespace FOCA
             this.chkMonitorice.Name = "chkMonitorice";
             this.chkMonitorice.Size = new System.Drawing.Size(215, 24);
             this.chkMonitorice.TabIndex = 22;
-            this.chkMonitorice.Text = "Monitorice each 2 minuts.";
+            this.chkMonitorice.Text = "Monitor each 2 minutes.";
             this.chkMonitorice.UseVisualStyleBackColor = true;
             this.chkMonitorice.CheckedChanged += new System.EventHandler(this.cbMonitorice_CheckedChanged);
             // 

@@ -143,7 +143,7 @@ namespace FOCA
             this.tabPage16.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.tabPage16.Size = new System.Drawing.Size(752, 552);
             this.tabPage16.TabIndex = 8;
-            this.tabPage16.Text = "General config";
+            this.tabPage16.Text = "General configuration";
             this.tabPage16.UseVisualStyleBackColor = true;
             // 
             // lblBingApiKey
@@ -371,7 +371,7 @@ namespace FOCA
             this.lblRecursivity.Name = "lblRecursivity";
             this.lblRecursivity.Size = new System.Drawing.Size(111, 20);
             this.lblRecursivity.TabIndex = 33;
-            this.lblRecursivity.Text = "Max recursivity";
+            this.lblRecursivity.Text = "Max recursion";
             // 
             // updRecursivity
             // 

@@ -16,7 +16,7 @@ using System.Web;
 namespace FOCA.Analysis.HttpMap
 {
     /// <summary>
-    ///     Generate a MAP of Folders/Files and possible backup/oldversions of Files
+    ///     Generate a MAP of Folders/Files and possible backup/old versions of Files
     /// </summary>
     [Serializable]
     public class HttpMap : IDisposable
@@ -428,7 +428,7 @@ namespace FOCA.Analysis.HttpMap
         }
 
         /// <summary>
-        ///     Returns a URLs list for the ackups search action
+        ///     Returns a URLs list for the backups search action
         /// </summary>
         /// <param name="urls"></param>
         /// <returns></returns>
@@ -479,7 +479,7 @@ namespace FOCA.Analysis.HttpMap
         {
             var lstFiles = new ThreadSafeList<string>();
 
-            // ToDo use a list providad by the user
+            // ToDo use a list provided by the user
             string[] backupExt = { "old", "bak", "back", "1", "2", "txt", "~", "save", "backup" };
             string[] oldVersions = { "1", "2", "_1", "_2", "_backup" };
 
@@ -557,7 +557,7 @@ namespace FOCA.Analysis.HttpMap
         }
 
         /// <summary>
-        /// Extract folders from a given url
+        /// Extract folders from a given URL
         /// </summary>
         /// <param name="url"></param>
         private void ExtractFolders(string url)

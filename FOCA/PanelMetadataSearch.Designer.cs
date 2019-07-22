@@ -333,7 +333,7 @@ namespace FOCA
             this.toolStripMenuItemExtractAllMetadata.Image = ((System.Drawing.Image)(resources.GetObject("toolStripMenuItemExtractAllMetadata.Image")));
             this.toolStripMenuItemExtractAllMetadata.Name = "toolStripMenuItemExtractAllMetadata";
             this.toolStripMenuItemExtractAllMetadata.Size = new System.Drawing.Size(181, 30);
-            this.toolStripMenuItemExtractAllMetadata.Text = "Extract &Metada";
+            this.toolStripMenuItemExtractAllMetadata.Text = "Extract &Metadata";
             this.toolStripMenuItemExtractAllMetadata.Click += new System.EventHandler(this.toolStripMenuItemExtractAllMetadata_Click);
             // 
             // analyzeMetadataToolStripMenuItem
@@ -407,7 +407,7 @@ namespace FOCA
             // 
             // fbdMain
             // 
-            this.fbdMain.Description = "Selecciona la carpeta donde están los documentos de OpenOffice";
+            this.fbdMain.Description = "Select the folder that contains the OpenOffice files";
             // 
             // ofdAddFile
             // 

@@ -251,7 +251,7 @@ namespace FOCA
             this.btShow.Name = "btShow";
             this.btShow.Size = new System.Drawing.Size(98, 38);
             this.btShow.TabIndex = 95;
-            this.btShow.Text = "Conf";
+            this.btShow.Text = "Configuration";
             this.btShow.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.btShow.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
             this.btShow.UseVisualStyleBackColor = true;
