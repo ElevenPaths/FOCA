@@ -169,7 +169,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Analysis\ApplicationAnalisys.cs" />
     <Compile Include="Analysis\DNSCacheSnooping\DNSCache.cs" />
     <Compile Include="Analysis\FingerPrinting\BannerAnalisys.cs" />
     <Compile Include="Analysis\FingerPrinting\DNS.cs" />

@@ -1,10 +1,13 @@
 using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace MetadataExtractCore.Analysis
 {
     public static class ApplicationAnalysis
     {
+        private static readonly Regex versionRegex = new Regex("(\\d+\\.){0,6}(\\d+)", RegexOptions.Compiled);
+
         /// <summary>
         /// Get Application from string.
         /// </summary>
@@ -184,20 +187,9 @@ namespace MetadataExtractCore.Analysis
         /// <returns>version</returns>
         private static string ExtractVersion(string strApplication)
         {
-            var achrVersionChars = new[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.' };
-           
-            var intVersionStart = strApplication.IndexOfAny(new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'});
+            Match match = versionRegex.Match(strApplication);
 
-            if (intVersionStart <= 0) return string.Empty;
-
-            var strVersion = string.Empty;
-            do
-            {
-                strVersion += strApplication[intVersionStart++];
-            }
-            while (intVersionStart < strApplication.Length && achrVersionChars.Contains<char>(strApplication[intVersionStart]));
-
-            return strVersion;
+            return match.Success ? match.Value : String.Empty;
         }
     }
 }
