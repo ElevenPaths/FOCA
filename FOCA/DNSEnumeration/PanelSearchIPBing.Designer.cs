@@ -45,7 +45,7 @@ namespace FOCA
             this.lblSearchIpBingDescription.Name = "lblSearchIpBingDescription";
             this.lblSearchIpBingDescription.Size = new System.Drawing.Size(279, 39);
             this.lblSearchIpBingDescription.TabIndex = 16;
-            this.lblSearchIpBingDescription.Text = "Bing allows search links located in a particular IP address.\r\nThis funcionalitty " +
+            this.lblSearchIpBingDescription.Text = "Bing allows searching for links located in a particular IP address.\r\nThis functionality " +
     "can be used to find domains that\r\nshare IP Address.";
             //
             // lblSearchIpBing

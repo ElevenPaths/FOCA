@@ -65,7 +65,7 @@ namespace FOCA
             this.lblWebSearcherDescription.Name = "lblWebSearcherDescription";
             this.lblWebSearcherDescription.Size = new System.Drawing.Size(265, 39);
             this.lblWebSearcherDescription.TabIndex = 8;
-            this.lblWebSearcherDescription.Text = "Using a web searcher like Google or Bing the program\r\nsearchs links pointing to t" +
+            this.lblWebSearcherDescription.Text = "Using a web search engine like Google or Bing the program\r\nsearches for links pointing to t" +
     "he domain site to identify new\r\nsubdomains.";
             //
             // lblWebSearcher

@@ -40,7 +40,7 @@ namespace FOCA
             this.lblGoogleApi.Name = "lblGoogleApi";
             this.lblGoogleApi.Size = new System.Drawing.Size(135, 13);
             this.lblGoogleApi.TabIndex = 9;
-            this.lblGoogleApi.Text = "Google API  limitations";
+            this.lblGoogleApi.Text = "Google API limitations";
             //
             // lblGoogleApiDescription
             //
