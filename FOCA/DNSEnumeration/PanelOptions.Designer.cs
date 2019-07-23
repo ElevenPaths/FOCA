@@ -82,7 +82,7 @@ namespace FOCA
             this.lblMaxRecursivity.Name = "lblMaxRecursivity";
             this.lblMaxRecursivity.Size = new System.Drawing.Size(77, 13);
             this.lblMaxRecursivity.TabIndex = 23;
-            this.lblMaxRecursivity.Text = "Max recursivity";
+            this.lblMaxRecursivity.Text = "Max recursion";
             //
             // lblMaxRecursivityDescription
             //

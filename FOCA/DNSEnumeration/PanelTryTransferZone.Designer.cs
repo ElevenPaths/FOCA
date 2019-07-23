@@ -40,7 +40,7 @@ namespace FOCA
             this.lblTransferZoneDescription.Size = new System.Drawing.Size(267, 52);
             this.lblTransferZoneDescription.TabIndex = 29;
             this.lblTransferZoneDescription.Text = "The program tries to make a DNS Transfer Zone to find\r\nnew subdomains.\r\n\r\nThis ac" +
-    "tion may be ilegal in some countries.";
+    "tion may be illegal in some countries.";
             //
             // lblTryTransferZone
             //

@@ -56,7 +56,7 @@ namespace FOCA
             this.lblAsignIp.Name = "lblAsignIp";
             this.lblAsignIp.Size = new System.Drawing.Size(170, 20);
             this.lblAsignIp.TabIndex = 9;
-            this.lblAsignIp.Text = "Assign IP to a computer";
+            this.lblAsignIp.Text = "Assign IP address to a computer";
             //
             // lstIps
             //

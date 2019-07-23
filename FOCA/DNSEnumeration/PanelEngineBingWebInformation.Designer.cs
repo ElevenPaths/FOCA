@@ -40,7 +40,7 @@ namespace FOCA
             this.lblBingWeb.Name = "lblBingWeb";
             this.lblBingWeb.Size = new System.Drawing.Size(126, 13);
             this.lblBingWeb.TabIndex = 9;
-            this.lblBingWeb.Text = "Bing Web  limitations";
+            this.lblBingWeb.Text = "Bing Web limitations";
             //
             // lblBingWebDescription
             //

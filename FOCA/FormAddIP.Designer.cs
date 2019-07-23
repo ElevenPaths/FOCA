@@ -48,7 +48,7 @@ namespace FOCA
             this.lblAddIp.Name = "lblAddIp";
             this.lblAddIp.Size = new System.Drawing.Size(135, 29);
             this.lblAddIp.TabIndex = 0;
-            this.lblAddIp.Text = "Add new IP";
+            this.lblAddIp.Text = "Add new IP address";
             // 
             // picFOCA
             // 
@@ -130,7 +130,7 @@ namespace FOCA
             this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.MaximizeBox = false;
             this.Name = "FormAddIp";
-            this.Text = "Add new IP";
+            this.Text = "Add new IP address";
             ((System.ComponentModel.ISupportInitialize)(this.picFOCA)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
