@@ -43,27 +43,8 @@ namespace FOCA
             this.linkLabelCustomSearch = new System.Windows.Forms.LinkLabel();
             this.txtSearch = new System.Windows.Forms.TextBox();
             this.btnSearch = new System.Windows.Forms.Button();
-            this.contextMenuStripLinks = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.toolStripMenuItemDownload = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItemDownloadAll = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
-            this.toolStripMenuItemDelete = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItemDeleteAll = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
-            this.toolStripMenuItemExtractAllMetadata = new System.Windows.Forms.ToolStripMenuItem();
-            this.analyzeMetadataToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator6 = new System.Windows.Forms.ToolStripSeparator();
-            this.toolStripMenuItemAddFile = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItemAddFolder = new System.Windows.Forms.ToolStripMenuItem();
-            this.addURLsFromFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator7 = new System.Windows.Forms.ToolStripSeparator();
-            this.linkToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItemOpenInBrowser = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItemCopyToClipboard = new System.Windows.Forms.ToolStripMenuItem();
             this.fbdMain = new System.Windows.Forms.FolderBrowserDialog();
             this.ofdAddFile = new System.Windows.Forms.OpenFileDialog();
-            this.btnSearchAll = new System.Windows.Forms.Button();
-            this.picFOCA = new System.Windows.Forms.PictureBox();
             this.ofdURLList = new System.Windows.Forms.OpenFileDialog();
             this.imgIcons = new System.Windows.Forms.ImageList(this.components);
             this.listViewDocuments = new FOCA.Search.ListViewEx();
@@ -75,6 +56,26 @@ namespace FOCA
             this.columnHeaderSize = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeaderAnalyzed = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeaderModifiedDate = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.contextMenuStripLinks = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.toolStripMenuItemDownload = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItemExtractMetadata = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItemDelete = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripMenuItemStopAll = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItemDownloadAll = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItemExtractAll = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItemAnalyzeAll = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItemDeleteAll = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator6 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripMenuItemAddFile = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItemAddFolder = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItemAddFromFile = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator7 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripMenuItemLinks = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItemOpenInBrowser = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItemCopyToClipboard = new System.Windows.Forms.ToolStripMenuItem();
+            this.picFOCA = new System.Windows.Forms.PictureBox();
+            this.btnSearchAll = new System.Windows.Forms.Button();
             this.panelSearchConfiguration.SuspendLayout();
             this.panelCustomSearch.SuspendLayout();
             this.contextMenuStripLinks.SuspendLayout();
@@ -83,7 +84,7 @@ namespace FOCA
             // 
             // panelSearchConfiguration
             // 
-            this.panelSearchConfiguration.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.panelSearchConfiguration.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.panelSearchConfiguration.Controls.Add(this.chkDuck);
             this.panelSearchConfiguration.Controls.Add(this.lblAll);
@@ -104,7 +105,7 @@ namespace FOCA
             this.chkDuck.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.chkDuck.Location = new System.Drawing.Point(14, 55);
             this.chkDuck.Name = "chkDuck";
-            this.chkDuck.Size = new System.Drawing.Size(81, 17);
+            this.chkDuck.Size = new System.Drawing.Size(92, 17);
             this.chkDuck.TabIndex = 6;
             this.chkDuck.Text = "DuckDuckGo";
             this.chkDuck.UseVisualStyleBackColor = true;
@@ -133,7 +134,7 @@ namespace FOCA
             // 
             // checkedListBoxExtensions
             // 
-            this.checkedListBoxExtensions.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.checkedListBoxExtensions.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.checkedListBoxExtensions.CheckOnClick = true;
             this.checkedListBoxExtensions.ColumnWidth = 50;
@@ -216,7 +217,7 @@ namespace FOCA
             // 
             // panelCustomSearch
             // 
-            this.panelCustomSearch.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.panelCustomSearch.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.panelCustomSearch.Controls.Add(this.linkLabelCustomSearch);
             this.panelCustomSearch.Controls.Add(this.txtSearch);
@@ -240,7 +241,7 @@ namespace FOCA
             // 
             // txtSearch
             // 
-            this.txtSearch.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.txtSearch.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.txtSearch.Location = new System.Drawing.Point(3, 8);
             this.txtSearch.Name = "txtSearch";
@@ -263,147 +264,6 @@ namespace FOCA
             this.btnSearch.UseVisualStyleBackColor = true;
             this.btnSearch.Click += new System.EventHandler(this.btnSearch_Click);
             // 
-            // contextMenuStripLinks
-            // 
-            this.contextMenuStripLinks.ImageScalingSize = new System.Drawing.Size(24, 24);
-            this.contextMenuStripLinks.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripMenuItemDownload,
-            this.toolStripMenuItemDownloadAll,
-            this.toolStripSeparator4,
-            this.toolStripMenuItemDelete,
-            this.toolStripMenuItemDeleteAll,
-            this.toolStripSeparator5,
-            this.toolStripMenuItemExtractAllMetadata,
-            this.analyzeMetadataToolStripMenuItem,
-            this.toolStripSeparator6,
-            this.toolStripMenuItemAddFile,
-            this.toolStripMenuItemAddFolder,
-            this.addURLsFromFileToolStripMenuItem,
-            this.toolStripSeparator7,
-            this.linkToolStripMenuItem});
-            this.contextMenuStripLinks.Name = "contextMenuStripEnlaces";
-            this.contextMenuStripLinks.Size = new System.Drawing.Size(182, 328);
-            this.contextMenuStripLinks.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStripLinks_Opening);
-            // 
-            // toolStripMenuItemDownload
-            // 
-            this.toolStripMenuItemDownload.Image = ((System.Drawing.Image)(resources.GetObject("toolStripMenuItemDownload.Image")));
-            this.toolStripMenuItemDownload.Name = "toolStripMenuItemDownload";
-            this.toolStripMenuItemDownload.Size = new System.Drawing.Size(181, 30);
-            this.toolStripMenuItemDownload.Text = "&Download";
-            this.toolStripMenuItemDownload.Click += new System.EventHandler(this.toolStripMenuItemDownload_Click);
-            // 
-            // toolStripMenuItemDownloadAll
-            // 
-            this.toolStripMenuItemDownloadAll.Image = ((System.Drawing.Image)(resources.GetObject("toolStripMenuItemDownloadAll.Image")));
-            this.toolStripMenuItemDownloadAll.Name = "toolStripMenuItemDownloadAll";
-            this.toolStripMenuItemDownloadAll.Size = new System.Drawing.Size(181, 30);
-            this.toolStripMenuItemDownloadAll.Text = "&Download All";
-            this.toolStripMenuItemDownloadAll.Click += new System.EventHandler(this.toolStripMenuItemDownloadAll_Click);
-            // 
-            // toolStripSeparator4
-            // 
-            this.toolStripSeparator4.Name = "toolStripSeparator4";
-            this.toolStripSeparator4.Size = new System.Drawing.Size(178, 6);
-            // 
-            // toolStripMenuItemDelete
-            // 
-            this.toolStripMenuItemDelete.Image = ((System.Drawing.Image)(resources.GetObject("toolStripMenuItemDelete.Image")));
-            this.toolStripMenuItemDelete.Name = "toolStripMenuItemDelete";
-            this.toolStripMenuItemDelete.Size = new System.Drawing.Size(181, 30);
-            this.toolStripMenuItemDelete.Text = "&Delete";
-            this.toolStripMenuItemDelete.Click += new System.EventHandler(this.toolStripMenuItemDelete_Click);
-            // 
-            // toolStripMenuItemDeleteAll
-            // 
-            this.toolStripMenuItemDeleteAll.Image = ((System.Drawing.Image)(resources.GetObject("toolStripMenuItemDeleteAll.Image")));
-            this.toolStripMenuItemDeleteAll.Name = "toolStripMenuItemDeleteAll";
-            this.toolStripMenuItemDeleteAll.Size = new System.Drawing.Size(181, 30);
-            this.toolStripMenuItemDeleteAll.Text = "&Delete All";
-            this.toolStripMenuItemDeleteAll.Click += new System.EventHandler(this.toolStripMenuItemDeleteAll_Click);
-            // 
-            // toolStripSeparator5
-            // 
-            this.toolStripSeparator5.Name = "toolStripSeparator5";
-            this.toolStripSeparator5.Size = new System.Drawing.Size(178, 6);
-            // 
-            // toolStripMenuItemExtractAllMetadata
-            // 
-            this.toolStripMenuItemExtractAllMetadata.Image = ((System.Drawing.Image)(resources.GetObject("toolStripMenuItemExtractAllMetadata.Image")));
-            this.toolStripMenuItemExtractAllMetadata.Name = "toolStripMenuItemExtractAllMetadata";
-            this.toolStripMenuItemExtractAllMetadata.Size = new System.Drawing.Size(181, 30);
-            this.toolStripMenuItemExtractAllMetadata.Text = "Extract &Metadata";
-            this.toolStripMenuItemExtractAllMetadata.Click += new System.EventHandler(this.toolStripMenuItemExtractAllMetadata_Click);
-            // 
-            // analyzeMetadataToolStripMenuItem
-            // 
-            this.analyzeMetadataToolStripMenuItem.Enabled = false;
-            this.analyzeMetadataToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("analyzeMetadataToolStripMenuItem.Image")));
-            this.analyzeMetadataToolStripMenuItem.Name = "analyzeMetadataToolStripMenuItem";
-            this.analyzeMetadataToolStripMenuItem.Size = new System.Drawing.Size(181, 30);
-            this.analyzeMetadataToolStripMenuItem.Text = "Analyze Metadata";
-            this.analyzeMetadataToolStripMenuItem.Click += new System.EventHandler(this.analyzeMetadataToolStripMenuItem_Click);
-            // 
-            // toolStripSeparator6
-            // 
-            this.toolStripSeparator6.Name = "toolStripSeparator6";
-            this.toolStripSeparator6.Size = new System.Drawing.Size(178, 6);
-            // 
-            // toolStripMenuItemAddFile
-            // 
-            this.toolStripMenuItemAddFile.Image = ((System.Drawing.Image)(resources.GetObject("toolStripMenuItemAddFile.Image")));
-            this.toolStripMenuItemAddFile.Name = "toolStripMenuItemAddFile";
-            this.toolStripMenuItemAddFile.Size = new System.Drawing.Size(181, 30);
-            this.toolStripMenuItemAddFile.Text = "&Add file";
-            this.toolStripMenuItemAddFile.Click += new System.EventHandler(this.toolStripMenuItemAddFile_Click);
-            // 
-            // toolStripMenuItemAddFolder
-            // 
-            this.toolStripMenuItemAddFolder.Image = ((System.Drawing.Image)(resources.GetObject("toolStripMenuItemAddFolder.Image")));
-            this.toolStripMenuItemAddFolder.Name = "toolStripMenuItemAddFolder";
-            this.toolStripMenuItemAddFolder.Size = new System.Drawing.Size(181, 30);
-            this.toolStripMenuItemAddFolder.Text = "&Add folder";
-            this.toolStripMenuItemAddFolder.Click += new System.EventHandler(this.toolStripMenuItemAddFolder_Click);
-            // 
-            // addURLsFromFileToolStripMenuItem
-            // 
-            this.addURLsFromFileToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("addURLsFromFileToolStripMenuItem.Image")));
-            this.addURLsFromFileToolStripMenuItem.Name = "addURLsFromFileToolStripMenuItem";
-            this.addURLsFromFileToolStripMenuItem.Size = new System.Drawing.Size(181, 30);
-            this.addURLsFromFileToolStripMenuItem.Text = "&Add URLs from file";
-            this.addURLsFromFileToolStripMenuItem.Click += new System.EventHandler(this.addURLsFromFileToolStripMenuItem_Click);
-            // 
-            // toolStripSeparator7
-            // 
-            this.toolStripSeparator7.Name = "toolStripSeparator7";
-            this.toolStripSeparator7.Size = new System.Drawing.Size(178, 6);
-            // 
-            // linkToolStripMenuItem
-            // 
-            this.linkToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripMenuItemOpenInBrowser,
-            this.toolStripMenuItemCopyToClipboard});
-            this.linkToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("linkToolStripMenuItem.Image")));
-            this.linkToolStripMenuItem.Name = "linkToolStripMenuItem";
-            this.linkToolStripMenuItem.Size = new System.Drawing.Size(181, 30);
-            this.linkToolStripMenuItem.Text = "&Link";
-            // 
-            // toolStripMenuItemOpenInBrowser
-            // 
-            this.toolStripMenuItemOpenInBrowser.Image = ((System.Drawing.Image)(resources.GetObject("toolStripMenuItemOpenInBrowser.Image")));
-            this.toolStripMenuItemOpenInBrowser.Name = "toolStripMenuItemOpenInBrowser";
-            this.toolStripMenuItemOpenInBrowser.Size = new System.Drawing.Size(169, 22);
-            this.toolStripMenuItemOpenInBrowser.Text = "&Open in browser";
-            this.toolStripMenuItemOpenInBrowser.Click += new System.EventHandler(this.toolStripMenuItemOpenInBrowser_Click);
-            // 
-            // toolStripMenuItemCopyToClipboard
-            // 
-            this.toolStripMenuItemCopyToClipboard.Image = ((System.Drawing.Image)(resources.GetObject("toolStripMenuItemCopyToClipboard.Image")));
-            this.toolStripMenuItemCopyToClipboard.Name = "toolStripMenuItemCopyToClipboard";
-            this.toolStripMenuItemCopyToClipboard.Size = new System.Drawing.Size(169, 22);
-            this.toolStripMenuItemCopyToClipboard.Text = "&Copy to clipboard";
-            this.toolStripMenuItemCopyToClipboard.Click += new System.EventHandler(this.toolStripMenuItemCopyToClipboard_Click);
-            // 
             // fbdMain
             // 
             this.fbdMain.Description = "Select the folder that contains the OpenOffice files";
@@ -412,32 +272,6 @@ namespace FOCA
             // 
             this.ofdAddFile.Filter = resources.GetString("ofdAddFile.Filter");
             this.ofdAddFile.Title = "Select file to extract metadata";
-            // 
-            // btnSearchAll
-            // 
-            this.btnSearchAll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSearchAll.Image = ((System.Drawing.Image)(resources.GetObject("btnSearchAll.Image")));
-            this.btnSearchAll.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnSearchAll.Location = new System.Drawing.Point(721, 104);
-            this.btnSearchAll.Name = "btnSearchAll";
-            this.btnSearchAll.Size = new System.Drawing.Size(79, 39);
-            this.btnSearchAll.TabIndex = 1;
-            this.btnSearchAll.Text = "Search All";
-            this.btnSearchAll.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
-            this.btnSearchAll.UseVisualStyleBackColor = true;
-            this.btnSearchAll.Click += new System.EventHandler(this.btnSearchAll_Click);
-            // 
-            // picFOCA
-            // 
-            this.picFOCA.BackColor = System.Drawing.SystemColors.Control;
-            this.picFOCA.Image = ((System.Drawing.Image)(resources.GetObject("picFOCA.Image")));
-            this.picFOCA.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.picFOCA.Location = new System.Drawing.Point(10, 2);
-            this.picFOCA.Name = "picFOCA";
-            this.picFOCA.Size = new System.Drawing.Size(202, 106);
-            this.picFOCA.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.picFOCA.TabIndex = 23;
-            this.picFOCA.TabStop = false;
             // 
             // ofdURLList
             // 
@@ -513,8 +347,8 @@ namespace FOCA
             // 
             // listViewDocuments
             // 
-            this.listViewDocuments.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.listViewDocuments.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.listViewDocuments.BackColor = System.Drawing.SystemColors.Window;
             this.listViewDocuments.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
@@ -530,6 +364,7 @@ namespace FOCA
             this.listViewDocuments.ForeColor = System.Drawing.SystemColors.WindowText;
             this.listViewDocuments.FullRowSelect = true;
             this.listViewDocuments.GridLines = true;
+            this.listViewDocuments.HideSelection = false;
             this.listViewDocuments.Location = new System.Drawing.Point(8, 148);
             this.listViewDocuments.Name = "listViewDocuments";
             this.listViewDocuments.ShowItemToolTips = true;
@@ -580,6 +415,186 @@ namespace FOCA
             this.columnHeaderModifiedDate.Text = "Modified Date";
             this.columnHeaderModifiedDate.Width = 120;
             // 
+            // contextMenuStripLinks
+            // 
+            this.contextMenuStripLinks.ImageScalingSize = new System.Drawing.Size(24, 24);
+            this.contextMenuStripLinks.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripMenuItemDownload,
+            this.toolStripMenuItemExtractMetadata,
+            this.toolStripMenuItemDelete,
+            this.toolStripSeparator5,
+            this.toolStripMenuItemStopAll,
+            this.toolStripMenuItemDownloadAll,
+            this.toolStripMenuItemExtractAll,
+            this.toolStripMenuItemAnalyzeAll,
+            this.toolStripMenuItemDeleteAll,
+            this.toolStripSeparator6,
+            this.toolStripMenuItemAddFile,
+            this.toolStripMenuItemAddFolder,
+            this.toolStripMenuItemAddFromFile,
+            this.toolStripSeparator7,
+            this.toolStripMenuItemLinks});
+            this.contextMenuStripLinks.Name = "contextMenuStripEnlaces";
+            this.contextMenuStripLinks.Size = new System.Drawing.Size(194, 404);
+            this.contextMenuStripLinks.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStripLinks_Opening);
+            // 
+            // toolStripMenuItemDownload
+            // 
+            this.toolStripMenuItemDownload.Image = ((System.Drawing.Image)(resources.GetObject("toolStripMenuItemDownload.Image")));
+            this.toolStripMenuItemDownload.Name = "toolStripMenuItemDownload";
+            this.toolStripMenuItemDownload.Size = new System.Drawing.Size(193, 30);
+            this.toolStripMenuItemDownload.Text = "&Download";
+            this.toolStripMenuItemDownload.Click += new System.EventHandler(this.toolStripMenuItemDownload_Click);
+            // 
+            // toolStripMenuItemExtractMetadata
+            // 
+            this.toolStripMenuItemExtractMetadata.Image = global::FOCA.Properties.Resources.extractMetadata;
+            this.toolStripMenuItemExtractMetadata.Name = "toolStripMenuItemExtractMetadata";
+            this.toolStripMenuItemExtractMetadata.Size = new System.Drawing.Size(193, 30);
+            this.toolStripMenuItemExtractMetadata.Text = "Extract &Metadata";
+            this.toolStripMenuItemExtractMetadata.Click += new System.EventHandler(this.toolStripMenuItemExtractMetadata_Click);
+            // 
+            // toolStripMenuItemDelete
+            // 
+            this.toolStripMenuItemDelete.Image = ((System.Drawing.Image)(resources.GetObject("toolStripMenuItemDelete.Image")));
+            this.toolStripMenuItemDelete.Name = "toolStripMenuItemDelete";
+            this.toolStripMenuItemDelete.Size = new System.Drawing.Size(193, 30);
+            this.toolStripMenuItemDelete.Text = "&Delete";
+            this.toolStripMenuItemDelete.Click += new System.EventHandler(this.toolStripMenuItemDelete_Click);
+            // 
+            // toolStripSeparator5
+            // 
+            this.toolStripSeparator5.Name = "toolStripSeparator5";
+            this.toolStripSeparator5.Size = new System.Drawing.Size(190, 6);
+            // 
+            // toolStripMenuItemStopAll
+            // 
+            this.toolStripMenuItemStopAll.Image = global::FOCA.Properties.Resources.page_white_stack_go_stop;
+            this.toolStripMenuItemStopAll.Name = "toolStripMenuItemStopAll";
+            this.toolStripMenuItemStopAll.Size = new System.Drawing.Size(193, 30);
+            this.toolStripMenuItemStopAll.Text = "&Stop All Downloads";
+            this.toolStripMenuItemStopAll.Visible = false;
+            this.toolStripMenuItemStopAll.Click += new System.EventHandler(this.stopAllMenuItem_Click);
+            // 
+            // toolStripMenuItemDownloadAll
+            // 
+            this.toolStripMenuItemDownloadAll.Image = ((System.Drawing.Image)(resources.GetObject("toolStripMenuItemDownloadAll.Image")));
+            this.toolStripMenuItemDownloadAll.Name = "toolStripMenuItemDownloadAll";
+            this.toolStripMenuItemDownloadAll.Size = new System.Drawing.Size(193, 30);
+            this.toolStripMenuItemDownloadAll.Text = "&Download All";
+            this.toolStripMenuItemDownloadAll.Click += new System.EventHandler(this.toolStripMenuItemDownloadAll_Click);
+            // 
+            // toolStripMenuItemExtractAll
+            // 
+            this.toolStripMenuItemExtractAll.Image = global::FOCA.Properties.Resources.extractMetadata;
+            this.toolStripMenuItemExtractAll.Name = "toolStripMenuItemExtractAll";
+            this.toolStripMenuItemExtractAll.Size = new System.Drawing.Size(193, 30);
+            this.toolStripMenuItemExtractAll.Text = "Extract All Metadata";
+            this.toolStripMenuItemExtractAll.Click += new System.EventHandler(this.extractAllMetadataToolStripMenuItem_Click);
+            // 
+            // toolStripMenuItemAnalyzeAll
+            // 
+            this.toolStripMenuItemAnalyzeAll.Enabled = false;
+            this.toolStripMenuItemAnalyzeAll.Image = ((System.Drawing.Image)(resources.GetObject("toolStripMenuItemAnalyzeAll.Image")));
+            this.toolStripMenuItemAnalyzeAll.Name = "toolStripMenuItemAnalyzeAll";
+            this.toolStripMenuItemAnalyzeAll.Size = new System.Drawing.Size(193, 30);
+            this.toolStripMenuItemAnalyzeAll.Text = "Analyze All Metadata";
+            this.toolStripMenuItemAnalyzeAll.Click += new System.EventHandler(this.analyzeMetadataToolStripMenuItem_Click);
+            // 
+            // toolStripMenuItemDeleteAll
+            // 
+            this.toolStripMenuItemDeleteAll.Image = ((System.Drawing.Image)(resources.GetObject("toolStripMenuItemDeleteAll.Image")));
+            this.toolStripMenuItemDeleteAll.Name = "toolStripMenuItemDeleteAll";
+            this.toolStripMenuItemDeleteAll.Size = new System.Drawing.Size(193, 30);
+            this.toolStripMenuItemDeleteAll.Text = "&Delete All";
+            this.toolStripMenuItemDeleteAll.Click += new System.EventHandler(this.toolStripMenuItemDeleteAll_Click);
+            // 
+            // toolStripSeparator6
+            // 
+            this.toolStripSeparator6.Name = "toolStripSeparator6";
+            this.toolStripSeparator6.Size = new System.Drawing.Size(190, 6);
+            // 
+            // toolStripMenuItemAddFile
+            // 
+            this.toolStripMenuItemAddFile.Image = ((System.Drawing.Image)(resources.GetObject("toolStripMenuItemAddFile.Image")));
+            this.toolStripMenuItemAddFile.Name = "toolStripMenuItemAddFile";
+            this.toolStripMenuItemAddFile.Size = new System.Drawing.Size(193, 30);
+            this.toolStripMenuItemAddFile.Text = "&Add file";
+            this.toolStripMenuItemAddFile.Click += new System.EventHandler(this.toolStripMenuItemAddFile_Click);
+            // 
+            // toolStripMenuItemAddFolder
+            // 
+            this.toolStripMenuItemAddFolder.Image = ((System.Drawing.Image)(resources.GetObject("toolStripMenuItemAddFolder.Image")));
+            this.toolStripMenuItemAddFolder.Name = "toolStripMenuItemAddFolder";
+            this.toolStripMenuItemAddFolder.Size = new System.Drawing.Size(193, 30);
+            this.toolStripMenuItemAddFolder.Text = "&Add folder";
+            this.toolStripMenuItemAddFolder.Click += new System.EventHandler(this.toolStripMenuItemAddFolder_Click);
+            // 
+            // toolStripMenuItemAddFromFile
+            // 
+            this.toolStripMenuItemAddFromFile.Image = ((System.Drawing.Image)(resources.GetObject("toolStripMenuItemAddFromFile.Image")));
+            this.toolStripMenuItemAddFromFile.Name = "toolStripMenuItemAddFromFile";
+            this.toolStripMenuItemAddFromFile.Size = new System.Drawing.Size(193, 30);
+            this.toolStripMenuItemAddFromFile.Text = "&Add URLs from file";
+            this.toolStripMenuItemAddFromFile.Click += new System.EventHandler(this.addURLsFromFileToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator7
+            // 
+            this.toolStripSeparator7.Name = "toolStripSeparator7";
+            this.toolStripSeparator7.Size = new System.Drawing.Size(190, 6);
+            // 
+            // toolStripMenuItemLinks
+            // 
+            this.toolStripMenuItemLinks.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripMenuItemOpenInBrowser,
+            this.toolStripMenuItemCopyToClipboard});
+            this.toolStripMenuItemLinks.Image = ((System.Drawing.Image)(resources.GetObject("toolStripMenuItemLinks.Image")));
+            this.toolStripMenuItemLinks.Name = "toolStripMenuItemLinks";
+            this.toolStripMenuItemLinks.Size = new System.Drawing.Size(193, 30);
+            this.toolStripMenuItemLinks.Text = "&Link(s)";
+            // 
+            // toolStripMenuItemOpenInBrowser
+            // 
+            this.toolStripMenuItemOpenInBrowser.Image = ((System.Drawing.Image)(resources.GetObject("toolStripMenuItemOpenInBrowser.Image")));
+            this.toolStripMenuItemOpenInBrowser.Name = "toolStripMenuItemOpenInBrowser";
+            this.toolStripMenuItemOpenInBrowser.Size = new System.Drawing.Size(169, 22);
+            this.toolStripMenuItemOpenInBrowser.Text = "&Open in browser";
+            this.toolStripMenuItemOpenInBrowser.Click += new System.EventHandler(this.toolStripMenuItemOpenInBrowser_Click);
+            // 
+            // toolStripMenuItemCopyToClipboard
+            // 
+            this.toolStripMenuItemCopyToClipboard.Image = ((System.Drawing.Image)(resources.GetObject("toolStripMenuItemCopyToClipboard.Image")));
+            this.toolStripMenuItemCopyToClipboard.Name = "toolStripMenuItemCopyToClipboard";
+            this.toolStripMenuItemCopyToClipboard.Size = new System.Drawing.Size(169, 22);
+            this.toolStripMenuItemCopyToClipboard.Text = "&Copy to clipboard";
+            this.toolStripMenuItemCopyToClipboard.Click += new System.EventHandler(this.toolStripMenuItemCopyToClipboard_Click);
+            // 
+            // picFOCA
+            // 
+            this.picFOCA.BackColor = System.Drawing.SystemColors.Control;
+            this.picFOCA.Image = ((System.Drawing.Image)(resources.GetObject("picFOCA.Image")));
+            this.picFOCA.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.picFOCA.Location = new System.Drawing.Point(10, 2);
+            this.picFOCA.Name = "picFOCA";
+            this.picFOCA.Size = new System.Drawing.Size(202, 106);
+            this.picFOCA.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.picFOCA.TabIndex = 23;
+            this.picFOCA.TabStop = false;
+            // 
+            // btnSearchAll
+            // 
+            this.btnSearchAll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnSearchAll.Image = ((System.Drawing.Image)(resources.GetObject("btnSearchAll.Image")));
+            this.btnSearchAll.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.btnSearchAll.Location = new System.Drawing.Point(721, 104);
+            this.btnSearchAll.Name = "btnSearchAll";
+            this.btnSearchAll.Size = new System.Drawing.Size(79, 39);
+            this.btnSearchAll.TabIndex = 1;
+            this.btnSearchAll.Text = "Search All";
+            this.btnSearchAll.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
+            this.btnSearchAll.UseVisualStyleBackColor = true;
+            this.btnSearchAll.Click += new System.EventHandler(this.btnSearchAll_Click);
+            // 
             // PanelMetadataSearch
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -625,29 +640,30 @@ namespace FOCA
         private System.Windows.Forms.ColumnHeader columnHeaderAnalyzed;
         private System.Windows.Forms.ColumnHeader columnHeaderModifiedDate;
         private System.Windows.Forms.PictureBox picFOCA;
-        private System.Windows.Forms.ContextMenuStrip contextMenuStripLinks;
-        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemDownload;
-        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemDownloadAll;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
-        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemDelete;
-        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemDeleteAll;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
-        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemExtractAllMetadata;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator6;
-        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemAddFile;
-        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemAddFolder;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator7;
-        private System.Windows.Forms.ToolStripMenuItem linkToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemOpenInBrowser;
-        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemCopyToClipboard;
         private System.Windows.Forms.FolderBrowserDialog fbdMain;
         private System.Windows.Forms.OpenFileDialog ofdAddFile;
-        private System.Windows.Forms.ToolStripMenuItem addURLsFromFileToolStripMenuItem;
         private System.Windows.Forms.OpenFileDialog ofdURLList;
         public System.Windows.Forms.ImageList imgIcons;
         public System.Windows.Forms.Label lblAll;
         public System.Windows.Forms.Label lblNone;
-        private System.Windows.Forms.ToolStripMenuItem analyzeMetadataToolStripMenuItem;
         public System.Windows.Forms.CheckBox chkDuck;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStripLinks;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemDownload;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemExtractMetadata;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemDelete;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemDownloadAll;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemExtractAll;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemAnalyzeAll;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemDeleteAll;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator6;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemAddFile;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemAddFolder;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemAddFromFile;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator7;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemLinks;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemOpenInBrowser;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemCopyToClipboard;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemStopAll;
     }
 }
