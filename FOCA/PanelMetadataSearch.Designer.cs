@@ -150,19 +150,13 @@ namespace FOCA
             "ppsx",
             "xlsx",
             "sxw",
-            "sxc",
-            "sxi",
             "odt",
             "ods",
             "odg",
             "odp",
             "pdf",
             "wpd",
-            "svg",
-            "svgz",
-            "indd",
-            "rdp",
-            "ica"});
+            "rtf"});
             this.checkedListBoxExtensions.Location = new System.Drawing.Point(115, 17);
             this.checkedListBoxExtensions.MultiColumn = true;
             this.checkedListBoxExtensions.Name = "checkedListBoxExtensions";
@@ -435,7 +429,7 @@ namespace FOCA
             this.toolStripSeparator7,
             this.toolStripMenuItemLinks});
             this.contextMenuStripLinks.Name = "contextMenuStripEnlaces";
-            this.contextMenuStripLinks.Size = new System.Drawing.Size(194, 404);
+            this.contextMenuStripLinks.Size = new System.Drawing.Size(194, 382);
             this.contextMenuStripLinks.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStripLinks_Opening);
             // 
             // toolStripMenuItemDownload

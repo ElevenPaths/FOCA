@@ -124,8 +124,11 @@
     <Compile Include="Searcher\GoogleAPISearcher.cs" />
     <Compile Include="Searcher\GoogleAPI\SearchGoogleApi.cs" />
     <Compile Include="Searcher\GoogleWebSearcher.cs" />
+    <Compile Include="Searcher\Searcher.cs" />
+    <Compile Include="Searcher\Shodan\ShodanResponse.cs" />
     <Compile Include="Searcher\Threads\EventsThreads.cs" />
-    <Compile Include="Searcher\WebSearcher.cs" />
+    <Compile Include="Searcher\LinkSearcher.cs" />
+    <Compile Include="Searcher\ShodanSearcher.cs" />
     <Compile Include="Web References\net.bing.api\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

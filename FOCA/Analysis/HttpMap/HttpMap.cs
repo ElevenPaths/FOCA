@@ -245,7 +245,7 @@ namespace FOCA.Analysis.HttpMap
                         domain.techAnalysis = new TechnologyAnalysis();
 
                     var extension = uri.AbsolutePath.Split('.').Last();
-                    foreach (var tech in from tech in domain.techAnalysis.listaTech
+                    foreach (var tech in from tech in domain.techAnalysis.SelectedTechnologies
                                          where tech.extension == extension
                                          let exists = tech.GetURLs().Any(urlOfTech => uri.ToString() == urlOfTech)
                                          where !exists

@@ -13,7 +13,6 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace FOCA.Database.Entities
 {
@@ -502,7 +501,7 @@ namespace FOCA.Database.Entities
                                             {
                                                 string auxFinalDom = arrDom[arrDom.Length - 2] + "." + arrDom[arrDom.Length - 1];
                                                 Program.data.Project.AlternativeDomains.Add(auxFinalDom);
-                                                MessageBox.Show("IP address associated to " + Program.data.Project.Domain + " belongs to a Netrange of " + auxFinalDom + ". It is going to be added as an alternative domain.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                                Program.LogThis(new Log(Log.ModuleType.FOCA, "IP address associated to " + Program.data.Project.Domain + " belongs to a Netrange of " + auxFinalDom + ". It is going to be added as an alternative domain.", Log.LogType.low));
                                             }
 
                                         }
@@ -640,7 +639,11 @@ namespace FOCA.Database.Entities
             IPsItem res;
             try
             {
-                res = Ips.Items.First(x => x.Ip == ip);
+                res = Ips.Items.FirstOrDefault(x => x.Ip == ip);
+                if (res == null)
+                {
+                    res = new IPsItem("", "");
+                }
             }
             catch
             {

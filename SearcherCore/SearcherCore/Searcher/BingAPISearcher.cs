@@ -2,154 +2,60 @@ using FOCA.Threads;
 using SearcherCore.Searcher.BingAPI;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 
 namespace FOCA.Searcher
 {
-    public class BingAPISearcher : WebSearcher
+    public class BingAPISearcher : LinkSearcher
     {
-        private readonly string[] supportedFileTypes = new string[4] { "doc", "pdf", "ppt", "xls" };
+        private static readonly string[] supportedFileTypes = new string[] { "doc", "docx", "pdf", "ppt", "pptx", "xls", "xlsx", "rtf", "odt", "ods", "odp" };
+        private const int MaxResults = 1000;
+
         public string BingApiKey { get; }
 
-        public BingAPISearcher(string key) : base("BingAPI")
+        public BingAPISearcher(string key) : base("BingAPI", supportedFileTypes)
         {
             BingApiKey = key;
         }
 
-        /// <summary>
-        /// Get Links
-        /// </summary>
-        public override void GetLinks()
+        protected override int Search(string customSearchString, CancellationToken cancelToken)
         {
-            if (thrSearchLinks != null && thrSearchLinks.IsAlive) return;
-
-            thrSearchLinks = new Thread(GetLinksAsync)
-            {
-                Priority = ThreadPriority.Lowest,
-                IsBackground = true
-            };
-            thrSearchLinks.Start();
+            return GetBingAllLinks(customSearchString, cancelToken);
         }
 
-        /// <summary>
-        /// Get custom links
-        /// </summary>
-        /// <param name="customSearchString"></param>
-        public override void GetCustomLinks(string customSearchString)
+        private int GetBingAllLinks(string searchString, CancellationToken cancelToken)
         {
-            if (thrSearchLinks != null && thrSearchLinks.IsAlive) return;
-
-            thrSearchLinks = new Thread(GetCustomLinksAsync)
-            {
-                Priority = ThreadPriority.Lowest,
-                IsBackground = true
-            };
-            thrSearchLinks.Start(customSearchString);
-        }
-
-        /// <summary>
-        /// Get Links Asyc.
-        /// </summary>
-        private void GetLinksAsync()
-        {
-            OnSearcherStartEvent(null);
-            try
-            {
-                foreach (var strExtension in Extensions.Where(strExtension => supportedFileTypes.Contains(strExtension.ToLower())))
-                {
-                    OnSearcherChangeStateEvent(new EventsThreads.ThreadStringEventArgs("Search " + strExtension + " in " + Name));
-                    GetBingLinks("site:" + Site + " filetype:" + strExtension);
-                }
-
-                OnSearcherEndEvent(new EventsThreads.ThreadEndEventArgs(EventsThreads.ThreadEndEventArgs.EndReasonEnum.NoMoreData));
-            }
-            catch (ThreadAbortException)
-            {
-                OnSearcherEndEvent(new EventsThreads.ThreadEndEventArgs(EventsThreads.ThreadEndEventArgs.EndReasonEnum.Stopped));
-            }
-            catch
-            {
-                //Error on search
-                OnSearcherEndEvent(new EventsThreads.ThreadEndEventArgs(EventsThreads.ThreadEndEventArgs.EndReasonEnum.ErrorFound));
-            }
-        }
-
-        /// <summary>
-        /// Get Custom Links Async.
-        /// </summary>
-        /// <param name="customSearchString"></param>
-        private void GetCustomLinksAsync(object customSearchString)
-        {
-            OnSearcherStartEvent(null);
-            OnSearcherChangeStateEvent(new EventsThreads.ThreadStringEventArgs("Searching links in " + Name + "..."));
-            try
-            {
-                if (GetBingAllLinks((string)customSearchString) == 0)
-                    OnSearcherEndEvent(new EventsThreads.ThreadEndEventArgs(EventsThreads.ThreadEndEventArgs.EndReasonEnum.NoMoreData));
-            }
-            catch (ThreadAbortException)
-            {
-                OnSearcherEndEvent(new EventsThreads.ThreadEndEventArgs(EventsThreads.ThreadEndEventArgs.EndReasonEnum.Stopped));
-            }
-            catch
-            {
-                OnSearcherEndEvent(new EventsThreads.ThreadEndEventArgs(EventsThreads.ThreadEndEventArgs.EndReasonEnum.ErrorFound));
-            }
-        }
-
-        /// <summary>
-        /// Get bing results.
-        /// </summary>
-        /// <param name="searchString"></param>
-        /// <param name="moreResults"></param>
-        /// <returns></returns>
-        private int GetBingResults(string searchString, out bool moreResults)
-        {
-            var client = new SearchBingApi(BingApiKey);
-            List<Uri> results;
-            try
-            {
-                results = client.Search(searchString);
-                if (results.Count > 0)
-                    OnSearcherLinkFoundEvent(new EventsThreads.CollectionFound<Uri>(results));
-
-                return results.Count;
-            }
-            catch
-            {
-                return 0;
-            }
-            finally
-            {
-                moreResults = false;
-            }
-        }
-
-        /// <summary>
-        /// Return bing links.
-        /// </summary>
-        /// <param name="searchString"></param>
-        /// <returns></returns>
-        private int GetBingLinks(string searchString)
-        {
-            bool dummy;
-            return GetBingResults(searchString, out dummy);
-        }
-
-        /// <summary>
-        /// Get Bing All Links
-        /// </summary>
-        /// <param name="searchString"></param>
-        /// <returns></returns>
-        private int GetBingAllLinks(string searchString)
-        {
-            var totalResults = 0;
+            int totalResults = 0;
             bool moreResults;
+            SearchBingApi client = new SearchBingApi(BingApiKey);
+            int pageNumber = 0;
             do
             {
-                totalResults += GetBingResults(searchString, out moreResults);
-            } while (moreResults);
+                try
+                {
+                    List<Uri> results = client.Search(searchString, pageNumber, cancelToken, out moreResults);
+                    totalResults += results.Count;
+
+                    if (results.Count > 0)
+                        OnSearcherLinkFoundEvent(new EventsThreads.CollectionFound<Uri>(results));
+                }
+                catch (OperationCanceledException)
+                {
+                    throw;
+                }
+                catch (InvalidOperationException)
+                {
+                    throw;
+                }
+                catch
+                {
+                    moreResults = false;
+                }
+
+                pageNumber++;
+                cancelToken.ThrowIfCancellationRequested();
+            } while (moreResults && totalResults < MaxResults);
+
             return totalResults;
         }
     }

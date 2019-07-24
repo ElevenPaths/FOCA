@@ -31,9 +31,9 @@ namespace FOCA
         /// <summary>
         /// Threads used for download, extract and analyze the metadata
         /// </summary>
-        public Thread Metadata, Analysis, CurrentSearch;
+        private Thread Metadata, Analysis;
 
-
+        private CancellationTokenSource searchCancelToken;
 
         private ConcurrentQueue<Download> downloadQueue;
         private ConcurrentDictionary<string, Download> downloadingFiles;
@@ -590,7 +590,7 @@ namespace FOCA
         /// <param name="e"></param>
         private void txtSearch_KeyPress(object sender, KeyPressEventArgs e)
         {
-            if (e.KeyChar == Convert.ToChar(Keys.Enter))
+            if (e.KeyChar == Convert.ToChar(Keys.Enter) && btnSearch.Enabled)
                 btnSearch_Click(btnSearch, null);
         }
 
@@ -602,29 +602,34 @@ namespace FOCA
         private void btnSearch_Click(object sender, EventArgs e)
         {
             var button = sender as Button;
+            string customSearchValue = txtSearch.Text;
             if (button != null && button.Text == "&Stop")
             {
-                CurrentSearch?.Abort();
+                this.searchCancelToken?.Cancel();
             }
-            else if (String.IsNullOrWhiteSpace(txtSearch.Text))
+            else if (String.IsNullOrWhiteSpace(customSearchValue))
             {
-                MessageBox.Show(@"Please, insert a term for searching", @"Insert a term", MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
+                MessageBox.Show(@"Please, insert a term for searching", @"Insert a term", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             else if (!chkGoogle.Checked && !chkBing.Checked && !chkDuck.Checked)
             {
-                MessageBox.Show(@"Select a search engine, please.", @"Select a search engine", MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
+                MessageBox.Show(@"Select a search engine, please.", @"Select a search engine", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-            else if (CurrentSearch != null)
+            else if (this.searchCancelToken != null)
             {
-                MessageBox.Show(@"Already searching, please wait", @"Please, wait", MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
+                MessageBox.Show(@"Already searching, please wait", @"Please, wait", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             else
             {
-                CurrentSearch = new Thread(CustomSearch) { IsBackground = true };
-                CurrentSearch.Start(txtSearch.Text);
+                Invoke(new MethodInvoker(() =>
+                {
+                    btnSearch.Text = "&Stop";
+                    btnSearch.Image = Resources.magnifier_stop;
+                    checkedListBoxExtensions.Enabled = panelSearchConfiguration.Enabled = false;
+                }));
+
+                Func<LinkSearcher, Task<int>> searchFunc = (s) => s.CustomSearch(this.searchCancelToken, customSearchValue);
+                this.Search(CreateSelectedSearchers(), searchFunc);
             }
         }
 
@@ -640,31 +645,45 @@ namespace FOCA
                 var button = sender as Button;
                 if (button != null && button.Text == "&Stop")
                 {
-                    if (CurrentSearch == null) return;
-                    CurrentSearch.Abort();
-                    Program.LogThis(new Log(Log.ModuleType.MetadataSearch, "Stopping documents search",
-                        Log.LogType.debug));
+                    this.searchCancelToken?.Cancel();
+                    Program.LogThis(new Log(Log.ModuleType.MetadataSearch, "Stopping documents search", Log.LogType.debug));
                 }
                 else if (!chkGoogle.Checked && !chkBing.Checked && !chkDuck.Checked)
                 {
-                    MessageBox.Show(@"Select a search engine please.", @"Select a search engine", MessageBoxButtons.OK,
-                        MessageBoxIcon.Information);
+                    MessageBox.Show(@"Select a search engine please.", @"Select a search engine", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
-                else if (CurrentSearch != null)
+                else if (this.searchCancelToken != null)
                 {
-                    MessageBox.Show(@"Already searching, please wait", @"Please, wait", MessageBoxButtons.OK,
-                        MessageBoxIcon.Information);
+                    MessageBox.Show(@"Already searching, please wait", @"Please, wait", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 else
                 {
                     if (checkedListBoxExtensions.CheckedIndices.Count == 0)
-                        MessageBox.Show(@"Select at least one extension please.", @"Select an extension",
-                            MessageBoxButtons.OK,
-                            MessageBoxIcon.Information);
+                        MessageBox.Show(@"Select at least one extension please.", @"Select an extension", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     else
                     {
-                        CurrentSearch = new Thread(SearchAll) { IsBackground = true };
-                        CurrentSearch.Start();
+                        List<string> selectedExtensions = new List<string>();
+                        foreach (int i in checkedListBoxExtensions.CheckedIndices)
+                        {
+                            var strExt = (string)checkedListBoxExtensions.Items[i];
+                            // some extensions are marked as '*', delete them
+                            strExt = strExt.Replace("*", String.Empty);
+                            selectedExtensions.Add(strExt);
+                        }
+
+                        if (selectedExtensions.Count > 0)
+                        {
+                            Invoke(new MethodInvoker(() =>
+                            {
+                                btnSearchAll.Text = "&Stop";
+                                btnSearchAll.Image = Resources.world_search_stop;
+                                checkedListBoxExtensions.Enabled = panelSearchConfiguration.Enabled = false;
+                            }));
+
+                            Func<LinkSearcher, Task<int>> searchFunc = (s) => s.SearchBySite(this.searchCancelToken, Program.data.Project.Domain, selectedExtensions.ToArray());
+                            this.Search(CreateSelectedSearchers(), searchFunc);
+                        }
+
                     }
                 }
             }
@@ -922,6 +941,7 @@ namespace FOCA
                         $"Servers ({servers.Count})";
                     // enable interface elements which were disabled previously
                     btnSearchAll.Enabled = Program.data.Project.ProjectState != Project.ProjectStates.Uninitialized;
+                    btnSearch.Enabled = true;
                     Program.FormMainInstance.programState = FormMain.ProgramState.Normal;
                     Metadata = null;
                 }));
@@ -2222,164 +2242,107 @@ namespace FOCA
 
         #region WebSearch functions
 
-        /// <summary>
-        /// Custom search using all checked engines
-        /// </summary>
-        /// <param name="parameter"></param>
-        private void CustomSearch(object parameter)
+        private void Search(IEnumerable<LinkSearcher> engines, Func<LinkSearcher, Task<int>> searchFunc)
         {
-            var searchString = parameter as string;
             try
             {
+                this.searchCancelToken?.Cancel();
+                this.searchCancelToken = new CancellationTokenSource();
+                List<Task> searchTasks = new List<Task>();
 
-                if (chkGoogle.Checked)
+                foreach (LinkSearcher currentSearcher in engines)
                 {
-                    if (String.IsNullOrWhiteSpace(Program.cfgCurrent.GoogleApiKey) || String.IsNullOrWhiteSpace(Program.cfgCurrent.GoogleApiCx))
+                    searchTasks.Add(SearchInEngine(currentSearcher, searchFunc));
+                }
+
+                Task.WhenAll(searchTasks)
+                    .ContinueWith((e) =>
                     {
-                        CustomSearchEventsGeneric(new GoogleWebSearcher(), searchString);
-                    }
-                    else
-                    {
-                        CustomSearchEventsGeneric(new GoogleAPISearcher(Program.cfgCurrent.GoogleApiKey, Program.cfgCurrent.GoogleApiCx)
+                        Invoke(new MethodInvoker(() =>
                         {
-                            SearchAll = true
-                        }, searchString);
-                    }
-                }
+                            btnSearchAll.Text = "&Search All";
+                            btnSearchAll.Image = Resources.world_search;
+                            btnSearch.Text = "&Search";
+                            btnSearch.Image = Resources.magnifier;
+                            checkedListBoxExtensions.Enabled = panelSearchConfiguration.Enabled = true;
+                        }));
+                        Program.FormMainInstance.ChangeStatus("All searchers has been finished");
+                        this.searchCancelToken.Dispose();
+                        this.searchCancelToken = null;
+                    });
+            }
+            catch
+            {
 
-                if (chkBing.Checked)
-                {
-                    if (String.IsNullOrWhiteSpace(Program.cfgCurrent.BingApiKey))
-                    {
-                        CustomSearchEventsGeneric(new BingWebSearcher(), searchString);
-                    }
-                    else
-                    {
-                        CustomSearchEventsGeneric(new BingAPISearcher(Program.cfgCurrent.BingApiKey), searchString);
-                    }
-                }
-                if (chkDuck.Checked)
-                    CustomSearchEventsGeneric(new DuckduckgoWebSearcher(), searchString);
-            }
-            catch (ThreadAbortException)
-            {
-                Invoke(new MethodInvoker(delegate
-                {
-                    const string strMessage = "Aborted document search!";
-                    Program.LogThis(new Log(Log.ModuleType.MetadataSearch, strMessage, Log.LogType.debug));
-                    Program.FormMainInstance.ChangeStatus(strMessage);
-                }));
-            }
-            finally
-            {
-                CurrentSearch = null;
             }
         }
 
-        /// <summary>
-        ///     Generic event for custom search action
-        /// </summary>
-        /// <param name="wsSearch"></param>
-        /// <param name="searchString"></param>
-        private void CustomSearchEventsGeneric(WebSearcher wsSearch, string searchString)
+        private IEnumerable<LinkSearcher> CreateSelectedSearchers()
         {
-            try
+            List<LinkSearcher> selectedSearchers = new List<LinkSearcher>();
+            if (chkGoogle.Checked)
             {
-                wsSearch.SearchAll = true;
-                wsSearch.SearcherChangeStateEvent += HandleChangeStateEvent;
-                wsSearch.SearcherStartEvent += HandleCustomSearchStartEvent;
-                wsSearch.SearcherLinkFoundEvent += HandleLinkFoundEvent;
-                wsSearch.SearcherLogEvent += WebSearcherLogEvent;
-                wsSearch.SearcherEndEvent += HandleCustomSearchEndEvent;
-                wsSearch.GetCustomLinks(searchString);
-                wsSearch.Join();
+                if (String.IsNullOrWhiteSpace(Program.cfgCurrent.GoogleApiKey) || String.IsNullOrWhiteSpace(Program.cfgCurrent.GoogleApiCx))
+                {
+                    selectedSearchers.Add(new GoogleWebSearcher());
+
+                }
+                else
+                {
+                    selectedSearchers.Add(new GoogleAPISearcher(Program.cfgCurrent.GoogleApiKey, Program.cfgCurrent.GoogleApiCx));
+                }
             }
-            catch (ThreadAbortException)
+
+            if (chkBing.Checked)
             {
-                wsSearch.Abort();
+                if (String.IsNullOrWhiteSpace(Program.cfgCurrent.BingApiKey))
+                {
+                    selectedSearchers.Add(new BingWebSearcher());
+                }
+                else
+                {
+                    selectedSearchers.Add(new BingAPISearcher(Program.cfgCurrent.BingApiKey));
+                }
             }
+
+            if (chkDuck.Checked)
+            {
+                selectedSearchers.Add(new DuckduckgoWebSearcher());
+            }
+
+            return selectedSearchers;
         }
 
-        /// <summary>
-        /// Search using all checked engines
-        /// </summary>
-        private void SearchAll()
+        private Task<int> SearchInEngine(LinkSearcher wsSearch, Func<LinkSearcher, Task<int>> searchFunc)
         {
-            try
-            {
-                if (chkGoogle.Checked)
-                {
-                    if (String.IsNullOrWhiteSpace(Program.cfgCurrent.GoogleApiKey) || String.IsNullOrWhiteSpace(Program.cfgCurrent.GoogleApiCx))
-                    {
-                        SearchEventsGeneric(new GoogleWebSearcher());
-                    }
-                    else
-                    {
-                        SearchEventsGeneric(new GoogleAPISearcher(Program.cfgCurrent.GoogleApiKey, Program.cfgCurrent.GoogleApiCx)
-                        {
-                            SearchAll = true
-                        });
-                    }
-                }
+            wsSearch.SearcherChangeStateEvent += HandleChangeStateEvent;
+            wsSearch.ItemsFoundEvent += HandleLinkFoundEvent;
+            wsSearch.SearcherLogEvent += WebSearcherLogEvent;
 
-                if (chkBing.Checked)
+            return searchFunc(wsSearch)
+                .ContinueWith<int>((state) =>
                 {
-                    if (String.IsNullOrWhiteSpace(Program.cfgCurrent.BingApiKey))
+                    int resultCount = 0;
+                    string message = String.Empty;
+                    Log.LogType logType = Log.LogType.medium;
+                    if (state.IsCanceled)
                     {
-                        SearchEventsGeneric(new BingWebSearcher());
+                        message = $"{wsSearch.Name} search aborted!!";
                     }
-                    else
+                    else if (state.IsFaulted)
                     {
-                        SearchEventsGeneric(new BingAPISearcher(Program.cfgCurrent.BingApiKey));
+                        message = $"An error has ocurred on {wsSearch.Name}: {String.Join(Environment.NewLine, (state.Exception as AggregateException)?.InnerException.Message)}.";
+                        logType = Log.LogType.error;
                     }
-                }
-                if (chkDuck.Checked)
-                    SearchEventsGeneric(new DuckduckgoWebSearcher());
-            }
-            catch (ThreadAbortException)
-            {
-                Invoke(new MethodInvoker(delegate
-                {
-                    const string strMessage = "Aborted document search!";
-                    Program.LogThis(new Log(Log.ModuleType.MetadataSearch, strMessage, Log.LogType.debug));
-                    Program.FormMainInstance.ChangeStatus(strMessage);
-                }));
-            }
-            finally
-            {
-                CurrentSearch = null;
-            }
-        }
+                    else if (state.IsCompleted)
+                    {
+                        resultCount = state.Result;
+                        message = $"{wsSearch.Name} search finished successfully!! Total found result count: {resultCount}";
+                    }
 
-        /// <summary>
-        /// Generic event for search action
-        /// </summary>
-        /// <param name="wsSearch"></param>
-        private void SearchEventsGeneric(WebSearcher wsSearch)
-        {
-            try
-            {
-                foreach (int i in checkedListBoxExtensions.CheckedIndices)
-                {
-                    var strExt = (string)checkedListBoxExtensions.Items[i];
-                    // some extensions are marked as '*', delete them
-                    strExt = strExt.Replace("*", string.Empty);
-                    wsSearch.AddExtension(strExt);
-                }
-                wsSearch.Site = Program.data.Project.Domain;
-                wsSearch.SearcherChangeStateEvent += HandleChangeStateEvent;
-                wsSearch.SearcherStartEvent += HandleSearchStartEvent;
-                wsSearch.SearcherLinkFoundEvent += HandleLinkFoundEvent;
-                wsSearch.SearcherLogEvent += WebSearcherLogEvent;
-                wsSearch.SearcherEndEvent += HandleSearchEndEvent;
-
-                wsSearch.GetLinks();
-                wsSearch.Join();
-            }
-            catch (ThreadAbortException)
-            {
-                wsSearch.Abort();
-            }
+                    Program.LogThis(new Log(Log.ModuleType.MetadataSearch, message, logType));
+                    return resultCount;
+                });
         }
 
         /// <summary>
@@ -2389,8 +2352,7 @@ namespace FOCA
         /// <param name="e"></param>
         public void WebSearcherLogEvent(object sender, EventsThreads.ThreadStringEventArgs e)
         {
-            Program.LogThis(new Log(Log.ModuleType.MetadataSearch, $"Web Search, {e.Message}",
-                Log.LogType.debug));
+            Program.LogThis(new Log(Log.ModuleType.MetadataSearch, $"Web Search, {e.Message}", Log.LogType.debug));
         }
 
         /// <summary>
@@ -2409,32 +2371,18 @@ namespace FOCA
         }
 
         /// <summary>
-        ///     Handle custom search start event
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void HandleCustomSearchStartEvent(object sender, EventArgs e)
-        {
-            Invoke(new MethodInvoker(() =>
-            {
-                Program.FormMainInstance.programState = FormMain.ProgramState.Searching;
-                btnSearch.Text = "&Stop";
-                btnSearch.Image = Resources.magnifier_stop;
-            }));
-        }
-
-        /// <summary>
         ///     Event used to handle found links events
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         public void HandleLinkFoundEvent(object sender, EventsThreads.CollectionFound<Uri> e)
         {
-            Program.LogThis(new Log(Log.ModuleType.MetadataSearch, $"Found {e.Data.Count} links",
-                Log.LogType.debug));
+            string searcherName = ((LinkSearcher)sender).Name;
+            Program.LogThis(new Log(Log.ModuleType.MetadataSearch, $"{searcherName}: Found {e.Data.Count} links", Log.LogType.debug));
 
             foreach (Uri link in e.Data)
             {
+                this.searchCancelToken?.Token.ThrowIfCancellationRequested();
                 try
                 {
                     if (Program.data.files.Items.Count(li => string.Equals(li.URL, link.ToString(), StringComparison.CurrentCultureIgnoreCase)) > 0)
@@ -2483,51 +2431,6 @@ namespace FOCA
                 // add the URL to the domain's map
                 Program.data.GetDomain(link.Host).map.AddDocument(link.ToString());
             }
-        }
-
-        /// <summary>
-        /// Event when a custom search is attempted
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public void HandleCustomSearchEndEvent(object sender, EventsThreads.ThreadEndEventArgs e)
-        {
-            Invoke(new MethodInvoker(() =>
-            {
-                Program.FormMainInstance.programState = FormMain.ProgramState.Normal;
-                btnSearch.Text = "&Search";
-                btnSearch.Image = Resources.magnifier;
-            }));
-        }
-
-        /// <summary>
-        /// Event launched when a search is started
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public void HandleSearchStartEvent(object sender, EventArgs e)
-        {
-            Invoke(new MethodInvoker(() =>
-            {
-                btnSearchAll.Text = "&Stop";
-                btnSearchAll.Image = Resources.world_search_stop;
-                checkedListBoxExtensions.Enabled = panelSearchConfiguration.Enabled = false;
-            }));
-        }
-
-        /// <summary>
-        /// Event launched when a search finishes
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public void HandleSearchEndEvent(object sender, EventsThreads.ThreadEndEventArgs e)
-        {
-            Invoke(new MethodInvoker(() =>
-            {
-                btnSearchAll.Text = "&Search All";
-                btnSearchAll.Image = Resources.world_search;
-                checkedListBoxExtensions.Enabled = panelSearchConfiguration.Enabled = true;
-            }));
         }
 
         #endregion
@@ -2692,7 +2595,7 @@ namespace FOCA
             }
         }
 
-        public void StopAllDownloads()
+        private void StopAllDownloads()
         {
             while (!this.downloadQueue.IsEmpty)
             {
@@ -2826,6 +2729,14 @@ namespace FOCA
             }
         }
         #endregion
+
+        public void Abort()
+        {
+            this.searchCancelToken?.Cancel();
+            this.Metadata?.Abort();
+            this.Analysis?.Abort();
+            this.StopAllDownloads();
+        }
     }
 
     public class Download

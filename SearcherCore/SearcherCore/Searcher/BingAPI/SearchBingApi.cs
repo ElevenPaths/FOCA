@@ -3,69 +3,53 @@ using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace SearcherCore.Searcher.BingAPI
 {
     public class SearchBingApi
     {
-        public delegate void StatusUpdateHandler(object sender, string e);
-
         private readonly string _secretKey;
         private readonly RestClient client;
+        private const int ResultCountPerPage = 50;
 
         public SearchBingApi(string secretKey)
         {
-            // V5.0 of the API
-            client = new RestClient("https://api.cognitive.microsoft.com/bing/v5.0");
+            // V7.0 of the API
+            client = new RestClient("https://api.cognitive.microsoft.com/bing/v7.0");
             // secret key to authenticate requests
             _secretKey = secretKey;
         }
 
-        public event StatusUpdateHandler SearcherLinkFoundEvent;
-
-        /// <summary>
-        /// Query Bing API
-        /// </summary>
-        /// <param name="q">query</param>
-        /// <returns></returns>
-        public List<Uri> Search(string q)
+        public List<Uri> Search(string q, int pageNumber, CancellationToken cancelToken, out bool moreResults)
         {
             List<Uri> results = new List<Uri>();
-            int offset = 0;
-            // URL of the requests. Count = 50 because it's the max allowed value
-            RestRequest request = new RestRequest($"search?count=50&safeSearch=Off&textFormat=Raw&offset={offset}&q={q}", Method.GET);
+            int currentOffset = ResultCountPerPage * pageNumber;
+            RestRequest request = new RestRequest($"search?count={ResultCountPerPage}&safeSearch=Off&textFormat=Raw&offset={currentOffset}&q={q}", Method.GET);
             // Request header which sends the private key to the server
             request.AddHeader("Ocp-Apim-Subscription-Key", _secretKey);
-            var queryResult = client.Execute<List<string>>(request).Data[0];
-            JToken token = JObject.Parse(queryResult);
-
-            try
+            IRestResponse<List<string>> queryResult = client.ExecuteTaskAsync<List<string>>(request, cancelToken).Result;
+            if (queryResult.StatusCode == System.Net.HttpStatusCode.OK)
             {
-                do
+                JToken token = JObject.Parse(queryResult.Data[0]);
+
+                var webpages = (JArray)token["webPages"]["value"];
+                foreach (string foundUrl in webpages.Select(link => ((string)link.SelectToken("url"))))
                 {
-                    var webpages = (JArray)token["webPages"]["value"];
-                    foreach (string displayUrl in webpages.Select(link => ((string)link.SelectToken("displayUrl"))))
+                    if (Uri.TryCreate(foundUrl, UriKind.Absolute, out Uri url))
                     {
-                        if (Uri.TryCreate(displayUrl, UriKind.Absolute, out Uri url))
-                        {
-                            results.Add(url);
-                            UpdateStatus(displayUrl);
-                        }
+                        results.Add(url);
                     }
-                    offset += 50;
-                } while (offset < (int)token.SelectToken("webPages").SelectToken("totalEstimatedMatches") / 1000);
+                    currentOffset++;
+                }
+
+                moreResults = ((int)token.SelectToken("webPages").SelectToken("totalEstimatedMatches")) > currentOffset;
+                return results;
             }
-            catch
+            else
             {
-                throw new Exception("Error while trying to get results");
+                throw new InvalidOperationException($"The request could not be completed. Please check your API key. Response status: {queryResult.StatusDescription}");
             }
-
-            return results;
-        }
-
-        private void UpdateStatus(string status)
-        {
-            SearcherLinkFoundEvent?.Invoke(this, status);
         }
     }
 }
