@@ -2,7 +2,6 @@ using FOCA.Threads;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -10,156 +9,45 @@ using System.Threading;
 
 namespace FOCA.Searcher
 {
-    public class BingWebSearcher : WebSearcher
+    public class BingWebSearcher : LinkSearcher
     {
-        public const int maxResultPerPage = 100;
-        public const int maxResults = 1000;
+        private const int MaxResultPerPage = 100;
+        private const int MaxResults = 1000;
 
-        public int ResultsPerPage { get; set; }
-        public int Offset { get; set; }
+        private static string[] supportedFileTypes = new string[] { "doc", "docx", "pdf", "ppt", "pptx", "xls", "xlsx", "rtf", "odt", "ods", "odp" };
+        private static readonly Regex bingWebUriRegex = new Regex(@"class=""(?:b_title|b_algo)""><h2><a\s+href=\s*[""]?([^""]*)[""]?\s*", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         public enum Language { AnyLanguage, Albanian, Arabic, Bulgarian, Catalan, Chinese_Simplified, Chinese_Traditional, Croatian, Czech, Danish, Dutch, English, Estonian, Finnish, French, German, Greek, Hebrew, Hungarian, Icelandic, Indonesian, Italian, Japanese, Korean, Latvian, Lithuanian, Malay, Norwegian, Persian, Polish, Portuguese_Brazil, Portuguese_Portugal, Romanian, Russian, Serbian_Cyrillic, Slovak, Slovenian, Spanish, Swedish, Thai, Turkish, Ukrainian }
         public Language WriteInLanguage { get; set; }
-
-
         public enum Region { AnyRegion, Albania, Algeria, Argentina, Armenia, Australia, Austria, Azerbaijan, Belgium, Bolivia, Bosnia_and_Herzegovina, Brazil, Canada, Chile, Colombia, Commonwealth_of_Puerto_Rico, Costa_Rica, Croatia, Czech_Republic, Denmark, Dominican_Republic, Ecuador, Egypt, El_Salvador, Estonia, Finland, Former_Yugoslav_Republic_of_Macedonia, France, Georgia, Germany, Greece, Guatemala, Honduras, Hong_Kong_SAR, Hungary, Iceland, India, Indonesia, Iran, Iraq, Ireland, Islamic_Republic_of_Pakistan, Israel, Italy, Japan, Jordan, Kenya, Kingdom_of_Bahrain, Korea, Kuwait, Latvia, Lebanon, Libya, Lithuania, Luxembourg, Malaysia, Malta, Mexico, Morocco, Netherlands, New_Zealand, Nicaragua, Norway, Oman, Panama, Paraguay, Peru, Poland, Portugal, Qatar, Republic_of_the_Philippines, Romania, Russia, Saudi_Arabia, Serbia, Singapore, Slovakia, Slovenia, South_Africa, Spain, Sweden, Switzerland, Syria, Taiwan, Thailand, Tunisia, Turkey, UAE, Ukraine, United_Kingdom, United_States, Vietnam, Yemen }
         public Region LocatedInRegion { get; set; }
 
-        private string[] supportedFileTypes = new string[] { "doc", "pdf", "ppt", "xls", "ica", "rdp" };
-
-        private static readonly Regex bingWebUriRegex = new Regex(@"class=""(?:b_title|b_algo)""><h2><a\s+href=\s*[""]?([^""]*)[""]?\s*", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-
-        public BingWebSearcher() : base("BingWeb")
+        public BingWebSearcher() : base("BingWeb", supportedFileTypes)
         {
         }
 
-        /// <summary>
-        /// Get Links
-        /// </summary>
-        public override void GetLinks()
+        protected override int Search(string customSearchString, CancellationToken cancelToken)
         {
-            //To run asynchronous
-            if (thrSearchLinks != null && thrSearchLinks.IsAlive) return;
-
-            thrSearchLinks = new Thread(GetLinksAsync)
-            {
-                Priority = ThreadPriority.Lowest,
-                IsBackground = true
-            };
-            thrSearchLinks.Start();
+            return GetBingAllLinks(customSearchString, cancelToken);
         }
 
-        /// <summary>
-        /// Get custom links
-        /// </summary>
-        /// <param name="customSearchString"></param>
-        public override void GetCustomLinks(string customSearchString)
+        private int GetBingResults(string searchString, int currentResultPerPage, int currentOffset, CancellationToken cancelToken, out bool moreResults)
         {
-            if (thrSearchLinks != null && thrSearchLinks.IsAlive) return;
-            thrSearchLinks = new Thread(GetCustomLinksAsync)
-            {
-                Priority = ThreadPriority.Lowest,
-                IsBackground = true
-            };
-            thrSearchLinks.Start(customSearchString);
-        }
-
-        /// <summary>
-        /// Get Links Async
-        /// </summary>
-        private void GetLinksAsync()
-        {
-            OnSearcherStartEvent(null);
-            try
-            {
-                foreach (var strExtension in Extensions.Where(strExtension => supportedFileTypes.Contains(strExtension.ToLower())))
-                {
-                    OnSearcherChangeStateEvent(new EventsThreads.ThreadStringEventArgs("Search " + strExtension + " in " + Name));
-
-                    switch (strExtension.ToLower())
-                    {
-                        case "ica":
-                            GetBingAllLinks("site:" + Site + " filetype:txt \"initialprogram\"");
-                            break;
-                        case "rdp":
-                            GetBingAllLinks("site:" + Site + " filetype:txt \"full address:s:\"");
-                            break;
-                        default:
-                            GetBingAllLinks("site:" + Site + " filetype:" + strExtension);
-                            break;
-                    }
-                }
-                //Ending search
-                OnSearcherEndEvent(new EventsThreads.ThreadEndEventArgs(EventsThreads.ThreadEndEventArgs.EndReasonEnum.NoMoreData));
-            }
-            catch (ThreadAbortException)
-            {
-                OnSearcherEndEvent(new EventsThreads.ThreadEndEventArgs(EventsThreads.ThreadEndEventArgs.EndReasonEnum.Stopped));
-            }
-            catch
-            {
-                //Error on search
-                OnSearcherEndEvent(new EventsThreads.ThreadEndEventArgs(EventsThreads.ThreadEndEventArgs.EndReasonEnum.ErrorFound));
-            }
-        }
-
-        /// <summary>
-        /// Get custom link Async
-        /// </summary>
-        /// <param name="customSearchString"></param>
-        private void GetCustomLinksAsync(object customSearchString)
-        {
-            OnSearcherStartEvent(null);
-            OnSearcherChangeStateEvent(new EventsThreads.ThreadStringEventArgs("Searching links in " + Name + "..."));
-            try
-            {
-                if (SearchAll)
-                    OnSearcherEndEvent(GetBingAllLinks((string)customSearchString)
-                        ? new EventsThreads.ThreadEndEventArgs(
-                            EventsThreads.ThreadEndEventArgs.EndReasonEnum.LimitReached)
-                        : new EventsThreads.ThreadEndEventArgs(EventsThreads.ThreadEndEventArgs.EndReasonEnum.NoMoreData));
-                else
-                {
-                    GetBingLinks((string)customSearchString);
-                    OnSearcherEndEvent(new EventsThreads.ThreadEndEventArgs(EventsThreads.ThreadEndEventArgs.EndReasonEnum.NoMoreData));
-                }
-            }
-            catch (ThreadAbortException)
-            {
-                OnSearcherEndEvent(new EventsThreads.ThreadEndEventArgs(EventsThreads.ThreadEndEventArgs.EndReasonEnum.Stopped));
-            }
-            catch
-            {
-                OnSearcherEndEvent(new EventsThreads.ThreadEndEventArgs(EventsThreads.ThreadEndEventArgs.EndReasonEnum.ErrorFound));
-            }
-        }
-
-        /// <summary>
-        /// Get bing result.
-        /// </summary>
-        /// <param name="searchString"></param>
-        /// <param name="currentResultPerPage"></param>
-        /// <param name="currentOffset"></param>
-        /// <param name="moreResults"></param>
-        /// <returns></returns>
-        private int GetBingResults(string searchString, int currentResultPerPage, int currentOffset, out bool moreResults)
-        {
-            HttpWebRequest request;
-            var retries = 0;
-            bool error;
-            var html = string.Empty;
             if (WriteInLanguage != Language.AnyLanguage)
                 searchString += string.Format(" language:{0}", LanguageToHtmlOption(WriteInLanguage));
             if (LocatedInRegion != Region.AnyRegion)
                 searchString += string.Format(" loc:{0}", RegionToHtmlOption(LocatedInRegion));
             OnSearcherLogEvent(new EventsThreads.ThreadStringEventArgs(string.Format("[{0}] Searching first={2} q={1}", Name, searchString, currentOffset + 1)));
 
-            var sb = new StringBuilder(string.Format("http://www.bing.com/search?first={1}&q={0}", searchString, currentOffset + 1));
+            string requestUrl = String.Format("http://www.bing.com/search?first={1}&q={0}", searchString, currentOffset + 1);
 
+            int retries = 0;
+            bool error;
+            string html = string.Empty;
             do
             {
                 error = false;
-                request = (HttpWebRequest)HttpWebRequest.Create(sb.ToString());
+                HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(requestUrl);
                 if (!string.IsNullOrEmpty(UserAgent))
                     request.UserAgent = UserAgent;
 
@@ -182,6 +70,7 @@ namespace FOCA.Searcher
                     retries++;
                     OnSearcherLogEvent(new EventsThreads.ThreadStringEventArgs(string.Format("[{0}] Error {1} in request {2}", this.Name, retries, request.RequestUri.ToString())));
                 }
+                cancelToken.ThrowIfCancellationRequested();
             } while (error && retries < 3);
 
             if (error || retries >= 3)
@@ -194,11 +83,11 @@ namespace FOCA.Searcher
                 {
                     results.Add(urlFound);
                 }
+                cancelToken.ThrowIfCancellationRequested();
             }
 
             if (results.Count > 0)
             {
-                OnSearcherLogEvent(new EventsThreads.ThreadStringEventArgs(string.Format("[{0}] Found {1} links", this.Name, results.Count)));
                 OnSearcherLinkFoundEvent(new EventsThreads.CollectionFound<Uri>(results));
             }
 
@@ -206,33 +95,18 @@ namespace FOCA.Searcher
             return results.Count;
         }
 
-        /// <summary>
-        /// Get bing links
-        /// </summary>
-        /// <param name="searchString"></param>
-        /// <returns></returns>
-        private int GetBingLinks(string searchString)
-        {
-            bool dummy;
-            return GetBingResults(searchString, ResultsPerPage, Offset, out dummy);
-        }
-
-        /// <summary>
-        /// Get Bing all links
-        /// </summary>
-        /// <param name="searchString"></param>
-        /// <returns></returns>
-        private bool GetBingAllLinks(string searchString)
+        private int GetBingAllLinks(string searchString, CancellationToken cancelToken)
         {
             int totalResults = 0, currentPage = 0;
             bool moreResults;
             do
             {
-                totalResults += GetBingResults(searchString, maxResultPerPage, currentPage * maxResultPerPage, out moreResults);
+                totalResults += GetBingResults(searchString, MaxResultPerPage, currentPage * MaxResultPerPage, cancelToken, out moreResults);
                 currentPage++;
+                cancelToken.ThrowIfCancellationRequested();
             }
-            while (moreResults && currentPage * maxResultPerPage + maxResultPerPage <= 1000);
-            return moreResults;
+            while (moreResults && currentPage * MaxResultPerPage + MaxResultPerPage <= MaxResults);
+            return totalResults;
         }
 
         public string RegionToHtmlOption(Region r)

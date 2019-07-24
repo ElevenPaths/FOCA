@@ -181,7 +181,6 @@
     <Compile Include="Analysis\HttpMap\HttpMap.cs" />
     <Compile Include="Analysis\OperatingSystemUtils.cs" />
     <Compile Include="Analysis\Pinger\Pinger.cs" />
-    <Compile Include="Analysis\ShodanRecognition.cs" />
     <Compile Include="Analysis\Technology\TechnologyAnalysis.cs" />
     <Compile Include="Analysis\Technology\TechnologyAnalysisHandler.cs" />
     <Compile Include="Database\Controllers\BaseController.cs" />

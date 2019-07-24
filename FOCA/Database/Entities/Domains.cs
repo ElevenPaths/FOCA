@@ -1,10 +1,9 @@
-using System;
 using FOCA.Analysis.FingerPrinting;
 using FOCA.Analysis.HttpMap;
 using FOCA.Analysis.Technology;
 using FOCA.ModifiedComponents;
 using Newtonsoft.Json;
-using OperatingSystem = FOCA.OperatingSystem;
+using System;
 
 namespace FOCA.Database.Entities
 {
@@ -164,7 +163,7 @@ namespace FOCA.Database.Entities
         public void AnalyzeTechnology()
         {
             this.map.SearchingTechnology = HttpMap.SearchStatus.Searching;
-            techAnalysis.DetailledSearch(this);
+            techAnalysis.DetailedSearch(this);
             techAnalysis.EndAnalysis += delegate
             {
                 this.map.SearchingTechnology = HttpMap.SearchStatus.Finished;

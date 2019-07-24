@@ -1,11 +1,9 @@
-﻿using FOCA.Analysis;
-using FOCA.Analysis.FingerPrinting;
+﻿using FOCA.Analysis.FingerPrinting;
 using FOCA.Analysis.HttpMap;
 using FOCA.Analysis.Pinger;
 using FOCA.Core;
 using FOCA.Database.Entities;
 using FOCA.GUI;
-using FOCA.ModifiedComponents;
 using FOCA.Plugins;
 using FOCA.Search;
 using FOCA.Searcher;
@@ -52,7 +50,7 @@ namespace FOCA
         /// <summary>
         /// Use in shodan search
         /// </summary>
-        public ShodanRecognition ShodanRecognitionObject;
+        public ShodanSearcher ShodanRecognitionObject;
 
         public enum ProgramState { Normal, ExtractingMetadata, Searching };
 
@@ -211,7 +209,7 @@ namespace FOCA
 
             var taskfoca = (TaskFOCA)sender;
 
-            panelTasks.Invoke(new MethodInvoker(delegate
+            this.Invoke(new MethodInvoker(delegate
             {
                 try
                 {
@@ -379,13 +377,18 @@ namespace FOCA
 
         #region DNS Enumeration events
 
-        public void ShodanDataFound(object sender, EventsThreads.CollectionFound<ShodanRecognition.ShodanIPInformation> e)
+        public void ShodanDataFound(object sender, EventsThreads.CollectionFound<ShodanIPInformation> e)
         {
             try
             {
                 if (e?.Data == null || e.Data.Count <= 0) return;
 
-                ShodanRecognition.ShodanIPInformation si = e.Data.First();
+                ShodanIPInformation si = e.Data.First();
+
+                if (String.IsNullOrWhiteSpace(si.OS) && !String.IsNullOrWhiteSpace(si.ServerBanner))
+                {
+                    si.OS = HTTP.GetOsFromBanner(si.ServerBanner).ToString();
+                }
 
                 Program.LogThis(new Log(Log.ModuleType.ShodanSearch, string.Format("Found IP Information {0}", si.IPAddress), Log.LogType.medium));
 
@@ -423,10 +426,12 @@ namespace FOCA
                 }
 
                 ei.OS = si.OS;
-                ei.ShodanResponse = si.ShodanResponse;
 
                 Program.data.SetIPInformation(si.IPAddress, ei);
                 Program.data.GetServersFromIPs();
+            }
+            catch (OperationCanceledException)
+            {
             }
             catch (Exception ex)
             {
@@ -479,10 +484,7 @@ namespace FOCA
         /// </summary>
         public void AbortThreads()
         {
-            panelMetadataSearch.CurrentSearch?.Abort();
-            panelMetadataSearch.Metadata?.Abort();
-            panelMetadataSearch.Analysis?.Abort();
-            panelMetadataSearch.StopAllDownloads();
+            panelMetadataSearch.Abort();
             panelDNSSearch.Abort();
             ScannThread?.Abort();
         }
@@ -2201,13 +2203,13 @@ namespace FOCA
         public void ScanIpRangeShodan(object baseIp)
         {
             var strBaseIp = (string)baseIp;
-            var lst = new ThreadSafeList<string>();
+            List<IPAddress> lst = new List<IPAddress>();
 
             for (var i = 0; i < 254; i++)
             {
                 var targetIp = strBaseIp + i;
-                if (Program.data.Project.IsIpInNetrange(targetIp))
-                    lst.Add(targetIp);
+                if (Program.data.Project.IsIpInNetrange(targetIp) && IPAddress.TryParse(targetIp, out IPAddress currentIP))
+                    lst.Add(currentIP);
             }
 
             SearchIpInShodanAsync(lst);
@@ -2411,12 +2413,11 @@ namespace FOCA
                 var bingSearcher = new BingWebSearcher();
 
                 bingSearcher.LocatedInRegion = BingWebSearcher.Region.AnyRegion;
-                bingSearcher.SearchAll = true;
                 bingSearcher.WriteInLanguage = BingWebSearcher.Language.AnyLanguage;
 
                 var currentResults = new List<string>();
 
-                bingSearcher.SearcherLinkFoundEvent += delegate (object sender, EventsThreads.CollectionFound<Uri> e)
+                bingSearcher.ItemsFoundEvent += delegate (object sender, EventsThreads.CollectionFound<Uri> e)
                 {
                     foreach (Uri url in e.Data)
                     {
@@ -2438,8 +2439,7 @@ namespace FOCA
                     Program.LogThis(new Log(Log.ModuleType.IPBingSearch, e.Message, Log.LogType.debug));
                 };
                 var strSearchString = $"ip:{oIp}";
-                bingSearcher.GetCustomLinks(strSearchString);
-                bingSearcher.Join();
+                bingSearcher.CustomSearch(strSearchString).Wait();
                 Invoke(new MethodInvoker(delegate
                 {
                     var strMessage = $"{currentResults.Count} domains with IP {oIp} found in bing";
@@ -2474,17 +2474,20 @@ namespace FOCA
             }
             else
             {
-                ThreadSafeList<string> lstIPs = (oThreadSafeListIp as ThreadSafeList<string>);
-                ShodanRecognitionObject = new ShodanRecognition(Program.cfgCurrent.ShodanApiKey, lstIPs);
-                ShodanRecognitionObject.DataFoundEvent += ShodanDataFound;
-                ShodanRecognitionObject.LogEvent += ShodanLog;
-                ShodanRecognitionObject.EndEvent += delegate
+                List<IPAddress> lstIPs = (oThreadSafeListIp as List<IPAddress>);
+                ShodanRecognitionObject = new ShodanSearcher(Program.cfgCurrent.ShodanApiKey);
+                ShodanRecognitionObject.ItemsFoundEvent += ShodanDataFound;
+                ShodanRecognitionObject.SearcherLogEvent += ShodanLog;
+                ShodanRecognitionObject.CustomSearch(lstIPs).ContinueWith((a) =>
                 {
-                    string strMessage = String.Format("Finish Searching IPs in Shodan");
-                    Program.LogThis(new Log(Log.ModuleType.ShodanSearch, strMessage, Log.LogType.debug));
+                    Invoke(new MethodInvoker(delegate
+                    {
+                        string strMessage = String.Format("Finish Searching IPs in Shodan");
+                        Program.LogThis(new Log(Log.ModuleType.ShodanSearch, strMessage, Log.LogType.debug));
+                    }));
+
                     ShodanRecognitionObject = null;
-                };
-                ShodanRecognitionObject.StartRecognition();
+                });
 
                 Invoke(new MethodInvoker(delegate
                 {
@@ -2865,9 +2868,9 @@ namespace FOCA
                 }
             }
 
-            for (var i = 0; i < domain.techAnalysis.GetListTech().Count; i++)
+            for (var i = 0; i < domain.techAnalysis.SelectedTechnologies.Count; i++)
             {
-                var tech = domain.techAnalysis.GetListTech()[i];
+                var tech = domain.techAnalysis.SelectedTechnologies[i];
 
                 if (!ExistsTab("Tech. " + tech.extension)) continue;
 
@@ -2966,9 +2969,9 @@ namespace FOCA
                 list.lstView.Columns.Add("Methods", "Methods").Width = 80;
             }
 
-            for (var i = 0; i < domain.techAnalysis.GetListTech().Count; i++)
+            for (var i = 0; i < domain.techAnalysis.SelectedTechnologies.Count; i++)
             {
-                var tech = domain.techAnalysis.GetListTech()[i];
+                var tech = domain.techAnalysis.SelectedTechnologies[i];
 
                 if ((!ExistsTab("Tech. " + tech.extension) && tech.GetURLs().Count > 0))
                 {

@@ -2,6 +2,8 @@ using FOCA.Database.Entities;
 using FOCA.Threads;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 
 namespace FOCA.Analysis.Technology
 {
@@ -36,7 +38,8 @@ namespace FOCA.Analysis.Technology
     [Serializable]
     public class TechnologyAnalysis
     {
-        public List<Technology> listaTech = null;
+        public List<Technology> SelectedTechnologies { get; private set; }
+
         [NonSerialized]
         private FOCA.Searcher.GoogleWebSearcher wsSearch;
         private static string source = "TechnologyRecognition";
@@ -53,18 +56,12 @@ namespace FOCA.Analysis.Technology
 
         private void LoadNewTechList()
         {
-            wsSearch = new FOCA.Searcher.GoogleWebSearcher();
-            listaTech = new List<Technology>();
+            this.SelectedTechnologies = new List<Technology>();
             foreach (string extension in Program.cfgCurrent.SelectedTechExtensions)
-                listaTech.Add(new Technology(extension));
+                this.SelectedTechnologies.Add(new Technology(extension));
         }
 
-        public List<Technology> GetListTech()
-        {
-            return listaTech;
-        }
-
-        public void DetailledSearch(DomainsItem domain)
+        public void DetailedSearch(DomainsItem domain)
         {
             this.domain = domain.Domain;
             StartSearch(domain);
@@ -75,14 +72,15 @@ namespace FOCA.Analysis.Technology
             LoadNewTechList();
 
             wsSearch = new FOCA.Searcher.GoogleWebSearcher();
-            wsSearch.SearchAll = true;
-            wsSearch.Site = domain.Domain;
-            wsSearch.SearcherLinkFoundEvent += new EventHandler<EventsThreads.CollectionFound<Uri>>(eventLinkFoundDetailed);
-            wsSearch.SearcherEndEvent += new EventHandler<EventsThreads.ThreadEndEventArgs>(EndSearch);
-            foreach (Technology tech in listaTech)
-                wsSearch.AddExtension(tech.extension);
+            wsSearch.ItemsFoundEvent += new EventHandler<EventsThreads.CollectionFound<Uri>>(eventLinkFoundDetailed);
             Program.LogThis(new Log(Log.ModuleType.TechnologyRecognition, "Starting technology recognition in " + domain.Domain, Log.LogType.debug));
-            wsSearch.GetLinks();
+            wsSearch.SearchBySite(new CancellationTokenSource(), domain.Domain, this.SelectedTechnologies.Select(p => p.extension).ToArray())
+                .ContinueWith((e) =>
+                {
+                    Program.LogThis(new Log(Log.ModuleType.TechnologyRecognition, "Finishing technology recognition in " + domain, Log.LogType.debug));
+                    if (this.EndAnalysis != null)
+                        EndAnalysis(domain, null);
+                });
         }
 
         public void eventLinkFoundDetailed(object sender, FOCA.Threads.EventsThreads.CollectionFound<Uri> e)
@@ -111,13 +109,6 @@ namespace FOCA.Analysis.Technology
                     Program.data.GetDomain(domain).map.AddUrl(url.ToString());
                 }
             }
-        }
-
-        private void EndSearch(object sender, FOCA.Threads.EventsThreads.ThreadEndEventArgs e)
-        {
-            Program.LogThis(new Log(Log.ModuleType.TechnologyRecognition, "Finishing technology recognition in " + domain + ". Reason: " + e.EndReason.ToString(), Log.LogType.debug));
-            if (this.EndAnalysis != null)
-                EndAnalysis(domain, null);
         }
     }
 }

@@ -3,6 +3,8 @@ using Google.Apis.Customsearch.v1.Data;
 using Google.Apis.Services;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 
 namespace SearcherCore.Searcher.GoogleAPI
 {
@@ -11,18 +13,15 @@ namespace SearcherCore.Searcher.GoogleAPI
     /// </summary>
     public class SearchGoogleApi
     {
-        public delegate void StatusUpdateHandler(object sender, string e);
+        public string CX { get; }
 
-        private readonly string CX;
-        public string API_KEY;
+        public string ApiKey { get; }
 
         public SearchGoogleApi(string key, string cx)
         {
-            API_KEY = key;
+            ApiKey = key;
             CX = cx;
         }
-
-        public event StatusUpdateHandler SearcherLinkFoundEvent;
 
         private CseResource.ListRequest BuildRequest(string searchString)
         {
@@ -31,7 +30,7 @@ namespace SearcherCore.Searcher.GoogleAPI
             var service = new CustomsearchService(new BaseClientService.Initializer
             {
                 ApplicationName = "Foca",
-                ApiKey = API_KEY
+                ApiKey = ApiKey
             });
 
             var listRequest = service.Cse.List(" ");
@@ -43,9 +42,9 @@ namespace SearcherCore.Searcher.GoogleAPI
             return listRequest;
         }
 
-        public ICollection<Uri> RunService(string searchString)
+        public ICollection<Uri> RunService(string searchString, CancellationToken cancelToken)
         {
-            var listRequest = BuildRequest(searchString);
+            CseResource.ListRequest listRequest = BuildRequest(searchString);
             IList<Result> paging = new List<Result>();
             HashSet<Uri> urls = new HashSet<Uri>();
             var count = 0;
@@ -62,23 +61,38 @@ namespace SearcherCore.Searcher.GoogleAPI
                             if (Uri.TryCreate(item.Link, UriKind.Absolute, out Uri urlFound))
                             {
                                 urls.Add(urlFound);
-                                UpdateStatus(item.Link);
                             }
+                            cancelToken.ThrowIfCancellationRequested();
                         }
                     }
                     count++;
+                }
+                catch (Google.GoogleApiException e)
+                {
+                    if (e.Error != null && e.Error.Errors != null && e.Error.Errors.Any())
+                    {
+                        if (e.Error.Errors.Any(p => "keyInvalid".Equals(p.Reason, StringComparison.OrdinalIgnoreCase)))
+                        {
+                            throw new ArgumentException("The provided API key is invalid", nameof(ApiKey));
+                        }
+                        else if (e.Error.Errors.Any(p => "dailyLimitExceeded".Equals(p.Reason, StringComparison.OrdinalIgnoreCase)))
+                        {
+                            throw new InvalidOperationException("Daily quota exceeded");
+                        }
+                    }
+                    throw;
+                }
+                catch (OperationCanceledException)
+                {
+                    throw;
                 }
                 catch
                 {
                     paging = null;
                 }
+                cancelToken.ThrowIfCancellationRequested();
             }
             return urls;
-        }
-
-        private void UpdateStatus(string status)
-        {
-            SearcherLinkFoundEvent?.Invoke(this, status);
         }
     }
 }
