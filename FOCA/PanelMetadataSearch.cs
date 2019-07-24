@@ -142,86 +142,70 @@ namespace FOCA
         /// <param name="e"></param>
         private void contextMenuStripLinks_Opening(object sender, CancelEventArgs e)
         {
-            //Validate if the thread for Analysis is run.
-            if (Program.FormMainInstance.panelMetadataSearch.Analysis != null &&
-                Program.FormMainInstance.panelMetadataSearch.Analysis.IsAlive)
-                contextMenuStripLinks.Items["analyzeMetadataToolStripMenuItem"].Enabled = false;
-            else
-                contextMenuStripLinks.Items["analyzeMetadataToolStripMenuItem"].Enabled = true;
+            bool defaultEnabledValue = Program.FormMainInstance.programState != FormMain.ProgramState.ExtractingMetadata && Program.FormMainInstance.programState != FormMain.ProgramState.Searching;
 
-            if (Program.FormMainInstance.programState == FormMain.ProgramState.ExtractingMetadata ||
-                Program.FormMainInstance.programState == FormMain.ProgramState.Searching)
+            IEnumerable<ToolStripItem> allMenuItems = this.contextMenuStripLinks.Items.OfType<ToolStripItem>();
+            foreach (ToolStripItem menuItem in allMenuItems)
             {
-                contextMenuStripLinks.Items["toolStripMenuItemDownload"].Enabled =
-                    contextMenuStripLinks.Items["toolStripMenuItemDelete"].Enabled =
-                        contextMenuStripLinks.Items["toolStripMenuItemDownloadAll"].Enabled =
-                            contextMenuStripLinks.Items["toolStripMenuItemDeleteAll"].Enabled =
-                                    contextMenuStripLinks.Items["toolStripMenuItemExtractAllMetadata"].Enabled =
-                                        contextMenuStripLinks.Items["toolStripMenuItemAddFile"].Enabled =
-                                            contextMenuStripLinks.Items["toolStripMenuItemAddFolder"].Enabled = false;
-                return;
-            }
-            contextMenuStripLinks.Items["toolStripMenuItemDownload"].Enabled =
-                contextMenuStripLinks.Items["toolStripMenuItemDelete"].Enabled =
-                    contextMenuStripLinks.Items["toolStripMenuItemDownloadAll"].Enabled =
-                        contextMenuStripLinks.Items["toolStripMenuItemDeleteAll"].Enabled =
-                                contextMenuStripLinks.Items["toolStripMenuItemExtractAllMetadata"].Enabled =
-                                    contextMenuStripLinks.Items["toolStripMenuItemAddFile"].Enabled =
-                                        contextMenuStripLinks.Items["toolStripMenuItemAddFolder"].Enabled = true;
-            var lv = (ListView)((ContextMenuStrip)sender).SourceControl;
-            int downloadingItemCount =
-                (from ListViewItem lvi in lv.SelectedItems from d in this.downloadQueue where d.Lvi.Index == lvi.Index select lvi).Count() +
-                (from ListViewItem lvi in lv.SelectedItems from d in this.downloadingFiles.Values where d.Lvi.Index == lvi.Index select lvi).Count();
-            switch (downloadingItemCount)
-            {
-                case 0:
-                    contextMenuStripLinks.Items["toolStripMenuItemDownload"].Text = "&Download";
-                    contextMenuStripLinks.Items["toolStripMenuItemDownload"].Image = Resources.page_white_go;
-                    break;
-                case 1:
-                    contextMenuStripLinks.Items["toolStripMenuItemDownload"].Text = "&Stop Download";
-                    contextMenuStripLinks.Items["toolStripMenuItemDownload"].Image = Resources.page_white_go_stop;
-                    break;
-                default: // > 1
-                    contextMenuStripLinks.Items["toolStripMenuItemDownload"].Text = "&Stop Downloads";
-                    contextMenuStripLinks.Items["toolStripMenuItemDownload"].Image = Resources.page_white_go_stop;
-                    break;
+                menuItem.Enabled = defaultEnabledValue;
             }
 
-            //If there're downloads and the menu "Stop All Downloads" hasn't been added yet, add menu
-            if ((downloadQueue.Count > 0 || this.downloadingFiles.Count > 0) && contextMenuStripLinks.Items[2] is ToolStripSeparator)
+            if (defaultEnabledValue)
             {
-                ToolStripItem tsiStopDownloads = new ToolStripMenuItem("&Stop All Downloads");
-                tsiStopDownloads.Image = Resources.page_white_stack_go_stop;
-                tsiStopDownloads.Click +=
-                    delegate
-                    {
-                        StopAllDownloads();
-                    };
-                contextMenuStripLinks.Items.Insert(2, tsiStopDownloads);
+                ListView lv = (ListView)((ContextMenuStrip)sender).SourceControl;
+                int downloadingItemCount =
+                    (from ListViewItem lvi in lv.SelectedItems from d in this.downloadQueue where d.Lvi.Index == lvi.Index select lvi).Count() +
+                    (from ListViewItem lvi in lv.SelectedItems from d in this.downloadingFiles.Values where d.Lvi.Index == lvi.Index select lvi).Count();
+
+                switch (downloadingItemCount)
+                {
+                    case 0:
+                        this.toolStripMenuItemDownload.Text = "&Download";
+                        this.toolStripMenuItemDownload.Image = Resources.page_white_go;
+                        break;
+                    case 1:
+                        this.toolStripMenuItemDownload.Text = "&Stop Download";
+                        this.toolStripMenuItemDownload.Image = Resources.page_white_go_stop;
+                        break;
+                    default: // > 1
+                        this.toolStripMenuItemDownload.Text = "&Stop Downloads";
+                        this.toolStripMenuItemDownload.Image = Resources.page_white_go_stop;
+                        break;
+                }
+
+                {//Selected items
+                    IEnumerable<FilesITem> selectedFiles = (from ListViewItem lvi in lv.SelectedItems where lvi.Tag != null select (FilesITem)lvi.Tag);
+                    bool someFileDownloadedAndNotProcessed = selectedFiles.Any(fi => fi.Downloaded && !fi.Processed);
+                    bool someFilePendingToDownload = selectedFiles.Any(fi => !fi.Downloaded || !File.Exists(fi.Path));
+
+                    this.toolStripMenuItemExtractMetadata.Enabled = someFileDownloadedAndNotProcessed;
+                    this.toolStripMenuItemDownload.Enabled = someFilePendingToDownload;
+                    this.toolStripMenuItemDelete.Enabled = selectedFiles.Any();
+
+                    this.toolStripMenuItemLinks.Enabled = selectedFiles.Any();
+                }
+
+                {//All items
+                    IEnumerable<FilesITem> allFiles = (from ListViewItem lvi in lv.Items where lvi.Tag != null select (FilesITem)lvi.Tag);
+                    bool someFileDownloadedAndNotProcessed = allFiles.Any(fi => fi.Downloaded && !fi.Processed);
+                    bool someFilePendingToDownload = allFiles.Any(fi => !fi.Downloaded || !File.Exists(fi.Path));
+                    bool someFileDownloadedAndProcessed = (from ListViewItem lvi in lv.Items where lvi.Tag != null select (FilesITem)lvi.Tag).Any(p => p.Downloaded && p.Processed);
+
+                    this.toolStripMenuItemDownloadAll.Enabled = someFilePendingToDownload;
+                    this.toolStripMenuItemExtractAll.Enabled = someFileDownloadedAndNotProcessed;
+                    this.toolStripMenuItemDeleteAll.Enabled = allFiles.Any();
+                    this.toolStripMenuItemStopAll.Visible = downloadQueue.Count > 0 || this.downloadingFiles.Count > 0;
+
+                    //Validate if the thread for Analysis is running.
+                    this.toolStripMenuItemAnalyzeAll.Enabled = someFileDownloadedAndProcessed && (Program.FormMainInstance.panelMetadataSearch.Analysis == null || !Program.FormMainInstance.panelMetadataSearch.Analysis.IsAlive);
+                }
             }
-            //If there aren't donwloads but the menu is alredy added, delete menu
-            else if (downloadQueue.IsEmpty && this.downloadingFiles.IsEmpty && !(contextMenuStripLinks.Items[2] is ToolStripSeparator))
-            {
-                contextMenuStripLinks.Items.RemoveAt(2);
-            }
-            contextMenuStripLinks.Items["toolStripMenuItemDownload"].Enabled =
-                contextMenuStripLinks.Items["toolStripMenuItemDelete"].Enabled =
-                    lv.SelectedItems != null && lv.SelectedItems.Count != 0;
-            contextMenuStripLinks.Items["toolStripMenuItemDownloadAll"].Enabled =
-                contextMenuStripLinks.Items["toolStripMenuItemDeleteAll"].Enabled = lv.Items.Count > 0;
-            var someFileDownloaded = false;
-            if (lv.SelectedItems != null)
-            {
-                someFileDownloaded = (from ListViewItem lvi in lv.SelectedItems select (FilesITem)lvi.Tag).Any(fi => fi != null && fi.Downloaded && !fi.Processed);
-            }
-            contextMenuStripLinks.Items["toolStripMenuItemExtractAllMetadata"].Enabled = someFileDownloaded;
-            contextMenuStripLinks.Items["linkToolStripMenuItem"].Enabled = lv.SelectedItems != null &&
-                                                                           lv.SelectedItems.Count != 0;
-            contextMenuStripLinks.Items["linkToolStripMenuItem"].Text = lv.SelectedItems != null &&
-                                                                        lv.SelectedItems.Count > 1
-                ? "&Links"
-                : "&Link";
+        }
+
+
+        private void stopAllMenuItem_Click(object sender, EventArgs e)
+        {
+            StopAllDownloads();
         }
 
         /// <summary>
@@ -334,26 +318,14 @@ namespace FOCA
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        public void toolStripMenuItemExtractAllMetadata_Click(object sender, EventArgs e)
+        public void toolStripMenuItemExtractMetadata_Click(object sender, EventArgs e)
         {
-            if (Metadata != null && Metadata.IsAlive)
-            {
-                MessageBox.Show(@"Already extracting metadata", @"Please wait", MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
-            }
-            else
-            {
-                var listlvi =
-                    Program.FormMainInstance.panelMetadataSearch.listViewDocuments.SelectedItems.Cast<ListViewItem>()
-                        .ToList();
-                Metadata = new Thread(ExtractMetadata)
-                {
-                    // avoid CPU overload
-                    Priority = ThreadPriority.Lowest,
-                    IsBackground = true
-                };
-                Metadata.Start(listlvi);
-            }
+            LaunchMetadataExtractorThread(Program.FormMainInstance.panelMetadataSearch.listViewDocuments.SelectedItems.Cast<ListViewItem>().ToList());
+        }
+
+        private void extractAllMetadataToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            LaunchMetadataExtractorThread(Program.FormMainInstance.panelMetadataSearch.listViewDocuments.Items.Cast<ListViewItem>().ToList());
         }
 
         /// <summary>
@@ -705,11 +677,32 @@ namespace FOCA
 
         #region Metadata functions
 
+        private void LaunchMetadataExtractorThread(List<ListViewItem> items)
+        {
+            if (Metadata != null && Metadata.IsAlive)
+            {
+                MessageBox.Show("Already extracting metadata", "Please wait", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else
+            {
+                List<FilesITem> files = items.Select(p => p.Tag as FilesITem)
+                                            .Where(p => p != null && p.Downloaded && p.Size > 0 && !p.Processed)
+                                            .ToList();
+                Metadata = new Thread(ExtractMetadata)
+                {
+                    // avoid CPU overload
+                    Priority = ThreadPriority.Lowest,
+                    IsBackground = true
+                };
+                Metadata.Start(files);
+            }
+        }
+
         /// <summary>
         ///     Extract metadasta from file
         /// </summary>
         /// <param name="o">List which contains the documents from which the tool is going to extract metadata information</param>
-        public void ExtractMetadata(object o)
+        private void ExtractMetadata(object filesItemList)
         {
             TreeNode itemsTree =
                 Program.FormMainInstance.TreeView.Nodes[GUI.UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
@@ -738,14 +731,14 @@ namespace FOCA
 
             try
             {
-                List<ListViewItem> listlvi = o as List<ListViewItem>;
-                if (listlvi == null)
+                List<FilesITem> files = filesItemList as List<FilesITem>;
+                if (files == null)
                 {
                     return;
                 }
                 else
                 {
-                    List<FilesITem> filesToExtract = listlvi.Select(p => p.Tag as FilesITem).Where(p => p != null && p.Downloaded && p.Size > 0 && !p.Processed).ToList();
+                    List<FilesITem> filesToExtract = files.Where(p => p != null && p.Downloaded && p.Size > 0 && !p.Processed).ToList();
                     Program.LogThis(new Log(Log.ModuleType.MetadataSearch,
                         $"Starting metadata extraction of {filesToExtract.Count} documents", Log.LogType.debug));
                     if (filesToExtract.Count > 0)
