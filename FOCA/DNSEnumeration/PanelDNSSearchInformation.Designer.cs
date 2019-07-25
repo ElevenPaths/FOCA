@@ -32,48 +32,52 @@ namespace FOCA
             this.lblDnsSearch = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.SuspendLayout();
-            //
+            // 
             // lblDnsSearchDescription
-            //
-            this.lblDnsSearchDescription.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            // 
+            this.lblDnsSearchDescription.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblDnsSearchDescription.Location = new System.Drawing.Point(15, 32);
+            this.lblDnsSearchDescription.Location = new System.Drawing.Point(20, 39);
+            this.lblDnsSearchDescription.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblDnsSearchDescription.Name = "lblDnsSearchDescription";
-            this.lblDnsSearchDescription.Size = new System.Drawing.Size(276, 97);
+            this.lblDnsSearchDescription.Size = new System.Drawing.Size(353, 119);
             this.lblDnsSearchDescription.TabIndex = 12;
             this.lblDnsSearchDescription.Text = "DNS Search performs queries to DNS Servers searching for well-known records. The " +
     "following queries will be done: ";
-            //
+            // 
             // lblDnsSearch
-            //
+            // 
             this.lblDnsSearch.AutoSize = true;
             this.lblDnsSearch.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblDnsSearch.Location = new System.Drawing.Point(5, 9);
+            this.lblDnsSearch.Location = new System.Drawing.Point(7, 11);
+            this.lblDnsSearch.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblDnsSearch.Name = "lblDnsSearch";
-            this.lblDnsSearch.Size = new System.Drawing.Size(77, 13);
+            this.lblDnsSearch.Size = new System.Drawing.Size(96, 17);
             this.lblDnsSearch.TabIndex = 11;
             this.lblDnsSearch.Text = "DNS Search";
-            //
+            // 
             // label1
-            //
-            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            // 
+            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.label1.Location = new System.Drawing.Point(15, 82);
+            this.label1.Location = new System.Drawing.Point(20, 101);
+            this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(265, 58);
+            this.label1.Size = new System.Drawing.Size(353, 71);
             this.label1.TabIndex = 13;
             this.label1.Text = "NS, SOA, Primary.Master, MX, SPF, Domainkeys Records, DKIM Records, SRV Records f" +
     "or VoiP, IM and Active Directory, Kerberos, LDAP and Web Proxy Autodiscovery.";
-            //
+            // 
             // PanelDNSSearchInformation
-            //
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.label1);
             this.Controls.Add(this.lblDnsSearchDescription);
             this.Controls.Add(this.lblDnsSearch);
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.Name = "PanelDNSSearchInformation";
-            this.Size = new System.Drawing.Size(294, 245);
+            this.Size = new System.Drawing.Size(392, 302);
             this.ResumeLayout(false);
             this.PerformLayout();
 

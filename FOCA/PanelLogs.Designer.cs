@@ -66,10 +66,10 @@ namespace FOCA
             // 
             this.buttonAutoScroll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.buttonAutoScroll.Image = ((System.Drawing.Image)(resources.GetObject("buttonAutoScroll.Image")));
-            this.buttonAutoScroll.Location = new System.Drawing.Point(136, 192);
-            this.buttonAutoScroll.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.buttonAutoScroll.Location = new System.Drawing.Point(121, 154);
+            this.buttonAutoScroll.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.buttonAutoScroll.Name = "buttonAutoScroll";
-            this.buttonAutoScroll.Size = new System.Drawing.Size(224, 38);
+            this.buttonAutoScroll.Size = new System.Drawing.Size(199, 30);
             this.buttonAutoScroll.TabIndex = 1;
             this.buttonAutoScroll.Text = "&Deactivate AutoScroll";
             this.buttonAutoScroll.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -81,10 +81,10 @@ namespace FOCA
             // 
             this.buttonSaveToFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.buttonSaveToFile.Image = ((System.Drawing.Image)(resources.GetObject("buttonSaveToFile.Image")));
-            this.buttonSaveToFile.Location = new System.Drawing.Point(710, 192);
-            this.buttonSaveToFile.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.buttonSaveToFile.Location = new System.Drawing.Point(630, 154);
+            this.buttonSaveToFile.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.buttonSaveToFile.Name = "buttonSaveToFile";
-            this.buttonSaveToFile.Size = new System.Drawing.Size(162, 38);
+            this.buttonSaveToFile.Size = new System.Drawing.Size(144, 30);
             this.buttonSaveToFile.TabIndex = 3;
             this.buttonSaveToFile.Text = "&Save log to File";
             this.buttonSaveToFile.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
@@ -95,10 +95,10 @@ namespace FOCA
             // 
             this.buttonClear.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.buttonClear.Image = ((System.Drawing.Image)(resources.GetObject("buttonClear.Image")));
-            this.buttonClear.Location = new System.Drawing.Point(378, 192);
-            this.buttonClear.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.buttonClear.Location = new System.Drawing.Point(336, 154);
+            this.buttonClear.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.buttonClear.Name = "buttonClear";
-            this.buttonClear.Size = new System.Drawing.Size(98, 38);
+            this.buttonClear.Size = new System.Drawing.Size(87, 30);
             this.buttonClear.TabIndex = 2;
             this.buttonClear.Text = "&Clear";
             this.buttonClear.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -113,11 +113,11 @@ namespace FOCA
             this.gbCriticidad.Controls.Add(this.lbUnCheckAllCriti);
             this.gbCriticidad.Controls.Add(this.lbCheckAllCriti);
             this.gbCriticidad.Controls.Add(this.cblbCritically);
-            this.gbCriticidad.Location = new System.Drawing.Point(26, 5);
-            this.gbCriticidad.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.gbCriticidad.Location = new System.Drawing.Point(23, 4);
+            this.gbCriticidad.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.gbCriticidad.Name = "gbCriticidad";
-            this.gbCriticidad.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.gbCriticidad.Size = new System.Drawing.Size(180, 225);
+            this.gbCriticidad.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.gbCriticidad.Size = new System.Drawing.Size(160, 180);
             this.gbCriticidad.TabIndex = 93;
             this.gbCriticidad.TabStop = false;
             this.gbCriticidad.Text = "Severity filter";
@@ -127,10 +127,10 @@ namespace FOCA
             this.lbUnCheckAllCriti.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lbUnCheckAllCriti.ForeColor = System.Drawing.Color.Blue;
-            this.lbUnCheckAllCriti.Location = new System.Drawing.Point(4, 197);
+            this.lbUnCheckAllCriti.Location = new System.Drawing.Point(4, 158);
             this.lbUnCheckAllCriti.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lbUnCheckAllCriti.Name = "lbUnCheckAllCriti";
-            this.lbUnCheckAllCriti.Size = new System.Drawing.Size(171, 20);
+            this.lbUnCheckAllCriti.Size = new System.Drawing.Size(152, 16);
             this.lbUnCheckAllCriti.TabIndex = 4;
             this.lbUnCheckAllCriti.Text = "Uncheck all";
             this.lbUnCheckAllCriti.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -143,10 +143,10 @@ namespace FOCA
             this.lbCheckAllCriti.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lbCheckAllCriti.ForeColor = System.Drawing.Color.Blue;
-            this.lbCheckAllCriti.Location = new System.Drawing.Point(4, 177);
+            this.lbCheckAllCriti.Location = new System.Drawing.Point(4, 142);
             this.lbCheckAllCriti.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lbCheckAllCriti.Name = "lbCheckAllCriti";
-            this.lbCheckAllCriti.Size = new System.Drawing.Size(171, 20);
+            this.lbCheckAllCriti.Size = new System.Drawing.Size(152, 16);
             this.lbCheckAllCriti.TabIndex = 3;
             this.lbCheckAllCriti.Text = "Check all";
             this.lbCheckAllCriti.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -161,10 +161,10 @@ namespace FOCA
             | System.Windows.Forms.AnchorStyles.Right)));
             this.cblbCritically.CheckOnClick = true;
             this.cblbCritically.FormattingEnabled = true;
-            this.cblbCritically.Location = new System.Drawing.Point(4, 25);
-            this.cblbCritically.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.cblbCritically.Location = new System.Drawing.Point(4, 20);
+            this.cblbCritically.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.cblbCritically.Name = "cblbCritically";
-            this.cblbCritically.Size = new System.Drawing.Size(169, 130);
+            this.cblbCritically.Size = new System.Drawing.Size(151, 89);
             this.cblbCritically.TabIndex = 1;
             this.cblbCritically.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.cblbModules_ItemCheck);
             // 
@@ -175,11 +175,11 @@ namespace FOCA
             this.gbModulos.Controls.Add(this.lbUncheckAllModule);
             this.gbModulos.Controls.Add(this.lbCheckAllModule);
             this.gbModulos.Controls.Add(this.cblbModules);
-            this.gbModulos.Location = new System.Drawing.Point(208, 5);
-            this.gbModulos.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.gbModulos.Location = new System.Drawing.Point(185, 4);
+            this.gbModulos.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.gbModulos.Name = "gbModulos";
-            this.gbModulos.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.gbModulos.Size = new System.Drawing.Size(180, 225);
+            this.gbModulos.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.gbModulos.Size = new System.Drawing.Size(160, 180);
             this.gbModulos.TabIndex = 94;
             this.gbModulos.TabStop = false;
             this.gbModulos.Text = "Module filter";
@@ -189,10 +189,10 @@ namespace FOCA
             this.lbUncheckAllModule.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lbUncheckAllModule.ForeColor = System.Drawing.Color.Blue;
-            this.lbUncheckAllModule.Location = new System.Drawing.Point(6, 198);
+            this.lbUncheckAllModule.Location = new System.Drawing.Point(5, 158);
             this.lbUncheckAllModule.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lbUncheckAllModule.Name = "lbUncheckAllModule";
-            this.lbUncheckAllModule.Size = new System.Drawing.Size(170, 20);
+            this.lbUncheckAllModule.Size = new System.Drawing.Size(151, 16);
             this.lbUncheckAllModule.TabIndex = 2;
             this.lbUncheckAllModule.Text = "Uncheck all";
             this.lbUncheckAllModule.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -205,10 +205,10 @@ namespace FOCA
             this.lbCheckAllModule.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lbCheckAllModule.ForeColor = System.Drawing.Color.Blue;
-            this.lbCheckAllModule.Location = new System.Drawing.Point(8, 177);
+            this.lbCheckAllModule.Location = new System.Drawing.Point(7, 142);
             this.lbCheckAllModule.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lbCheckAllModule.Name = "lbCheckAllModule";
-            this.lbCheckAllModule.Size = new System.Drawing.Size(164, 20);
+            this.lbCheckAllModule.Size = new System.Drawing.Size(146, 16);
             this.lbCheckAllModule.TabIndex = 1;
             this.lbCheckAllModule.Text = "Check all";
             this.lbCheckAllModule.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -223,10 +223,10 @@ namespace FOCA
             | System.Windows.Forms.AnchorStyles.Right)));
             this.cblbModules.CheckOnClick = true;
             this.cblbModules.FormattingEnabled = true;
-            this.cblbModules.Location = new System.Drawing.Point(4, 25);
-            this.cblbModules.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.cblbModules.Location = new System.Drawing.Point(4, 20);
+            this.cblbModules.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.cblbModules.Name = "cblbModules";
-            this.cblbModules.Size = new System.Drawing.Size(169, 130);
+            this.cblbModules.Size = new System.Drawing.Size(151, 89);
             this.cblbModules.Sorted = true;
             this.cblbModules.TabIndex = 0;
             this.cblbModules.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.cblbModules_ItemCheck);
@@ -237,21 +237,21 @@ namespace FOCA
             this.panelFilter.Controls.Add(this.gbModulos);
             this.panelFilter.Dock = System.Windows.Forms.DockStyle.Left;
             this.panelFilter.Location = new System.Drawing.Point(0, 0);
-            this.panelFilter.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.panelFilter.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.panelFilter.Name = "panelFilter";
-            this.panelFilter.Size = new System.Drawing.Size(398, 234);
+            this.panelFilter.Size = new System.Drawing.Size(354, 187);
             this.panelFilter.TabIndex = 95;
             // 
             // btShow
             // 
             this.btShow.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btShow.Image = ((System.Drawing.Image)(resources.GetObject("btShow.Image")));
-            this.btShow.Location = new System.Drawing.Point(20, 192);
-            this.btShow.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.btShow.Location = new System.Drawing.Point(18, 154);
+            this.btShow.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btShow.Name = "btShow";
-            this.btShow.Size = new System.Drawing.Size(98, 38);
+            this.btShow.Size = new System.Drawing.Size(95, 30);
             this.btShow.TabIndex = 95;
-            this.btShow.Text = "Configuration";
+            this.btShow.Text = "Settings";
             this.btShow.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.btShow.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
             this.btShow.UseVisualStyleBackColor = true;
@@ -265,10 +265,10 @@ namespace FOCA
             this.PanelInfo.Controls.Add(this.buttonSaveToFile);
             this.PanelInfo.Controls.Add(this.buttonClear);
             this.PanelInfo.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.PanelInfo.Location = new System.Drawing.Point(398, 0);
-            this.PanelInfo.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.PanelInfo.Location = new System.Drawing.Point(354, 0);
+            this.PanelInfo.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.PanelInfo.Name = "PanelInfo";
-            this.PanelInfo.Size = new System.Drawing.Size(877, 234);
+            this.PanelInfo.Size = new System.Drawing.Size(779, 187);
             this.PanelInfo.TabIndex = 96;
             // 
             // listViewLog
@@ -285,10 +285,10 @@ namespace FOCA
             this.listViewLog.FullRowSelect = true;
             this.listViewLog.GridLines = true;
             this.listViewLog.LabelWrap = false;
-            this.listViewLog.Location = new System.Drawing.Point(20, 0);
-            this.listViewLog.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.listViewLog.Location = new System.Drawing.Point(18, 0);
+            this.listViewLog.Margin = new System.Windows.Forms.Padding(4);
             this.listViewLog.Name = "listViewLog";
-            this.listViewLog.Size = new System.Drawing.Size(840, 182);
+            this.listViewLog.Size = new System.Drawing.Size(746, 146);
             this.listViewLog.TabIndex = 0;
             this.listViewLog.UseCompatibleStateImageBehavior = false;
             this.listViewLog.View = System.Windows.Forms.View.Details;
@@ -313,13 +313,13 @@ namespace FOCA
             // 
             // PanelLogs
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.PanelInfo);
             this.Controls.Add(this.panelFilter);
-            this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.Name = "PanelLogs";
-            this.Size = new System.Drawing.Size(1275, 234);
+            this.Size = new System.Drawing.Size(1133, 187);
             this.Load += new System.EventHandler(this.PanelLogs_Load);
             this.VisibleChanged += new System.EventHandler(this.PanelLogs_VisibleChanged);
             this.gbCriticidad.ResumeLayout(false);

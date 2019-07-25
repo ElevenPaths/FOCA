@@ -137,10 +137,10 @@
   </data>
   <data name="buttonSaveToFile.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAAJcEhZcwAACxIAAAsSAdLdfvwAAACFSURBVDhPvZLBDYAgDEU5OJBxAkZhBEbg7sURGMVRHMEN
-        aolASClp1cTDS/S/5p0wAPAJdnxC/VinxSEgcCLzKJAOdiQMYCM0EMo/JfsaKTs90AZwuvfhgcRvgSPT
-        OU0gNi4Sh7McsI2zxOEsB3zjPHE4y4HElukcF9A85YLrAm9hRz1gLgj0VgESk5z1AAAAAElFTkSuQmCC
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAL
+        EgAACxIB0t1+/AAAAIVJREFUOE+9ksENgCAMRTk4kHECRmEERuDuxREYxVEcwQ1qiUBIKWnVxMNL9L/m
+        nTAA8Al2fEL9WKfFISBwIvMokA52JAxgIzQQyj8l+xopOz3QBnC69+GBxG+BI9M5TSA2LhKHsxywjbPE
+        4SwHfOM8cTjLgcSW6RwX0DzlgusCb2FHPWAuCPRWARKTnPUAAAAASUVORK5CYII=
 </value>
   </data>
   <data name="buttonClear.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
@@ -164,11 +164,11 @@
   </metadata>
   <data name="btShow.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAAJcEhZcwAACxIAAAsSAdLdfvwAAACpSURBVDhPpZLRDYMwDET56AAdoSOgTsB+/WEERmKEjsAG
-        7jmyreQc2kZ8PHF27k5RxCQil+guR0iL1+35BmKsfM6EgPlu3xkcVvCzJISFZtNa4gXKw31MCDOWErDZ
-        7Cx1qCYEBZhysx4hYFopVLOD8kZMM8A0XNIMiprAAvQtNPS1pAkzarbQaUkKMWq2UFPi5ynQAwEuOfws
-        mc+oSuKHU5JxlO7yf2T6AL/ogd6p+3dtAAAAAElFTkSuQmCC
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAL
+        EgAACxIB0t1+/AAAAKlJREFUOE+lktENgzAMRPnoAB2hI6BOwH79YQRGYoSOwAbuObKt5BzaRnw8cXbu
+        TlHEJCKX6C5HSIvX7fkGYqx8zoSA+W7fGRxW8LMkhIVm01riBcrDfUwIM5YSsNnsLHWoJgQFmHKzHiFg
+        WilUs4PyRkwzwDRc0gyKmsAC9C009LWkCTNqttBpSQoxarZQU+LnKdADAS45/CyZz6hK4odTknGU7vJ/
+        ZPoAv+iB3qn7d20AAAAASUVORK5CYII=
 </value>
   </data>
 </root>

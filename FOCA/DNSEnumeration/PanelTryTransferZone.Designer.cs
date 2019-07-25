@@ -31,35 +31,36 @@ namespace FOCA
             this.lblTransferZoneDescription = new System.Windows.Forms.Label();
             this.lblTryTransferZone = new System.Windows.Forms.Label();
             this.SuspendLayout();
-            //
+            // 
             // lblTransferZoneDescription
-            //
-            this.lblTransferZoneDescription.AutoSize = true;
-            this.lblTransferZoneDescription.Location = new System.Drawing.Point(15, 32);
+            // 
+            this.lblTransferZoneDescription.Location = new System.Drawing.Point(20, 39);
+            this.lblTransferZoneDescription.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblTransferZoneDescription.Name = "lblTransferZoneDescription";
-            this.lblTransferZoneDescription.Size = new System.Drawing.Size(267, 52);
+            this.lblTransferZoneDescription.Size = new System.Drawing.Size(344, 82);
             this.lblTransferZoneDescription.TabIndex = 29;
-            this.lblTransferZoneDescription.Text = "The program tries to make a DNS Transfer Zone to find\r\nnew subdomains.\r\n\r\nThis ac" +
-    "tion may be illegal in some countries.";
-            //
+            this.lblTransferZoneDescription.Text = "The program tries to make a DNS Transfer Zone to find new subdomains. This action may be illegal in some countries.";
+            // 
             // lblTryTransferZone
-            //
+            // 
             this.lblTryTransferZone.AutoSize = true;
             this.lblTryTransferZone.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblTryTransferZone.Location = new System.Drawing.Point(5, 9);
+            this.lblTryTransferZone.Location = new System.Drawing.Point(7, 11);
+            this.lblTryTransferZone.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblTryTransferZone.Name = "lblTryTransferZone";
-            this.lblTryTransferZone.Size = new System.Drawing.Size(113, 13);
+            this.lblTryTransferZone.Size = new System.Drawing.Size(146, 17);
             this.lblTryTransferZone.TabIndex = 28;
             this.lblTryTransferZone.Text = "Try Transfer  Zone";
-            //
+            // 
             // PanelTryTransferZone
-            //
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.lblTransferZoneDescription);
             this.Controls.Add(this.lblTryTransferZone);
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.Name = "PanelTryTransferZone";
-            this.Size = new System.Drawing.Size(294, 225);
+            this.Size = new System.Drawing.Size(392, 277);
             this.ResumeLayout(false);
             this.PerformLayout();
 
