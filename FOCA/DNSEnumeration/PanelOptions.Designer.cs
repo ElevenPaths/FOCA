@@ -37,65 +37,68 @@ namespace FOCA
             this.lblMaxRecursivityDescription = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.updMaxRecursivity)).BeginInit();
             this.SuspendLayout();
-            //
+            // 
             // lblAllDnsDescription
-            //
-            this.lblAllDnsDescription.AutoSize = true;
-            this.lblAllDnsDescription.Location = new System.Drawing.Point(13, 54);
+            // 
+            this.lblAllDnsDescription.Location = new System.Drawing.Point(17, 66);
+            this.lblAllDnsDescription.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblAllDnsDescription.Name = "lblAllDnsDescription";
-            this.lblAllDnsDescription.Size = new System.Drawing.Size(273, 26);
+            this.lblAllDnsDescription.Size = new System.Drawing.Size(363, 42);
             this.lblAllDnsDescription.TabIndex = 19;
-            this.lblAllDnsDescription.Text = "When the program makes a DNS query it can use all the\r\ndns servers found. It\'s sl" +
-    "ow and often redundant.";
-            //
+            this.lblAllDnsDescription.Text = "When the program makes a DNS query it can use all DNS servers found. It\'s slow and often redundant.";
+            // 
             // lblOptions
-            //
+            // 
             this.lblOptions.AutoSize = true;
             this.lblOptions.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblOptions.Location = new System.Drawing.Point(5, 9);
+            this.lblOptions.Location = new System.Drawing.Point(7, 11);
+            this.lblOptions.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblOptions.Name = "lblOptions";
-            this.lblOptions.Size = new System.Drawing.Size(50, 13);
+            this.lblOptions.Size = new System.Drawing.Size(64, 17);
             this.lblOptions.TabIndex = 18;
             this.lblOptions.Text = "Options";
-            //
+            // 
             // chkUseAllDns
-            //
+            // 
             this.chkUseAllDns.AutoSize = true;
-            this.chkUseAllDns.Location = new System.Drawing.Point(14, 34);
+            this.chkUseAllDns.Location = new System.Drawing.Point(19, 42);
+            this.chkUseAllDns.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.chkUseAllDns.Name = "chkUseAllDns";
-            this.chkUseAllDns.Size = new System.Drawing.Size(121, 17);
+            this.chkUseAllDns.Size = new System.Drawing.Size(157, 21);
             this.chkUseAllDns.TabIndex = 0;
             this.chkUseAllDns.Text = "Use all DNS servers";
             this.chkUseAllDns.UseVisualStyleBackColor = true;
-            //
+            // 
             // updMaxRecursivity
-            //
-            this.updMaxRecursivity.Location = new System.Drawing.Point(14, 104);
+            // 
+            this.updMaxRecursivity.Location = new System.Drawing.Point(19, 128);
+            this.updMaxRecursivity.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.updMaxRecursivity.Name = "updMaxRecursivity";
-            this.updMaxRecursivity.Size = new System.Drawing.Size(35, 20);
+            this.updMaxRecursivity.Size = new System.Drawing.Size(47, 22);
             this.updMaxRecursivity.TabIndex = 1;
-            //
+            // 
             // lblMaxRecursivity
-            //
+            // 
             this.lblMaxRecursivity.AutoSize = true;
-            this.lblMaxRecursivity.Location = new System.Drawing.Point(56, 107);
+            this.lblMaxRecursivity.Location = new System.Drawing.Point(75, 132);
+            this.lblMaxRecursivity.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblMaxRecursivity.Name = "lblMaxRecursivity";
-            this.lblMaxRecursivity.Size = new System.Drawing.Size(77, 13);
+            this.lblMaxRecursivity.Size = new System.Drawing.Size(96, 17);
             this.lblMaxRecursivity.TabIndex = 23;
             this.lblMaxRecursivity.Text = "Max recursion";
-            //
+            // 
             // lblMaxRecursivityDescription
-            //
-            this.lblMaxRecursivityDescription.AutoSize = true;
-            this.lblMaxRecursivityDescription.Location = new System.Drawing.Point(13, 133);
+            // 
+            this.lblMaxRecursivityDescription.Location = new System.Drawing.Point(17, 164);
+            this.lblMaxRecursivityDescription.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblMaxRecursivityDescription.Name = "lblMaxRecursivityDescription";
-            this.lblMaxRecursivityDescription.Size = new System.Drawing.Size(279, 65);
+            this.lblMaxRecursivityDescription.Size = new System.Drawing.Size(363, 105);
             this.lblMaxRecursivityDescription.TabIndex = 24;
             this.lblMaxRecursivityDescription.Text = resources.GetString("lblMaxRecursivityDescription.Text");
-            //
+            // 
             // PanelOptions
-            //
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.lblMaxRecursivityDescription);
             this.Controls.Add(this.lblMaxRecursivity);
@@ -103,8 +106,9 @@ namespace FOCA
             this.Controls.Add(this.chkUseAllDns);
             this.Controls.Add(this.lblAllDnsDescription);
             this.Controls.Add(this.lblOptions);
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.Name = "PanelOptions";
-            this.Size = new System.Drawing.Size(294, 225);
+            this.Size = new System.Drawing.Size(392, 277);
             ((System.ComponentModel.ISupportInitialize)(this.updMaxRecursivity)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
