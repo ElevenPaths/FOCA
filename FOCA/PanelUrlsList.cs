@@ -47,6 +47,7 @@ namespace FOCA
         {
             exportDataToFileToolStripMenuItem.Enabled = lstView.Items.Count > 0;
             openInBrowserToolStripMenuItem.Enabled = lstView.SelectedItems.Count > 0;
+            searchForBackupsToolStripMenuItem.Enabled = lstView.Items.Count > 0;
             viewDownloadedDocumentToolStripMenuItem.Visible = lstView.SelectedItems.Count == 1 &&
                                                               Program.FormMainInstance.panelInformation.tabMap
                                                                   .SelectedTab.Name == "Documents published";
