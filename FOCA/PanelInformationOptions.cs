@@ -205,7 +205,7 @@ namespace FOCA
             };
             wsSearch.GetCustomLinks("site:" + domain.Domain);
             Program.LogThis(new Log(Log.ModuleType.Crawling, "Extracting links of " + domain.Domain, Log.LogType.debug));
-            AddLog("Duckduckgo crawling");
+            AddLog("DuckDuckGo crawling");
         }
 
         private void btnSearchAll_Click(object sender, EventArgs e)

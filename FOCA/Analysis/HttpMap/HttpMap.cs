@@ -436,33 +436,43 @@ namespace FOCA.Analysis.HttpMap
         {
             var allUrls = new ThreadSafeList<string>();
 
-            var mutexfolders = _ExtractFoldersRuntime(urls);
-            foreach (var url in urls)
+            try
             {
-                var uri = new Uri(url);
-                var file = Path.GetFileName(uri.LocalPath);
-                var fileName = Path.GetFileNameWithoutExtension(file);
-                var fileExtension = Path.GetExtension(file);
-                var path = uri.AbsoluteUri;
-
-                if (uri.AbsoluteUri.IndexOf(file, StringComparison.Ordinal) > 0)
-                    path = path.Remove(uri.AbsoluteUri.IndexOf(file, StringComparison.Ordinal));
-
-                var mutex = _MutexFileRuntime(path, HttpUtility.UrlEncode(fileName),
-                    HttpUtility.UrlEncode(fileExtension));
-
-                if (mutex == null)
-                    return allUrls;
-
-                foreach (var mutexUrl in mutex)
+                var mutexfolders = _ExtractFoldersRuntime(urls);
+                foreach (var url in urls)
                 {
-                    allUrls.Add(mutexUrl);
+                    if (!String.IsNullOrWhiteSpace(url))
+                    {
+                        var uri = new Uri(url);
+                        var file = Path.GetFileName(uri.LocalPath);
+                        var fileName = Path.GetFileNameWithoutExtension(file);
+                        var fileExtension = Path.GetExtension(file);
+                        var path = uri.AbsoluteUri;
+
+                        if (uri.AbsoluteUri.IndexOf(file, StringComparison.Ordinal) > 0)
+                            path = path.Remove(uri.AbsoluteUri.IndexOf(file, StringComparison.Ordinal));
+
+                        var mutex = _MutexFileRuntime(path, HttpUtility.UrlEncode(fileName),
+                            HttpUtility.UrlEncode(fileExtension));
+
+                        if (mutex == null)
+                            return allUrls;
+
+                        foreach (var mutexUrl in mutex)
+                        {
+                            allUrls.Add(mutexUrl);
+                        }
+                    }
+                }
+
+                foreach (var mutexFolder in mutexfolders)
+                {
+                    allUrls.Add(mutexFolder);
                 }
             }
-
-            foreach (var folderMuteado in mutexfolders)
+            catch (Exception)
             {
-                allUrls.Add(folderMuteado);
+
             }
 
             return allUrls;
@@ -509,48 +519,59 @@ namespace FOCA.Analysis.HttpMap
             var folders = new ThreadSafeList<string>();
             var foldersBackups = new ThreadSafeList<string>();
 
-            foreach (var url in lsturls)
+            try
             {
-                var u = new Uri(url);
-                if (u.ToString().EndsWith("//"))
+                foreach (var url in lsturls)
                 {
-                    var auxSingleUrl = new ThreadSafeList<string> { u.ToString().Remove(u.ToString().Length - 1, 1) };
-                    return _ExtractFoldersRuntime(auxSingleUrl);
-                }
-
-                var offSetProtocol = url.IndexOf("://", StringComparison.Ordinal);
-                var protocol = url.Substring(0, offSetProtocol);
-
-                var foldersSplit = u.AbsolutePath.Split('/');
-                var path = string.Empty;
-
-                for (var i = 0; i < foldersSplit.Length; i++)
-                {
-                    if (i + 1 != foldersSplit.Length)
-                        path += foldersSplit[i] + "/";
-                    if (folders.Contains(protocol + "://" + u.Host + path) || path.Contains("."))
-                        continue;
-                    folders.Add(protocol + "://" + u.Host + path);
-
-                    // ToDo use a list provided by the user
-                    string[] compressExt = { ".zip", ".rar", ".tar", ".gz", ".tar.gz" };
-                    var path1 = path;
-                    foreach (
-                        var extension in
-                            compressExt.Where(
-                                extension =>
-                                    protocol + "://" + u.Host + path1.Substring(0, path1.Length - 1) !=
-                                    protocol + "://" + u.Host)
-                                .Where(
-                                    extension =>
-                                        !foldersBackups.Contains(protocol + "://" + u.Host +
-                                                                 path1.Substring(0, path1.Length - 1) +
-                                                                 extension)))
+                    if (!String.IsNullOrWhiteSpace(url))
                     {
-                        foldersBackups.Add(protocol + "://" + u.Host + path.Substring(0, path.Length - 1) +
-                                           extension);
+
+                        var u = new Uri(url);
+                        if (u.ToString().EndsWith("//"))
+                        {
+                            var auxSingleUrl = new ThreadSafeList<string> { u.ToString().Remove(u.ToString().Length - 1, 1) };
+                            return _ExtractFoldersRuntime(auxSingleUrl);
+                        }
+
+                        var offSetProtocol = url.IndexOf("://", StringComparison.Ordinal);
+                        var protocol = url.Substring(0, offSetProtocol);
+
+                        var foldersSplit = u.AbsolutePath.Split('/');
+                        var path = string.Empty;
+
+                        for (var i = 0; i < foldersSplit.Length; i++)
+                        {
+                            if (i + 1 != foldersSplit.Length)
+                                path += foldersSplit[i] + "/";
+                            if (folders.Contains(protocol + "://" + u.Host + path) || path.Contains("."))
+                                continue;
+                            folders.Add(protocol + "://" + u.Host + path);
+
+                            // ToDo use a list provided by the user
+                            string[] compressExt = { ".zip", ".rar", ".tar", ".gz", ".tar.gz" };
+                            var path1 = path;
+                            foreach (
+                                var extension in
+                                    compressExt.Where(
+                                        extension =>
+                                            protocol + "://" + u.Host + path1.Substring(0, path1.Length - 1) !=
+                                            protocol + "://" + u.Host)
+                                        .Where(
+                                            extension =>
+                                                !foldersBackups.Contains(protocol + "://" + u.Host +
+                                                                         path1.Substring(0, path1.Length - 1) +
+                                                                         extension)))
+                            {
+                                foldersBackups.Add(protocol + "://" + u.Host + path.Substring(0, path.Length - 1) +
+                                                   extension);
+                            }
+                        }
                     }
                 }
+            }
+            catch (Exception)
+            {
+
             }
 
             return foldersBackups;

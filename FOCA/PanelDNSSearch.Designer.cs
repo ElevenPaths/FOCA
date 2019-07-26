@@ -52,7 +52,7 @@ namespace FOCA
             this.rbIPBingWeb = new System.Windows.Forms.RadioButton();
             this.panel1 = new System.Windows.Forms.Panel();
             this.rbWSGoogle = new System.Windows.Forms.RadioButton();
-            this.rbWSDuckDuck = new System.Windows.Forms.RadioButton();
+            this.rbWSDuckDuckGo = new System.Windows.Forms.RadioButton();
             this.rbWSBing = new System.Windows.Forms.RadioButton();
             this.btLoad = new System.Windows.Forms.Button();
             this.textBoxCommonNames = new System.Windows.Forms.TextBox();
@@ -334,7 +334,7 @@ namespace FOCA
             // 
             this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.panel1.Controls.Add(this.rbWSGoogle);
-            this.panel1.Controls.Add(this.rbWSDuckDuck);
+            this.panel1.Controls.Add(this.rbWSDuckDuckGo);
             this.panel1.Controls.Add(this.rbWSBing);
             this.panel1.Location = new System.Drawing.Point(729, 21);
             this.panel1.Margin = new System.Windows.Forms.Padding(4);
@@ -355,18 +355,17 @@ namespace FOCA
             this.rbWSGoogle.UseVisualStyleBackColor = true;
             this.rbWSGoogle.CheckedChanged += new System.EventHandler(this.WsEngineChanged);
             // 
-            // rbWSDuckDuck
+            // rbWSDuckDuckGo
             // 
-            this.rbWSDuckDuck.AutoSize = true;
-            this.rbWSDuckDuck.Location = new System.Drawing.Point(7, 36);
-            this.rbWSDuckDuck.Margin = new System.Windows.Forms.Padding(4);
-            this.rbWSDuckDuck.Name = "rbWSDuckDuck";
-            this.rbWSDuckDuck.Size = new System.Drawing.Size(93, 21);
-            this.rbWSDuckDuck.TabIndex = 5;
-            this.rbWSDuckDuck.TabStop = true;
-            this.rbWSDuckDuck.Text = "DuckDuck";
-            this.rbWSDuckDuck.UseVisualStyleBackColor = true;
-            this.rbWSDuckDuck.CheckedChanged += new System.EventHandler(this.WsEngineChanged);
+            this.rbWSDuckDuckGo.AutoSize = true;
+            this.rbWSDuckDuckGo.Location = new System.Drawing.Point(5, 29);
+            this.rbWSDuckDuckGo.Name = "rbWSDuckDuckGo";
+            this.rbWSDuckDuckGo.Size = new System.Drawing.Size(91, 17);
+            this.rbWSDuckDuckGo.TabIndex = 5;
+            this.rbWSDuckDuckGo.TabStop = true;
+            this.rbWSDuckDuckGo.Text = "DuckDuckGo";
+            this.rbWSDuckDuckGo.UseVisualStyleBackColor = true;
+            this.rbWSDuckDuckGo.CheckedChanged += new System.EventHandler(this.WsEngineChanged);
             // 
             // rbWSBing
             // 
@@ -749,7 +748,7 @@ namespace FOCA
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Panel panel3;
         public System.Windows.Forms.RadioButton rbWSBing;
-        public System.Windows.Forms.RadioButton rbWSDuckDuck;
+        public System.Windows.Forms.RadioButton rbWSDuckDuckGo;
         public System.Windows.Forms.RadioButton rbWSGoogle;
         public System.Windows.Forms.RadioButton rbIPBingAPI;
         public System.Windows.Forms.RadioButton rbIPBingWeb;

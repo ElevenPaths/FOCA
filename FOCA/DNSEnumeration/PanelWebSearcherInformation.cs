@@ -15,7 +15,7 @@ namespace FOCA
             GoogleAPI,
             BingWeb,
             BingAPI,
-            DuckDuckWeb
+            DuckDuckGoWeb
         }
 
         private Engine _selectedEngine;

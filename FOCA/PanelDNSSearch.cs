@@ -112,8 +112,8 @@ namespace FOCA
                 bSearchWeb = cbWebSearch.Checked;
 
                 //DuckDuck
-                if (rbWSDuckDuck.Checked)
-                    searchEngine = PanelWebSearcherInformation.Engine.DuckDuckWeb;
+                if (rbWSDuckDuckGo.Checked)
+                    searchEngine = PanelWebSearcherInformation.Engine.DuckDuckGoWeb;
                 //Bing
                 else if (rbWSBing.Checked)
                 {
@@ -379,7 +379,7 @@ namespace FOCA
                 case PanelWebSearcherInformation.Engine.BingAPI:
                     searcher = new BingAPISearcher(Program.cfgCurrent.BingApiKey);
                     break;
-                case PanelWebSearcherInformation.Engine.DuckDuckWeb:
+                case PanelWebSearcherInformation.Engine.DuckDuckGoWeb:
                     searcher = new DuckduckgoWebSearcher();
                     break;
             }
@@ -812,9 +812,9 @@ namespace FOCA
                 lbWs1.Text = @"-Max 1000 results for each search";
                 lbWs2.Text = @"-Max 32 words in a search string";
             }
-            else if (rbWSDuckDuck.Checked)
+            else if (rbWSDuckDuckGo.Checked)
             {
-                lbWsTitle.Text = @"DuckDuck  limitations";
+                lbWsTitle.Text = @"DuckDuckGo  limitations";
                 lbWs1.Text = @"-Max 64 results for each search";
                 lbWs2.Text = @"-Max 32 words in a search string";
             }
