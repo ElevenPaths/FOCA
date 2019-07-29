@@ -121,36 +121,28 @@ namespace FOCA.Core
             mainForm.Invoke(new MethodInvoker(delegate
             {
                 mainForm.panelMetadataSearch.listViewDocuments.BeginUpdate();
-            }));
 
-            foreach (var fi in Program.data.files.Items)
-            {
-                mainForm.Invoke(new MethodInvoker(delegate
+                foreach (FilesITem fi in Program.data.files.Items)
                 {
                     Program.FormMainInstance.panelMetadataSearch.listViewDocuments_Update(fi);
-                    //Carga los metadatos si los tiene
-                    if (fi.Metadata != null)
+                    if (fi.Processed)
                     {
-                        TreeNode tn_file = tn_file = Program.FormMainInstance.TreeViewMetadataAddDocument(fi);
+                        TreeNode tn_file = Program.FormMainInstance.TreeViewMetadataAddDocument(fi);
                         tn_file.Tag = fi;
-                        var Extension = Path.GetExtension(fi.Path).ToLower();
+                        string extension = Path.GetExtension(fi.Path).ToLower();
                         tn_file.ImageIndex =
-                            tn_file.SelectedImageIndex = Program.FormMainInstance.GetImageToExtension(Extension);
-                        Program.FormMainInstance.panelMetadataSearch.AddDocumentNodes(fi.Metadata, tn_file);
+                            tn_file.SelectedImageIndex = Program.FormMainInstance.GetImageToExtension(extension);
+                        //Carga los metadatos si los tiene
+                        if (fi.Metadata != null)
+                        {
+                            Program.FormMainInstance.panelMetadataSearch.AddDocumentNodes(fi.Metadata, tn_file);
+                        }
                     }
-                }));
-            }
-            mainForm.Invoke(new MethodInvoker(delegate
-            {
-                foreach (var f in Program.data.files.Items.Where(f => f.Processed))
-                {
-                    Program.FormMainInstance.TreeViewMetadataAddDocument(f);
                 }
 
                 mainForm.treeViewMetadata_UpdateDocumentsNumber();
                 mainForm.panelMetadataSearch.listViewDocuments.EndUpdate();
             }));
-
         }
 
         public static void LoadProyectDataController(int idProject)
