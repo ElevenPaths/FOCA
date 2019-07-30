@@ -306,12 +306,6 @@
     <Compile Include="FormAddIP.Designer.cs">
       <DependentUpon>FormAddIP.cs</DependentUpon>
     </Compile>
-    <Compile Include="FormAddIpRange.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="FormAddIpRange.Designer.cs">
-      <DependentUpon>FormAddIpRange.cs</DependentUpon>
-    </Compile>
     <Compile Include="FormAddMultipleDomains.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -423,12 +417,6 @@
     </Compile>
     <Compile Include="PanelMetadataSearch.Designer.cs">
       <DependentUpon>PanelMetadataSearch.cs</DependentUpon>
-    </Compile>
-    <Compile Include="PanelSoftwareSearch.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="PanelSoftwareSearch.Designer.cs">
-      <DependentUpon>PanelSoftwareSearch.cs</DependentUpon>
     </Compile>
     <Compile Include="PanelTasks.cs">
       <SubType>UserControl</SubType>
@@ -782,10 +770,6 @@
       <DependentUpon>FormAddIP.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="FormAddIpRange.resx">
-      <DependentUpon>FormAddIpRange.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
     <EmbeddedResource Include="FormAssignIp.resx">
       <DependentUpon>FormAssignIp.cs</DependentUpon>
       <SubType>Designer</SubType>
@@ -848,10 +832,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="PanelMetadataSearch.resx">
       <DependentUpon>PanelMetadataSearch.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="PanelSoftwareSearch.resx">
-      <DependentUpon>PanelSoftwareSearch.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="PanelTasks.resx">
