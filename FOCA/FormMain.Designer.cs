@@ -77,7 +77,6 @@ namespace FOCA
             this.panelMetadataSearch = new FOCA.PanelMetadataSearch();
             this.panelDNSSearch = new FOCA.PanelDNSSearch();
             this.panelInformation = new FOCA.PanelInformation();
-            this.panelSoftwareSearch = new FOCA.PanelSoftwareSearch();
             this.panelLogs = new FOCA.PanelLogs();
             this.menuStripMain.SuspendLayout();
             this.contextMenuStripNetwork.SuspendLayout();
@@ -330,7 +329,6 @@ namespace FOCA
             this.splitContainerMain.Panel2.Controls.Add(this.panelMetadataSearch);
             this.splitContainerMain.Panel2.Controls.Add(this.panelDNSSearch);
             this.splitContainerMain.Panel2.Controls.Add(this.panelInformation);
-            this.splitContainerMain.Panel2.Controls.Add(this.panelSoftwareSearch);
             this.splitContainerMain.Panel2.Controls.Add(this.pictureBoxAdvert);
             this.splitContainerMain.Paint += new System.Windows.Forms.PaintEventHandler(this.splitContainerMain_Paint);
             this.splitContainerMain.Resize += new System.EventHandler(this.splitContainerMain_Resize);
@@ -516,11 +514,6 @@ namespace FOCA
             resources.ApplyResources(this.panelInformation, "panelInformation");
             this.panelInformation.Name = "panelInformation";
             // 
-            // panelSoftwareSearch
-            // 
-            resources.ApplyResources(this.panelSoftwareSearch, "panelSoftwareSearch");
-            this.panelSoftwareSearch.Name = "panelSoftwareSearch";
-            // 
             // panelLogs
             // 
             resources.ApplyResources(this.panelLogs, "panelLogs");
@@ -591,7 +584,6 @@ namespace FOCA
         public System.Windows.Forms.ToolStripDropDownButton toolStripDropDownButtonStop;
         private System.Windows.Forms.StatusStrip statusStripMain;
         private System.Windows.Forms.SaveFileDialog sfdExport;
-        public PanelSoftwareSearch panelSoftwareSearch;
         public ImageList imgIcons;
         private ToolStripMenuItem taskListToolStripMenuItem;
         private PanelTasks panelTasks;
