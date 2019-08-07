@@ -1,7 +1,9 @@
 ﻿using FOCA.Analysis;
+using FOCA.Database.Entities;
 using FOCA.Properties;
 using FOCA.Searcher;
 using FOCA.Threads;
+using FOCA.Utilites;
 using Heijden.DNS;
 using MetadataExtractCore;
 using System;

@@ -16,7 +16,7 @@ namespace MetadataExtractCore.Metadata
     public class PDFDocument : MetaExtractor
     {
         /// <summary>
-        /// Necesario para la serialización
+        /// Necessary for serialization
         /// </summary>
         public PDFDocument() { }
 

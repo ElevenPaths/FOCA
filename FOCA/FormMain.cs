@@ -3,6 +3,7 @@ using FOCA.Analysis.FingerPrinting;
 using FOCA.Analysis.HttpMap;
 using FOCA.Analysis.Pinger;
 using FOCA.Core;
+using FOCA.Database.Entities;
 using FOCA.GUI;
 using FOCA.ModifiedComponents;
 using FOCA.Plugins;
@@ -11,6 +12,7 @@ using FOCA.Searcher;
 using FOCA.SubdomainSearcher;
 using FOCA.TaskManager;
 using FOCA.Threads;
+using FOCA.Utilites;
 using MetadataExtractCore.Diagrams;
 using MetadataExtractCore.Metadata;
 using Microsoft.WindowsAPICodePack.Taskbar;
@@ -60,7 +62,7 @@ namespace FOCA
         public ProgramState programState;
 
         /// <summary>
-        /// Manager of proyects
+        /// Manager of projects
         /// </summary>
         public ProjectManager ProjectManager;
 
@@ -266,7 +268,7 @@ namespace FOCA
         }
 
         /// <summary>
-        /// Add all files to proyect
+        /// Add all files to project
         /// </summary>
         /// <param name="objectValue"></param>
         private void DropAllFiles(object objectValue)
@@ -332,11 +334,11 @@ namespace FOCA
             if (programState == ProgramState.ExtractingMetadata || programState == ProgramState.Searching)
                 return;
 
-            var someFileDownloaded = (from ListViewItem lvi in lv.Items select (FilesITem)lvi.Tag).Any(fi => fi != null && fi.Downloaded);
+            var someFileDownloaded = (from ListViewItem lvi in lv.Items select (FilesItem)lvi.Tag).Any(fi => fi != null && fi.Downloaded);
 
             if (!someFileDownloaded) return;
 
-            foreach (var fi in from ListViewItem lvi in lv.Items select (FilesITem)lvi.Tag into fi where fi != null && fi.Processed select fi)
+            foreach (var fi in from ListViewItem lvi in lv.Items select (FilesItem)lvi.Tag into fi where fi != null && fi.Processed select fi)
                 break;
 
         }
@@ -344,7 +346,7 @@ namespace FOCA
         #region Menu Projects Events
 
         /// <summary>
-        /// Load proyect.
+        /// Load project.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -686,7 +688,7 @@ namespace FOCA
         /// </summary>
         /// <param name="name">name</param>
         /// <returns>TreeNode</returns>
-        public TreeNode TreeViewMetadataAddDocument(FilesITem file)
+        public TreeNode TreeViewMetadataAddDocument(FilesItem file)
         {
             TreeNode tnSearched = TreeViewMetadataSearchDocument(file.Path);
 
@@ -822,7 +824,7 @@ namespace FOCA
         private void removeDocumentToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var tn = Program.FormMainInstance.TreeView.SelectedNode;
-            var fi = (FilesITem)tn.Tag;
+            var fi = (FilesItem)tn.Tag;
             fi.Metadata = null;
             fi.Processed = false;
             panelMetadataSearch.listViewDocuments_Update(fi);
@@ -841,7 +843,7 @@ namespace FOCA
 
             try
             {
-                Process.Start(((FilesITem)tn.Tag).Path);
+                Process.Start(((FilesItem)tn.Tag).Path);
             }
             catch
             {
@@ -910,7 +912,7 @@ namespace FOCA
 
                 if (e.Node.Tag != null)
                 {
-                    var fi = (FilesITem)e.Node.Tag;
+                    var fi = (FilesItem)e.Node.Tag;
                     var lvi = panelInformation.lvwInformation.Items.Add("URL");
 
                     lvi.SubItems.Add(fi.URL);

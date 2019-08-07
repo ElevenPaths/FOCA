@@ -1,3 +1,4 @@
+using FOCA.Database.Entities;
 using System;
 using System.Collections;
 using System.Windows.Forms;
@@ -27,11 +28,11 @@ namespace FOCA.Search
             if (SortColumn == 4 /*|| (ColumnToSort == 5)*/)
             {
                 //Los ficheros no descargados siempre aparecen al final
-                if (!((FilesITem)listviewX.Tag).Downloaded && !((FilesITem)listviewY.Tag).Downloaded)
+                if (!((FilesItem)listviewX.Tag).Downloaded && !((FilesItem)listviewY.Tag).Downloaded)
                     return 0;
-                else if (((FilesITem)listviewX.Tag).Downloaded && !((FilesITem)listviewY.Tag).Downloaded)
+                else if (((FilesItem)listviewX.Tag).Downloaded && !((FilesItem)listviewY.Tag).Downloaded)
                     return -1;
-                else if (!((FilesITem)listviewX.Tag).Downloaded && ((FilesITem)listviewY.Tag).Downloaded)
+                else if (!((FilesItem)listviewX.Tag).Downloaded && ((FilesItem)listviewY.Tag).Downloaded)
                     return 1;
             }
             int compareResult;
@@ -39,16 +40,16 @@ namespace FOCA.Search
                 compareResult = int.Parse(listviewX.Text) - int.Parse(listviewY.Text);
             else if (SortColumn == 4)
             {
-                if (((FilesITem)listviewX.Tag).Date == ((FilesITem)listviewY.Tag).Date)
+                if (((FilesItem)listviewX.Tag).Date == ((FilesItem)listviewY.Tag).Date)
                     compareResult = 0;
-                else if (((FilesITem)listviewX.Tag).Date > ((FilesITem)listviewY.Tag).Date)
+                else if (((FilesItem)listviewX.Tag).Date > ((FilesItem)listviewY.Tag).Date)
                     compareResult = 1;
                 else
                     compareResult = -1;
             }
             else if (SortColumn == 5)
             {
-                compareResult = ((FilesITem)listviewX.Tag).Size - ((FilesITem)listviewY.Tag).Size;
+                compareResult = ((FilesItem)listviewX.Tag).Size - ((FilesItem)listviewY.Tag).Size;
             }
             else if (SortColumn == 7)
             {

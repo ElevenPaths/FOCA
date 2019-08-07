@@ -184,36 +184,36 @@
     <Compile Include="Analysis\ShodanRecognition.cs" />
     <Compile Include="Analysis\Technology\TechnologyAnalysis.cs" />
     <Compile Include="Analysis\Technology\TechnologyAnalysisHandler.cs" />
-    <Compile Include="Controllers\BaseController.cs" />
-    <Compile Include="Controllers\ComputerDomainController.cs" />
-    <Compile Include="Controllers\ComputerIpsController.cs" />
-    <Compile Include="Controllers\ComputersController.cs" />
-    <Compile Include="Controllers\ConfigurationController.cs" />
-    <Compile Include="Controllers\DomainsController.cs" />
-    <Compile Include="Controllers\FilesController.cs" />
-    <Compile Include="Controllers\FocaContextDb.cs" />
-    <Compile Include="Controllers\HttpMapController.cs" />
-    <Compile Include="Controllers\IpsController.cs" />
-    <Compile Include="Controllers\LimitsController.cs" />
-    <Compile Include="Controllers\PluginsController.cs" />
-    <Compile Include="Controllers\ProjectController.cs" />
-    <Compile Include="Controllers\RelationsController.cs" />
-    <Compile Include="Data\ComputerDomains.cs" />
-    <Compile Include="Data\ComputerIPs.cs" />
-    <Compile Include="Data\Computers.cs" />
-    <Compile Include="Data\Data.cs" />
-    <Compile Include="Data\Domains.cs" />
-    <Compile Include="Data\HttpMapTypesFiles.cs" />
-    <Compile Include="Data\Ficheros.cs">
+    <Compile Include="Database\Controllers\BaseController.cs" />
+    <Compile Include="Database\Controllers\ComputerDomainController.cs" />
+    <Compile Include="Database\Controllers\ComputerIpsController.cs" />
+    <Compile Include="Database\Controllers\ComputersController.cs" />
+    <Compile Include="Database\Controllers\ConfigurationController.cs" />
+    <Compile Include="Database\Controllers\DomainsController.cs" />
+    <Compile Include="Database\Controllers\FilesController.cs" />
+    <Compile Include="Database\FocaContextDb.cs" />
+    <Compile Include="Database\Controllers\HttpMapController.cs" />
+    <Compile Include="Database\Controllers\IpsController.cs" />
+    <Compile Include="Database\Controllers\LimitsController.cs" />
+    <Compile Include="Database\Controllers\PluginsController.cs" />
+    <Compile Include="Database\Controllers\ProjectController.cs" />
+    <Compile Include="Database\Controllers\RelationsController.cs" />
+    <Compile Include="Database\Entities\ComputerDomains.cs" />
+    <Compile Include="Database\Entities\ComputerIPs.cs" />
+    <Compile Include="Database\Entities\Computers.cs" />
+    <Compile Include="Database\Entities\Data.cs" />
+    <Compile Include="Database\Entities\Domains.cs" />
+    <Compile Include="Database\Entities\HttpMapTypesFiles.cs" />
+    <Compile Include="Database\Entities\Ficheros.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Data\IPs.cs" />
-    <Compile Include="Data\Limits.cs" />
-    <Compile Include="Data\Log.cs" />
-    <Compile Include="Data\NetRange.cs" />
-    <Compile Include="Data\OperatingSystem.cs" />
-    <Compile Include="Data\Project.cs" />
-    <Compile Include="Data\Relations.cs" />
+    <Compile Include="Database\Entities\IPs.cs" />
+    <Compile Include="Database\Entities\Limits.cs" />
+    <Compile Include="Utilities\Log.cs" />
+    <Compile Include="Utilities\NetRange.cs" />
+    <Compile Include="Utilities\OperatingSystem.cs" />
+    <Compile Include="Database\Entities\Project.cs" />
+    <Compile Include="Database\Entities\Relations.cs" />
     <Compile Include="DNSEnumeration\DNSDumpsterParser.cs" />
     <Compile Include="DNSEnumeration\DNSUtil.cs" />
     <Compile Include="DNSEnumeration\PanelDNSSearchInformation.cs">
@@ -356,11 +356,11 @@
     </Compile>
     <Compile Include="GUI\Contextual.cs" />
     <Compile Include="GUI\UpdateGUI.cs" />
-    <Compile Include="Migrations\201708141321589_Initial.cs" />
-    <Compile Include="Migrations\201708141321589_Initial.Designer.cs">
+    <Compile Include="Database\Migrations\201708141321589_Initial.cs" />
+    <Compile Include="Database\Migrations\201708141321589_Initial.Designer.cs">
       <DependentUpon>201708141321589_Initial.cs</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="Database\Migrations\Configuration.cs" />
     <Compile Include="ModifiedComponents\CheckedButton.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -464,7 +464,7 @@
     <Compile Include="FormDocumentsSearch.Designer.cs">
       <DependentUpon>FormDocumentsSearch.cs</DependentUpon>
     </Compile>
-    <Compile Include="Functions.cs">
+    <Compile Include="Utilities\Functions.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Properties\Resources.Designer.cs">
@@ -512,7 +512,7 @@
     <EmbeddedResource Include="FormPlugins.resx">
       <DependentUpon>FormPlugins.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201708141321589_Initial.resx">
+    <EmbeddedResource Include="Database\Migrations\201708141321589_Initial.resx">
       <DependentUpon>201708141321589_Initial.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">

@@ -1,4 +1,5 @@
-using FOCA.Controllers;
+using FOCA.Database.Controllers;
+using FOCA.Database.Entities;
 using FOCA.Threads;
 using MetadataExtractCore.Diagrams;
 using System;
@@ -11,7 +12,7 @@ using System.Windows.Forms;
 namespace FOCA.Core
 {
     /// <summary>
-    /// Clase dedicada a albergar toda la funcionalidad del guardado y carga de proyectos
+    /// Class aimed to contain all storing projects and loading projects logic
     /// </summary>
     public class ProjectManager
     {
@@ -23,7 +24,7 @@ namespace FOCA.Core
             this.mainForm = mainForm;
         }
 
-        #region Funciones de carga de datos
+        #region Loading data methods
 
         public void LoadProject(string strPathSavedFile)
         {
@@ -109,7 +110,7 @@ namespace FOCA.Core
         {
             var idProject = Program.data.Project.Id;
 
-            LoadProyectDataController(idProject);
+            LoadProjectDataController(idProject);
 
             Program.data.OnLog +=
                 new EventHandler<EventsThreads.ThreadStringEventArgs>(
@@ -122,7 +123,7 @@ namespace FOCA.Core
             {
                 mainForm.panelMetadataSearch.listViewDocuments.BeginUpdate();
 
-                foreach (FilesITem fi in Program.data.files.Items)
+                foreach (FilesItem fi in Program.data.files.Items)
                 {
                     Program.FormMainInstance.panelMetadataSearch.listViewDocuments_Update(fi);
                     if (fi.Processed)
@@ -145,7 +146,7 @@ namespace FOCA.Core
             }));
         }
 
-        public static void LoadProyectDataController(int idProject)
+        public static void LoadProjectDataController(int idProject)
         {
             Program.data.Project = new ProjectController().GetProjectById(idProject);
             Program.data.domains.Items = new DomainsController().GetDomainsById(idProject);
@@ -223,7 +224,7 @@ namespace FOCA.Core
 
         #endregion
 
-        #region Funciones de guardado de datos
+        #region Saving data methods
 
         public void SaveProject(string strPathSavedFile)
         {
@@ -253,7 +254,6 @@ namespace FOCA.Core
             new FilesController().Save(Program.data.files.Items);
             new PluginsController().Save(Program.data.plugins.lstPlugins);
         }
-
 
         private void SaveProjectThread(object o)
         {
@@ -289,7 +289,6 @@ namespace FOCA.Core
                 }
             }
         }
-
 
         #endregion
     }

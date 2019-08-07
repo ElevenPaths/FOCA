@@ -1,8 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using MetadataExtractCore.Diagrams;
+using System;
 
 namespace FOCA
 {
@@ -51,7 +48,7 @@ namespace FOCA
                 case FOCA.OperatingSystem.OS.WindowsNT40: return "Windows NT 4.0";
                 // Others
                 case FOCA.OperatingSystem.OS.Unknown: return "Unknown";
-                default:                return "Unknown";
+                default: return "Unknown";
             }
         }
 

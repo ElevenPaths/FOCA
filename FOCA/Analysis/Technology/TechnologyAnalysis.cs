@@ -1,3 +1,4 @@
+using FOCA.Database.Entities;
 using FOCA.Threads;
 using System;
 using System.Collections.Generic;

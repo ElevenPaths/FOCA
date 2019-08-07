@@ -1,3 +1,4 @@
+using FOCA.Database.Entities;
 using System;
 using System.Collections.Concurrent;
 using System.Net;
@@ -10,7 +11,7 @@ namespace FOCA.Searcher
     //Su cometido será el de recibir urls de las que tendrá que obtener, cuando pueda, su tamaño mediante el método HEAD
     public class HTTPSizeDaemon
     {
-        private ConcurrentQueue<FilesITem> filesToReadSizeQueue;
+        private ConcurrentQueue<FilesItem> filesToReadSizeQueue;
         private readonly Thread thrSizeSearcher;
         private CancellationTokenSource threadToken;
 
@@ -24,13 +25,13 @@ namespace FOCA.Searcher
 
         public HTTPSizeDaemon()
         {
-            this.filesToReadSizeQueue = new ConcurrentQueue<FilesITem>();
+            this.filesToReadSizeQueue = new ConcurrentQueue<FilesItem>();
             this.threadToken = new CancellationTokenSource();
             thrSizeSearcher = new Thread(Work) { IsBackground = true };
             thrSizeSearcher.Start();
         }
 
-        public void AddURL(FilesITem metadataFile)
+        public void AddURL(FilesItem metadataFile)
         {
             if (Program.cfgCurrent.UseHead)
             {
@@ -44,7 +45,7 @@ namespace FOCA.Searcher
             {
                 try
                 {
-                    if (this.filesToReadSizeQueue.Count > 0 && this.filesToReadSizeQueue.TryDequeue(out FilesITem currentItem))
+                    if (this.filesToReadSizeQueue.Count > 0 && this.filesToReadSizeQueue.TryDequeue(out FilesItem currentItem))
                     {
                         long lSize = GetURLContentLength(currentItem.URL);
                         if (lSize >= 0)

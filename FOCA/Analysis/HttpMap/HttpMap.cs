@@ -1,5 +1,6 @@
 using FOCA.Analysis.FingerPrinting;
 using FOCA.Analysis.Technology;
+using FOCA.Database.Entities;
 using FOCA.ModifiedComponents;
 using FOCA.TaskManager;
 using MetadataExtractCore.Diagrams;

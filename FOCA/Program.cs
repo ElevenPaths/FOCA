@@ -1,5 +1,6 @@
 using com.rusanu.dataconnectiondialog;
-using FOCA.Controllers;
+using FOCA.Database;
+using FOCA.Database.Entities;
 using System;
 using System.Configuration;
 using System.Data.SqlClient;

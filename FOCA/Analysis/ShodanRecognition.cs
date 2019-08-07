@@ -1,6 +1,7 @@
 using FOCA.Analysis.FingerPrinting;
 using FOCA.ModifiedComponents;
 using FOCA.Threads;
+using FOCA.Utilites;
 using System;
 using System.Collections.Generic;
 using System.IO;
