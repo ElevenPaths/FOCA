@@ -1,4 +1,5 @@
-﻿using FOCA.ModifiedComponents;
+﻿using FOCA.Database.Entities;
+using FOCA.ModifiedComponents;
 using MetadataExtractCore.Diagrams;
 using System;
 using System.Collections.Concurrent;

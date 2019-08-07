@@ -1,3 +1,4 @@
+using FOCA.Database.Entities;
 using FOCA.Properties;
 using FOCA.Search;
 using System;
@@ -265,7 +266,7 @@ namespace FOCA
                 Text = $"Documents found with value '{valueToSearch}'"
             };
 
-            Func<FilesITem, bool> searchPredicate = null;
+            Func<FilesItem, bool> searchPredicate = null;
 
             if (lvwInformation.Groups[0].Header.StartsWith("All users found"))
             {

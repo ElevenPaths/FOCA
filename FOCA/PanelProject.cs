@@ -1,4 +1,4 @@
-using FOCA.Controllers;
+using FOCA.Database.Controllers;
 using FOCA.Core;
 using FOCA.GUI;
 using MetadataExtractCore.Diagrams;
@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
+using FOCA.Database.Entities;
 
 namespace FOCA
 {
@@ -240,7 +241,7 @@ namespace FOCA
         }
 
         /// <summary>
-        /// Load all proyects.
+        /// Load all projects.
         /// </summary>
         public void LoadProject()
         {
@@ -399,7 +400,7 @@ namespace FOCA
 
         private static void UpdateItemsToExport()
         {
-            ProjectManager.LoadProyectDataController(Program.data.Project.Id);
+            ProjectManager.LoadProjectDataController(Program.data.Project.Id);
             Program.data.files.Items.ToList().ForEach(x => { x.Id = 0; x.IdProject = 0; });
             Program.data.Ips.Items.ToList().ForEach(x => { x.Id = 0; x.IdProject = 0; });
             Program.data.domains.Items.ToList().ForEach(x => { x.Id = 0; x.IdProject = 0; });

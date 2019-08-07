@@ -25,7 +25,7 @@ namespace FOCA
         {
             set
             {
-                lblTitle.Text = $"{(value == Action.Loading ? "Loading" : "Saving")} project, please wait !";
+                lblTitle.Text = $"{(value == Action.Loading ? "Loading" : "Saving")} project, please wait!";
                 Text = $"{Application.ProductName} - {(value == Action.Loading ? "Loading" : "Saving")}...";
                 _action = value;
             }

@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel;
 using System.Windows.Forms;
-using FOCA.Controllers;
+using FOCA.Database.Controllers;
 
 namespace FOCA
 {

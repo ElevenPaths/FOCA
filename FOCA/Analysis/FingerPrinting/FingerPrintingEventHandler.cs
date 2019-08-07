@@ -1,10 +1,10 @@
+using FOCA.Database.Entities;
+using FOCA.ModifiedComponents;
+using MetadataExtractCore.Diagrams;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using FOCA.ModifiedComponents;
-using MetadataExtractCore.Diagrams;
 
 namespace FOCA.Analysis.FingerPrinting
 {
@@ -74,7 +74,7 @@ namespace FOCA.Analysis.FingerPrinting
                     fprintingIP.FingerPrintingError += new EventHandler(fprinting_FingerPrintingError);
                     Thread tIP = new Thread(new ThreadStart(fprintingIP.GetVersion));
                     tIP.IsBackground = true;
-                    Program.data.tasker.AddTask(new FOCA.TaskManager.TaskFOCA(tIP, null,"Fingerprinting HTTP (" + ip + ":80)"));
+                    Program.data.tasker.AddTask(new FOCA.TaskManager.TaskFOCA(tIP, null, "Fingerprinting HTTP (" + ip + ":80)"));
 
                     // FP por IP:443 SSL
                     ip = Program.data.GetResolutionIPs(domain.Domain)[0].Ip;
@@ -84,10 +84,10 @@ namespace FOCA.Analysis.FingerPrinting
                     fprintingIP.FingerPrintingError += new EventHandler(fprinting_FingerPrintingError);
                     tIP = new Thread(new ThreadStart(fprintingIP.GetVersion));
                     tIP.IsBackground = true;
-                    Program.data.tasker.AddTask(new TaskManager.TaskFOCA(tIP, null,"Fingerprinting HTTPS (" + ip + ":443)"));
+                    Program.data.tasker.AddTask(new TaskManager.TaskFOCA(tIP, null, "Fingerprinting HTTPS (" + ip + ":443)"));
                 }
                 catch
-                {}
+                { }
             }
         }
 

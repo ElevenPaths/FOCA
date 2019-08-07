@@ -1,4 +1,5 @@
 ﻿using FOCA.Analysis.FingerPrinting;
+using FOCA.Database.Entities;
 using FOCA.ModifiedComponents;
 using FOCA.Properties;
 using Microsoft.Win32;

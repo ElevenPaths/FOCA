@@ -69,7 +69,7 @@ namespace FOCA
             this.lblTitle.Name = "lblTitle";
             this.lblTitle.Size = new System.Drawing.Size(145, 13);
             this.lblTitle.TabIndex = 1;
-            this.lblTitle.Text = "Loading project, please wait !";
+            this.lblTitle.Text = "Loading project, please wait!";
             //
             // timer1
             //

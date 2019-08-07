@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using FOCA.Analysis.FingerPrinting;
-using FOCA.Controllers;
+using FOCA.Database.Controllers;
 using FOCA.Plugins;
 using Newtonsoft.Json.Linq;
 

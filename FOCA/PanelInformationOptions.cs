@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using FOCA.Analysis.HttpMap;
+using FOCA.Database.Entities;
 using FOCA.Properties;
 using FOCA.Searcher;
 using FOCA.Threads;
@@ -119,7 +120,7 @@ namespace FOCA
 
                         if (fileWithMetadata)
                         {
-                            var fi = new FilesITem
+                            var fi = new FilesItem
                             {
                                 Ext = Path.GetExtension(url.AbsolutePath).ToLower(),
                                 URL = url.ToString(),

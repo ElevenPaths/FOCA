@@ -26,7 +26,7 @@ To run the solution locally the system will need:
 
 #### 📝Notes
 
-* When starting the app the system will check if there is a **SQL Server** instance available. If none is found the system will prompt a window for introducing a connection string.  
+* When starting the app the system will check if there is a **SQL Server** instance available. If none is found, the system will prompt a window for introducing a connection string.  
 
 ## 📜 License
 

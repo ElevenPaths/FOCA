@@ -1,3 +1,4 @@
+using FOCA.Database.Entities;
 using FOCA.GUI;
 using FOCA.Properties;
 using FOCA.Search;
@@ -21,7 +22,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using static FOCA.Functions;
+using static FOCA.Utilites.Functions;
 
 namespace FOCA
 {
@@ -174,7 +175,7 @@ namespace FOCA
                 }
 
                 {//Selected items
-                    IEnumerable<FilesITem> selectedFiles = (from ListViewItem lvi in lv.SelectedItems where lvi.Tag != null select (FilesITem)lvi.Tag);
+                    IEnumerable<FilesItem> selectedFiles = (from ListViewItem lvi in lv.SelectedItems where lvi.Tag != null select (FilesItem)lvi.Tag);
                     bool someFileDownloadedAndNotProcessed = selectedFiles.Any(fi => fi.Downloaded && !fi.Processed);
                     bool someFilePendingToDownload = selectedFiles.Any(fi => !fi.Downloaded || !File.Exists(fi.Path));
 
@@ -186,10 +187,10 @@ namespace FOCA
                 }
 
                 {//All items
-                    IEnumerable<FilesITem> allFiles = (from ListViewItem lvi in lv.Items where lvi.Tag != null select (FilesITem)lvi.Tag);
+                    IEnumerable<FilesItem> allFiles = (from ListViewItem lvi in lv.Items where lvi.Tag != null select (FilesItem)lvi.Tag);
                     bool someFileDownloadedAndNotProcessed = allFiles.Any(fi => fi.Downloaded && !fi.Processed);
                     bool someFilePendingToDownload = allFiles.Any(fi => !fi.Downloaded || !File.Exists(fi.Path));
-                    bool someFileDownloadedAndProcessed = (from ListViewItem lvi in lv.Items where lvi.Tag != null select (FilesITem)lvi.Tag).Any(p => p.Downloaded && p.Processed);
+                    bool someFileDownloadedAndProcessed = (from ListViewItem lvi in lv.Items where lvi.Tag != null select (FilesItem)lvi.Tag).Any(p => p.Downloaded && p.Processed);
 
                     this.toolStripMenuItemDownloadAll.Enabled = someFilePendingToDownload;
                     this.toolStripMenuItemExtractAll.Enabled = someFileDownloadedAndNotProcessed;
@@ -229,7 +230,7 @@ namespace FOCA
                 else if (toolStripDropDownItem.Text.StartsWith("&Stop Download"))
                 {
                     // Stop all selected items
-                    List<string> selectedUrls = Program.FormMainInstance.panelMetadataSearch.listViewDocuments.SelectedItems.OfType<ListViewItem>().Select(p => p.Tag as FilesITem).Where(p => p != null).Select(p => p.URL).ToList();
+                    List<string> selectedUrls = Program.FormMainInstance.panelMetadataSearch.listViewDocuments.SelectedItems.OfType<ListViewItem>().Select(p => p.Tag as FilesItem).Where(p => p != null).Select(p => p.URL).ToList();
 
                     List<Download> filesToCancel = new List<Download>();
                     filesToCancel.AddRange(this.downloadingFiles.Where(p => selectedUrls.Contains(p.Key, StringComparer.OrdinalIgnoreCase)).Select(p => p.Value));
@@ -266,7 +267,7 @@ namespace FOCA
         {
             foreach (ListViewItem lvi in Program.FormMainInstance.panelMetadataSearch.listViewDocuments.SelectedItems)
             {
-                var fi = (FilesITem)lvi.Tag;
+                var fi = (FilesItem)lvi.Tag;
                 if (fi != null)
                 {
                     Program.data.files.Items.Remove(fi);
@@ -288,7 +289,7 @@ namespace FOCA
         {
             foreach (
                 var fi in from ListViewItem lvi in Program.FormMainInstance.panelMetadataSearch.listViewDocuments.Items
-                          select (FilesITem)lvi.Tag
+                          select (FilesItem)lvi.Tag
                     into fi
                           where fi != null
                           select fi)
@@ -306,7 +307,7 @@ namespace FOCA
         ///     Remove file from files tree
         /// </summary>
         /// <param name="fi"></param>
-        private void RemoveFileFromTreeNode(FilesITem fi)
+        private void RemoveFileFromTreeNode(FilesItem fi)
         {
             if (fi != null && fi.Processed && Program.FormMainInstance.TreeViewMetadataSearchDocument(fi.Path) != null)
                 Program.FormMainInstance.TreeViewMetadataSearchDocument(fi.Path).Remove();
@@ -422,7 +423,7 @@ namespace FOCA
                     path = newFile;
                 }
             }
-            var fi = new FilesITem
+            var fi = new FilesItem
             {
                 Ext = extension,
                 URL = path,
@@ -448,7 +449,7 @@ namespace FOCA
         ///     Represents a document or link into the ListViewDocuments and creates a new item for it
         /// </summary>
         /// <param name="fi"></param>
-        public ListViewItem listViewDocuments_Update(FilesITem fi)
+        public ListViewItem listViewDocuments_Update(FilesItem fi)
         {
             // search for the corresponding listViewDocument
             ListViewItem lviCurrent = null;
@@ -466,7 +467,7 @@ namespace FOCA
 
                     foreach (
                         var lvi in
-                            listViewDocuments.Items.Cast<ListViewItem>().Where(lvi => (FilesITem)lvi.Tag == fi))
+                            listViewDocuments.Items.Cast<ListViewItem>().Where(lvi => (FilesItem)lvi.Tag == fi))
                     {
                         lviCurrent = lvi;
                         break;
@@ -685,7 +686,7 @@ namespace FOCA
             }
             else
             {
-                List<FilesITem> files = items.Select(p => p.Tag as FilesITem)
+                List<FilesItem> files = items.Select(p => p.Tag as FilesItem)
                                             .Where(p => p != null && p.Downloaded && p.Size > 0 && !p.Processed)
                                             .ToList();
                 Metadata = new Thread(ExtractMetadata)
@@ -731,14 +732,14 @@ namespace FOCA
 
             try
             {
-                List<FilesITem> files = filesItemList as List<FilesITem>;
+                List<FilesItem> files = filesItemList as List<FilesItem>;
                 if (files == null)
                 {
                     return;
                 }
                 else
                 {
-                    List<FilesITem> filesToExtract = files.Where(p => p != null && p.Downloaded && p.Size > 0 && !p.Processed).ToList();
+                    List<FilesItem> filesToExtract = files.Where(p => p != null && p.Downloaded && p.Size > 0 && !p.Processed).ToList();
                     Program.LogThis(new Log(Log.ModuleType.MetadataSearch,
                         $"Starting metadata extraction of {filesToExtract.Count} documents", Log.LogType.debug));
                     if (filesToExtract.Count > 0)
@@ -755,12 +756,12 @@ namespace FOCA
                         int extractedFileCount = 0; // counter
 
                         int chunkSize = Environment.ProcessorCount;
-                        List<List<FilesITem>> chunkedFiles = new List<List<FilesITem>>();
+                        List<List<FilesItem>> chunkedFiles = new List<List<FilesItem>>();
                         for (int i = 0; i < filesToExtract.Count; i += chunkSize)
                             chunkedFiles.Add(filesToExtract.GetRange(i, Math.Min(chunkSize, filesToExtract.Count - i)));
 
                         ParallelOptions po = new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount };
-                        foreach (List<FilesITem> fileChunk in chunkedFiles)
+                        foreach (List<FilesItem> fileChunk in chunkedFiles)
                         {
                             Invoke(new MethodInvoker(delegate
                             {
@@ -821,7 +822,7 @@ namespace FOCA
 
                             Program.FormMainInstance.TreeView.Invoke(new MethodInvoker(delegate
                             {
-                                foreach (FilesITem item in fileChunk)
+                                foreach (FilesItem item in fileChunk)
                                 {
                                     TreeNode tnFile = Program.FormMainInstance.TreeViewMetadataAddDocument(item);
                                     tnFile.Tag = item;
@@ -836,7 +837,7 @@ namespace FOCA
 
                             Invoke(new MethodInvoker(delegate
                             {
-                                foreach (FilesITem item in fileChunk)
+                                foreach (FilesItem item in fileChunk)
                                 {
                                     listViewDocuments_Update(item);
                                 }
@@ -1318,7 +1319,7 @@ namespace FOCA
                 foreach (var document in ci.SourceDocuments)
                 {
                     var strSourceDocument = document;
-                    FilesITem fi = Program.data.files.Items.FirstOrDefault(f => f.URL == strSourceDocument);
+                    FilesItem fi = Program.data.files.Items.FirstOrDefault(f => f.URL == strSourceDocument);
                     if (fi?.Metadata?.FoundMetaData == null || fi.Metadata.FoundMetaData.Applications.Items.Count <= 0)
                         continue;
                     foreach (var aplicacion in from aplicacion in fi.Metadata.FoundMetaData.Applications.Items
@@ -2458,7 +2459,7 @@ namespace FOCA
 
                 Invoke(new MethodInvoker(() =>
                 {
-                    var fi = new FilesITem
+                    var fi = new FilesItem
                     {
                         Ext = Path.GetExtension(link.AbsolutePath).ToLower(),
                         URL = link.ToString(),
@@ -2563,7 +2564,7 @@ namespace FOCA
                 Invoke(new MethodInvoker(() =>
                 {
                     File.Delete(file.PhysicalPath);
-                    FilesITem fi = (FilesITem)file.Lvi.Tag;
+                    FilesItem fi = (FilesItem)file.Lvi.Tag;
                     if (fi == null) return;
                     fi.Downloaded = false;
                     listViewDocuments.RemoveEmbeddedControl(file.Pbar);
@@ -2584,7 +2585,7 @@ namespace FOCA
                     Invoke(new MethodInvoker(() =>
                     {
                         this.downloadedFileCount++;
-                        FilesITem fi = (FilesITem)file.Lvi.Tag;
+                        FilesItem fi = (FilesItem)file.Lvi.Tag;
                         if (fi == null) return;
                         Program.LogThis(new Log(Log.ModuleType.MetadataSearch, $"Document download has been cancelled. Too many retries: {fi.URL}", Log.LogType.debug));
                     }));
@@ -2596,7 +2597,7 @@ namespace FOCA
                 {
                     ListViewItem lvi = file.Lvi;
                     listViewDocuments.RemoveEmbeddedControl(file.Pbar);
-                    FilesITem fi = (FilesITem)lvi.Tag;
+                    FilesItem fi = (FilesItem)lvi.Tag;
                     if (fi == null) return;
                     fi.Downloaded = true;
                     fi.Date = DateTime.Now;
@@ -2667,7 +2668,7 @@ namespace FOCA
             bool filesAdded = false;
             foreach (ListViewItem url in urls)
             {
-                FilesITem currentFile = (FilesITem)url.Tag;
+                FilesItem currentFile = (FilesItem)url.Tag;
                 if (!currentFile.Downloaded || !File.Exists(currentFile.Path))
                 {
                     Download fileDownload = new Download()
@@ -2726,7 +2727,7 @@ namespace FOCA
                 {
                     while (this.downloadingFiles.Count < Program.cfgCurrent.SimultaneousDownloads && downloadQueue.TryDequeue(out Download currentDownload))
                     {
-                        FilesITem fi = currentDownload.Lvi.Tag as FilesITem;
+                        FilesItem fi = currentDownload.Lvi.Tag as FilesItem;
                         if (!currentDownload.IsCanceled && fi != null && !fi.Downloaded)
                         {
                             currentDownload.DownloadStatus = Download.Status.Downloading;
