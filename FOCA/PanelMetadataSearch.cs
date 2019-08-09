@@ -1257,7 +1257,7 @@ namespace FOCA
                 var so = ci.os;
                 if (so == OperatingSystem.OS.Unknown && !ci.NotOS)
                 {
-                    if (ci.type == ComputersItem.Tipo.ClientPC)
+                    if (ci.type == ComputersItem.Tipo.ClientPC && ci.SourceDocuments.Any())
                     {
                         var strSourceDocument = ci.SourceDocuments[0];
                         var fi = Program.data.files.Items.First(f => f.URL == strSourceDocument);

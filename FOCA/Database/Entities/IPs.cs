@@ -63,10 +63,9 @@ namespace FOCA.Database.Entities
     }
 
     [Serializable]
-    public class IPsItem
+    public class IPsItem : BaseItem
     {
         public int Id { get; set; }
-        public int IdProject { get; set; }
         public string Ip { get; set; }
         public string Source { get; set; }
         public virtual ExtendedIPInformation Information { get; set; }
@@ -75,11 +74,11 @@ namespace FOCA.Database.Entities
 
         public bool ZoneTransfer { get; set; } = false;
 
-        public IPsItem()
+        public IPsItem() : base()
         {
         }
 
-        public IPsItem(string ip, string source)
+        public IPsItem(string ip, string source) : base()
         {
             this.Ip = ip;
             this.Source = source;

@@ -74,9 +74,9 @@ namespace FOCA
         {
             Program.data.AddIP(strIp, "Manually added IP", Program.cfgCurrent.MaxRecursion);
 
-            var hayRelacciones = Program.data.relations.Items.Any(R => R.Ip != null && R.Ip.Ip == strIp);
+            var anyRelations = Program.data.relations.Items.Any(R => R.Ip != null && R.Ip.Ip == strIp);
 
-            if (hayRelacciones) return;
+            if (anyRelations) return;
             var ipItem = Program.data.GetIp(strIp);
             var computerItem = new ComputersItem
             {

@@ -65,12 +65,13 @@ namespace FOCA.Database.Entities
     }
 
     [Serializable]
-    public class FilesItem
+    public class FilesItem : BaseItem
     {
         [JsonIgnore]
         public int Id { get; set; }
+
         [JsonIgnore]
-        public int IdProject { get; set; }
+        public override int IdProject { get; set; }
 
         public string Ext { get; set; }
         public DateTime ModifiedDate { get; set; } = DateTime.Now;

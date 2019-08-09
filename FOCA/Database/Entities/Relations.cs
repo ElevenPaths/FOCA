@@ -52,10 +52,9 @@ namespace FOCA.Database.Entities
     }
 
     [Serializable]
-    public class RelationsItem
+    public class RelationsItem : BaseItem
     {
         public int Id { get; set; }
-        public int IdProject { get; set; }
         public virtual DomainsItem Domain { get; set; }
         public virtual IPsItem Ip { get; set; }
         public string Source { get; set; }
@@ -63,12 +62,13 @@ namespace FOCA.Database.Entities
         /// <summary>
         /// Necessary for serialization
         /// </summary>
-        public RelationsItem() { }
+        public RelationsItem() : base() { }
 
-        public RelationsItem(DomainsItem domain, IPsItem ip, string source)
+        public RelationsItem(DomainsItem domain, IPsItem ip, string source) : base()
         {
             this.Domain = domain;
             this.Ip = ip;
+            this.Ip.IdProject = Program.data.Project.Id;
             this.Source = source;
         }
     }

@@ -47,7 +47,7 @@ namespace FOCA.Database.Entities
     }
 
     [Serializable]
-    public class ComputersItem : IDisposable
+    public class ComputersItem : BaseItem, IDisposable 
     {
         public enum Tipo
         {
@@ -56,7 +56,7 @@ namespace FOCA.Database.Entities
         };
 
         public int Id { get; set; }
-        public int IdProject { get; set; }
+
         public virtual Descriptions Description { get; set; } = new Descriptions();
         public Paths Folders = new Paths();
         public string localName { get; set; }

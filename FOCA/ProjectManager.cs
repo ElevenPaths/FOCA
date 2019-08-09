@@ -247,6 +247,7 @@ namespace FOCA.Core
             new ProjectController().Save(Program.data.Project);
             new DomainsController().Save(Program.data.domains.Items);
             new ComputersController().Save(Program.data.computers.Items);
+            new IpsController().Save(Program.data.Ips.Items);
             new ComputerIpsController().Save(Program.data.computerIPs.Items);
             new ComputerDomainController().Save(Program.data.computerDomains.Items);
             new LimitsController().Save(Program.data.lstLimits);

@@ -5,65 +5,8 @@ using System.Linq;
 
 namespace FOCA.Database.Controllers
 {
-    public class DomainsController : BaseController
+    public class DomainsController : BaseController<DomainsItem>
     {
-        /// <summary>
-        /// Save items.
-        /// </summary>
-        /// <param name="items"></param>
-        public void Save(ThreadSafeList<DomainsItem> items)
-        {
-            if (items.Count == 0)
-                return;
-
-            foreach (var domainItem in items)
-            {
-                if (domainItem.Id == 0)
-                    AddNew(domainItem);
-                else
-                    Update(domainItem);
-            }
-
-            CurrentContextDb.SaveChanges();
-        }
-
-        /// <summary>
-        /// Update Item.
-        /// </summary>
-        /// <param name="item"></param>
-        private static void Update(DomainsItem item)
-        {
-            var domain = CurrentContextDb.Domains.FirstOrDefault(x => x.Id == item.Id);
-
-            if (domain != null)
-            {
-                domain.IdProject = Program.data.Project.Id;
-                domain.Domain = item.Domain;
-                domain.fingerPrinting = item.fingerPrinting;
-                domain.informationOptions = item.informationOptions;
-                domain.jspFingerprintingAnalyzed = item.jspFingerprintingAnalyzed;
-                domain.map = item.map;
-                domain.multiplesChoisesAnalyzed = item.multiplesChoisesAnalyzed;
-                domain.os = item.os;
-                domain.robotsAnalyzed = item.robotsAnalyzed;
-                domain.Source = item.Source;
-                domain.techAnalysis = item.techAnalysis;
-            }
-        }
-
-        /// <summary>
-        /// Add new.
-        /// </summary>
-        /// <param name="item"></param>
-        private static void AddNew(DomainsItem item)
-        {
-            item.IdProject = Program.data.Project.Id;
-            CurrentContextDb.Domains.Add(item);
-
-            CurrentContextDb.SaveChanges();
-
-            new HttpMapController().Save(item.map);
-        }
 
         /// <summary>
         /// Get Domains by Id.
@@ -72,11 +15,13 @@ namespace FOCA.Database.Controllers
         /// <returns></returns>
         public ThreadSafeList<DomainsItem> GetDomainsById(int idProject)
         {
-            var result = CurrentContextDb.Domains.Where(x => x.IdProject == idProject).Include("fingerPrinting").Include("map");
-            LoadHttpMapValues(result);
-            var items = new ThreadSafeList<DomainsItem>(result);
+            using (FocaContextDb context = new FocaContextDb())
+            {
+                var result = context.Domains.Where(x => x.IdProject == idProject).Include("fingerPrinting").Include("map");
+                LoadHttpMapValues(result);
 
-            return items;
+                return new ThreadSafeList<DomainsItem>(result);
+            }
         }
 
         /// <summary>

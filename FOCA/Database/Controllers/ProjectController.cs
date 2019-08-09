@@ -1,49 +1,20 @@
 ﻿using FOCA.Database.Entities;
 using System;
 using System.Collections.Generic;
-using System.Data.Entity.Validation;
+using System.Data.Entity.Migrations;
 using System.Linq;
 
 namespace FOCA.Database.Controllers
 {
-    public class ProjectController : BaseController
+    public class ProjectController : BaseController<Project>
     {
         public void Save(Project item)
         {
-            if (item.Id != 0)
-                Update(item);
-            else
-                AddNew(item);
-
-            CurrentContextDb.SaveChanges();
-        }
-
-        private static void Update(Project item)
-        {
-            var project = CurrentContextDb.Projects.FirstOrDefault(x => x.Id == item.Id);
-
-            if (project != null)
+            using (FocaContextDb context = new FocaContextDb())
             {
-                project.AlternativeDomains = item.AlternativeDomains;
-                project.Domain = item.Domain;
-                project.FolderToDownload = item.FolderToDownload;
-                project.ProjectDate = item.ProjectDate;
-                project.ProjectNotes = item.ProjectNotes;
-                project.ProjectName = item.ProjectName;
-                project.ProjectState = item.ProjectState;
-                project.ProjectSaveFile = item.ProjectSaveFile;
-            }
-        }
+                context.Projects.AddOrUpdate(item);
 
-        private static void AddNew(Project item)
-        {
-            try
-            {
-                CurrentContextDb.Projects.Add(item);
-            }
-            catch (DbEntityValidationException ex)
-            {
-                throw new DbEntityValidationException(ex.Message);
+                context.SaveChanges();
             }
         }
 
@@ -51,9 +22,10 @@ namespace FOCA.Database.Controllers
         {
             try
             {
-                var result = CurrentContextDb.Projects.FirstOrDefault(x => x.Id == idProject);
-
-                return result;
+                using (FocaContextDb context = new FocaContextDb())
+                {
+                    return context.Projects.FirstOrDefault(x => x.Id == idProject);
+                }
             }
             catch (Exception ex)
             {
@@ -63,9 +35,10 @@ namespace FOCA.Database.Controllers
 
         public List<Project> GetAllProjects()
         {
-            var result = CurrentContextDb.Projects.ToList();
-
-            return result;
+            using (FocaContextDb context = new FocaContextDb())
+            {
+                return context.Projects.ToList(); ;
+            }
         }
     }
 }

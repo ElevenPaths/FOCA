@@ -1,17 +1,24 @@
-﻿namespace FOCA.Database.Controllers
+﻿using System.Collections.Generic;
+using System.Data.Entity.Migrations;
+
+namespace FOCA.Database.Controllers
 {
-    public abstract class BaseController
+    public abstract class BaseController<T> where T : class
     {
-        internal static FocaContextDb FocaContextDbValue;
-
-        public static FocaContextDb CurrentContextDb
+        public virtual void Save(IList<T> items)
         {
-            get { return FocaContextDbValue ?? (FocaContextDbValue = new FocaContextDb()); }
-        }
+            if (items.Count == 0)
+                return;
 
-        public static void DisposeContext()
-        {
-            FocaContextDbValue = new FocaContextDb();
+            using (FocaContextDb context = new FocaContextDb())
+            {
+                foreach (var item in items)
+                {
+                    context.Set<T>().AddOrUpdate(item);
+                }
+
+                context.SaveChanges();
+            }
         }
     }
 }

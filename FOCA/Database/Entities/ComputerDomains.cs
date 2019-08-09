@@ -52,17 +52,16 @@ namespace FOCA.Database.Entities
     }
 
     [Serializable]
-    public class ComputerDomainsItem
+    public class ComputerDomainsItem : BaseItem
     {
         public int Id { get; set; }
-        public int IdProject { get; set; }
         public virtual ComputersItem Computer { get; set; }
         public virtual DomainsItem Domain { get; set; }
         public string Source { get; set; }
 
-        public ComputerDomainsItem() { }
+        public ComputerDomainsItem() : base() { }
 
-        public ComputerDomainsItem(ComputersItem computer, DomainsItem domain, string source)
+        public ComputerDomainsItem(ComputersItem computer, DomainsItem domain, string source) : base()
         {
             this.Computer = computer;
             this.Domain = domain;
