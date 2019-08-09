@@ -1,11 +1,11 @@
-﻿using System;
-using System.Linq;
-using FOCA.ModifiedComponents;
+﻿using FOCA.ModifiedComponents;
 using FOCA.Plugins;
+using System;
+using System.Linq;
 
 namespace FOCA.Database.Controllers
 {
-    public class PluginsController : BaseController
+    public class PluginsController : BaseController<Plugin>
     {
         public void Save(ThreadSafeList<Plugin> items)
         {
@@ -14,11 +14,14 @@ namespace FOCA.Database.Controllers
                 if (items.Count == 0)
                     return;
 
-                var allPlugins = CurrentContextDb.Plugins.ToList();
-                CurrentContextDb.Plugins.RemoveRange(allPlugins);
-                CurrentContextDb.Plugins.AddRange(items);
+                using (FocaContextDb context = new FocaContextDb())
+                {
+                    var allPlugins = context.Plugins.ToList();
+                    context.Plugins.RemoveRange(allPlugins);
+                    context.Plugins.AddRange(items);
 
-                CurrentContextDb.SaveChanges();
+                    context.SaveChanges();
+                }
             }
             catch (Exception ex)
             {
@@ -28,13 +31,12 @@ namespace FOCA.Database.Controllers
 
         public ThreadSafeList<Plugin> GetAllPlugins()
         {
-            var result = CurrentContextDb.Plugins.ToList();
-   
-            var items = new ThreadSafeList<Plugin>(result);
-
-            return items;
+            using (FocaContextDb context = new FocaContextDb())
+            {
+                var result = context.Plugins.ToList();
+                return new ThreadSafeList<Plugin>(result); ;
+            }
         }
-
     }
 }
 

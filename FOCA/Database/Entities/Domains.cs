@@ -103,12 +103,13 @@ namespace FOCA.Database.Entities
     }
 
     [Serializable]
-    public class DomainsItem : IDisposable
+    public class DomainsItem : BaseItem, IDisposable
     {
         [JsonIgnore]
         public int Id { get; set; }
+
         [JsonIgnore]
-        public int IdProject { get; set; }
+        public override int IdProject { get; set; }
 
         public string Domain { get; set; }
 
@@ -146,9 +147,9 @@ namespace FOCA.Database.Entities
             AnalyzedVulnerable = 3
         }
 
-        public DomainsItem() { }
+        public DomainsItem() : base() { }
 
-        public DomainsItem(string domain, string source)
+        public DomainsItem(string domain, string source) : base()
         {
             this.Domain = domain;
             this.Source = source;

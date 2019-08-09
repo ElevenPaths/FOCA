@@ -191,6 +191,7 @@
     <Compile Include="Database\Controllers\ConfigurationController.cs" />
     <Compile Include="Database\Controllers\DomainsController.cs" />
     <Compile Include="Database\Controllers\FilesController.cs" />
+    <Compile Include="Database\Entities\BaseItem.cs" />
     <Compile Include="Database\FocaContextDb.cs" />
     <Compile Include="Database\Controllers\HttpMapController.cs" />
     <Compile Include="Database\Controllers\IpsController.cs" />

@@ -86,8 +86,6 @@ namespace FOCA
             definedProject = false;
             Program.data = new Data();
             btnExport.Visible = false;
-
-            BaseController.DisposeContext();
         }
 
         /// <summary>

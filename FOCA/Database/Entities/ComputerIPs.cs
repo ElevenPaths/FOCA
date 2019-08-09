@@ -51,10 +51,9 @@ namespace FOCA.Database.Entities
     }
 
     [Serializable]
-    public class ComputerIPsItem
+    public class ComputerIPsItem : BaseItem
     {
         public int Id { get; set; }
-        public int IdProject { get; set; }
         public virtual ComputersItem Computer { get; set; }
 
         public virtual IPsItem Ip { get; set; }
@@ -64,9 +63,9 @@ namespace FOCA.Database.Entities
         /// <summary>
         /// Necessary for serialization
         /// </summary>
-        public ComputerIPsItem() { }
+        public ComputerIPsItem() : base() { }
 
-        public ComputerIPsItem(ComputersItem computer, IPsItem ip, string source)
+        public ComputerIPsItem(ComputersItem computer, IPsItem ip, string source) : base()
         {
             this.Computer = computer;
             this.Ip = ip;

@@ -4,11 +4,9 @@ using System.Linq;
 namespace FOCA.Database.Entities
 {
     [Serializable]
-    public class Limits
+    public class Limits : BaseItem
     {
         public int Id { get; set; }
-
-        public int IdProject { get; set; }
 
         public string Range { get; set; }
 
@@ -16,18 +14,11 @@ namespace FOCA.Database.Entities
 
         public int Higher { get; set; }
 
-        public Limits()
+        public Limits() : base()
         {
         }
 
-        public Limits(string range, int lower, int higher)
-        {
-            this.Range = range;
-            this.Lower = lower;
-            this.Higher = higher;
-        }
-
-        public Limits(string ip)
+        public Limits(string ip) : base()
         {
             string r = ip.Split(new char[] { '.' })[0] + "." +
                        ip.Split(new char[] { '.' })[1] + "." +

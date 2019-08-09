@@ -4,36 +4,36 @@ using System.Linq;
 
 namespace FOCA.Database.Controllers
 {
-    public class ConfigurationController : BaseController
+    public class ConfigurationController : BaseController<Configuration>
     {
         public void Save(Configuration item)
         {
             try
             {
-                using (var db = new FocaContextDb())
+                using (FocaContextDb context = new FocaContextDb())
                 {
-                    var Config = db.Configurations.FirstOrDefault() ?? new Configuration();
+                    var config = context.Configurations.FirstOrDefault() ?? new Configuration();
 
-                    Config.AvaliableTechExtensions = item.AvaliableTechExtensions;
-                    Config.BingApiKey = item.BingApiKey;
-                    Config.DefaultDnsCacheSnooping = item.DefaultDnsCacheSnooping;
-                    Config.FingerPrintingAllFtp = item.FingerPrintingAllFtp;
-                    Config.FingerPrintingAllHttp = item.FingerPrintingAllHttp;
-                    Config.FingerPrintingAllSmtp = item.FingerPrintingAllSmtp;
-                    Config.FingerPrintingDns = item.FingerPrintingDns;
-                    Config.GoogleApiCx = item.GoogleApiCx;
-                    Config.GoogleApiKey = item.GoogleApiKey;
-                    Config.MaxRecursion = item.MaxRecursion;
-                    Config.SimultaneousDownloads = item.SimultaneousDownloads;
-                    Config.ProjectConfigFile = item.ProjectConfigFile;
-                    Config.ParallelDnsQueries = item.ParallelDnsQueries;
-                    Config.UseAllDns = item.UseAllDns;
-                    Config.UseHead = item.UseHead;
-                    Config.SelectedTechExtensions = item.SelectedTechExtensions;
-                    Config.SPathsPlugins = item.SPathsPlugins;
-                    Config.ShodanApiKey = item.ShodanApiKey;
+                    config.AvaliableTechExtensions = item.AvaliableTechExtensions;
+                    config.BingApiKey = item.BingApiKey;
+                    config.DefaultDnsCacheSnooping = item.DefaultDnsCacheSnooping;
+                    config.FingerPrintingAllFtp = item.FingerPrintingAllFtp;
+                    config.FingerPrintingAllHttp = item.FingerPrintingAllHttp;
+                    config.FingerPrintingAllSmtp = item.FingerPrintingAllSmtp;
+                    config.FingerPrintingDns = item.FingerPrintingDns;
+                    config.GoogleApiCx = item.GoogleApiCx;
+                    config.GoogleApiKey = item.GoogleApiKey;
+                    config.MaxRecursion = item.MaxRecursion;
+                    config.SimultaneousDownloads = item.SimultaneousDownloads;
+                    config.ProjectConfigFile = item.ProjectConfigFile;
+                    config.ParallelDnsQueries = item.ParallelDnsQueries;
+                    config.UseAllDns = item.UseAllDns;
+                    config.UseHead = item.UseHead;
+                    config.SelectedTechExtensions = item.SelectedTechExtensions;
+                    config.SPathsPlugins = item.SPathsPlugins;
+                    config.ShodanApiKey = item.ShodanApiKey;
 
-                    db.SaveChanges();
+                    context.SaveChanges();
                 }
             }
             catch (Exception ex)
@@ -42,48 +42,50 @@ namespace FOCA.Database.Controllers
             }
         }
 
-
         public Configuration GetConfiguration()
         {
-            Configuration Config;
+            using (FocaContextDb context = new FocaContextDb())
+            {
+                Configuration config = context.Configurations.FirstOrDefault() ?? LoadDefaultConfig();
 
-            Config = CurrentContextDb.Configurations.FirstOrDefault() ?? LoadDefaultConfig();
-
-            return Config;
+                return config;
+            }
         }
 
         private Configuration LoadDefaultConfig()
         {
             var config = new Configuration
             {
-                FingerPrintingAllFtp      = false,
-                FingerPrintingAllHttp     = true,
-                FingerPrintingAllSmtp     = true,
-                FingerPrintingDns         = true,
+                FingerPrintingAllFtp = false,
+                FingerPrintingAllHttp = true,
+                FingerPrintingAllSmtp = true,
+                FingerPrintingDns = true,
                 PassiveFingerPrintingHttp = true,
-                PasiveFingerPrintingSmtp  = true,
-                ResolveHost               = true,
-                UseHead                   = true,
-                DefaultDnsCacheSnooping   = "www.google.com",
-                GoogleApiKey              = string.Empty,
-                GoogleApiCx               = string.Empty,
-                BingApiKey                = string.Empty,
-                ShodanApiKey              = string.Empty,
-                NumberOfTasks             = 15,
-                MaxRecursion              = 4,
-                ParallelDnsQueries        = 4,
-                ProjectConfigFile         = string.Empty,
-                ScanNetranges255          = true,
-                SelectedTechExtensions    = new List<string>(),
-                SimultaneousDownloads     = 15,
-                SPathsPlugins             = string.Empty,
-                UseAllDns                 = true,
-                webSearcherEngine         = 2
+                PasiveFingerPrintingSmtp = true,
+                ResolveHost = true,
+                UseHead = true,
+                DefaultDnsCacheSnooping = "www.google.com",
+                GoogleApiKey = string.Empty,
+                GoogleApiCx = string.Empty,
+                BingApiKey = string.Empty,
+                ShodanApiKey = string.Empty,
+                NumberOfTasks = 15,
+                MaxRecursion = 4,
+                ParallelDnsQueries = 4,
+                ProjectConfigFile = string.Empty,
+                ScanNetranges255 = true,
+                SelectedTechExtensions = new List<string>(),
+                SimultaneousDownloads = 15,
+                SPathsPlugins = string.Empty,
+                UseAllDns = true,
+                webSearcherEngine = 2
             };
 
-
-            CurrentContextDb.Configurations.Add(config);
-            CurrentContextDb.SaveChanges();
+            using (FocaContextDb context = new FocaContextDb())
+            {
+                context.Configurations.Add(config);
+                context.SaveChanges();
+            }
 
             return config;
         }
