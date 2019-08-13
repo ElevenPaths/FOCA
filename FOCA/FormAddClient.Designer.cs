@@ -39,10 +39,9 @@ namespace FOCA
             // picFOCA
             // 
             this.picFOCA.Image = ((System.Drawing.Image)(resources.GetObject("picFOCA.Image")));
-            this.picFOCA.Location = new System.Drawing.Point(41, 14);
-            this.picFOCA.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.picFOCA.Location = new System.Drawing.Point(27, 9);
             this.picFOCA.Name = "picFOCA";
-            this.picFOCA.Size = new System.Drawing.Size(163, 86);
+            this.picFOCA.Size = new System.Drawing.Size(109, 56);
             this.picFOCA.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.picFOCA.TabIndex = 2;
             this.picFOCA.TabStop = false;
@@ -51,28 +50,25 @@ namespace FOCA
             // 
             this.lblAddPcName.AutoSize = true;
             this.lblAddPcName.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblAddPcName.Location = new System.Drawing.Point(250, 14);
-            this.lblAddPcName.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblAddPcName.Location = new System.Drawing.Point(144, 22);
             this.lblAddPcName.Name = "lblAddPcName";
-            this.lblAddPcName.Size = new System.Drawing.Size(161, 29);
+            this.lblAddPcName.Size = new System.Drawing.Size(107, 20);
             this.lblAddPcName.TabIndex = 3;
             this.lblAddPcName.Text = "Add PC name";
             // 
             // txtPcName
             // 
-            this.txtPcName.Location = new System.Drawing.Point(256, 69);
-            this.txtPcName.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.txtPcName.Location = new System.Drawing.Point(148, 45);
             this.txtPcName.Name = "txtPcName";
-            this.txtPcName.Size = new System.Drawing.Size(187, 26);
+            this.txtPcName.Size = new System.Drawing.Size(141, 20);
             this.txtPcName.TabIndex = 4;
             // 
             // btnAddDomain
             // 
             this.btnAddDomain.Image = global::FOCA.Properties.Resources.add1;
-            this.btnAddDomain.Location = new System.Drawing.Point(454, 58);
-            this.btnAddDomain.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.btnAddDomain.Location = new System.Drawing.Point(303, 28);
             this.btnAddDomain.Name = "btnAddDomain";
-            this.btnAddDomain.Size = new System.Drawing.Size(92, 49);
+            this.btnAddDomain.Size = new System.Drawing.Size(110, 42);
             this.btnAddDomain.TabIndex = 14;
             this.btnAddDomain.Text = "Add";
             this.btnAddDomain.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
@@ -81,15 +77,15 @@ namespace FOCA
             // 
             // FormAddClient
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(564, 131);
+            this.ClientSize = new System.Drawing.Size(440, 85);
             this.Controls.Add(this.btnAddDomain);
             this.Controls.Add(this.txtPcName);
             this.Controls.Add(this.lblAddPcName);
             this.Controls.Add(this.picFOCA);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.Name = "FormAddClient";
             this.Text = "Add PC Client";

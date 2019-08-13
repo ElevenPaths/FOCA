@@ -87,5 +87,10 @@ namespace FOCA
             Program.data.computers.Items.Add(computerItem);
             Program.data.computerIPs.Items.Add(new ComputerIPsItem(computerItem, ipItem, "Manually added IP"));
         }
+
+        private void FormAddIp_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }

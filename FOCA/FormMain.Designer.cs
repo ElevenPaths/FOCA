@@ -37,21 +37,6 @@ namespace FOCA
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMain));
             this.imgIcons = new System.Windows.Forms.ImageList(this.components);
             this.menuStripMain = new System.Windows.Forms.MenuStrip();
-            this.contextMenuStripNetwork = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.contextMenuStripDocuments = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.toolStripSeparator8 = new System.Windows.Forms.ToolStripSeparator();
-            this.sfdSaveProject = new System.Windows.Forms.SaveFileDialog();
-            this.ofdOpenProject = new System.Windows.Forms.OpenFileDialog();
-            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-            this.toolStripProgressBarDownload = new System.Windows.Forms.ToolStripProgressBar();
-            this.statusStripMain = new System.Windows.Forms.StatusStrip();
-            this.toolStripStatusLabelLeft = new System.Windows.Forms.ToolStripStatusLabel();
-            this.sfdExport = new System.Windows.Forms.SaveFileDialog();
-            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.splitContainerMain = new System.Windows.Forms.SplitContainer();
-            this.contextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.PanelIntroduccion = new System.Windows.Forms.Panel();
-            this.toolStripMenuItemMarket = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItemProject = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItemNewProject = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
@@ -65,18 +50,33 @@ namespace FOCA
             this.toolStripMenuItemOptions = new System.Windows.Forms.ToolStripMenuItem();
             this.taskListToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItemAbout = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItemMarket = new System.Windows.Forms.ToolStripMenuItem();
+            this.contextMenuStripNetwork = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.toolStripMenuItemViewDocumentsUsedFor = new System.Windows.Forms.ToolStripMenuItem();
+            this.contextMenuStripDocuments = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.openDocumentToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator8 = new System.Windows.Forms.ToolStripSeparator();
             this.removeDocumentToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.sfdSaveProject = new System.Windows.Forms.SaveFileDialog();
+            this.ofdOpenProject = new System.Windows.Forms.OpenFileDialog();
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.toolStripProgressBarDownload = new System.Windows.Forms.ToolStripProgressBar();
+            this.statusStripMain = new System.Windows.Forms.StatusStrip();
+            this.toolStripStatusLabelLeft = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripDropDownButtonStop = new System.Windows.Forms.ToolStripDropDownButton();
-            this.pictureBoxAdvert = new System.Windows.Forms.PictureBox();
+            this.sfdExport = new System.Windows.Forms.SaveFileDialog();
+            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.splitContainerMain = new System.Windows.Forms.SplitContainer();
             this.TreeView = new FOCA.ModifiedComponents.TreeViewNoFlickering();
+            this.contextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.PanelIntroduccion = new System.Windows.Forms.Panel();
             this.panelProject = new FOCA.PanelProject();
             this.panelDnsSnooping = new FOCA.PanelDnsSnooping();
             this.panelTasks = new FOCA.PanelTasks();
             this.panelMetadataSearch = new FOCA.PanelMetadataSearch();
             this.panelDNSSearch = new FOCA.PanelDNSSearch();
             this.panelInformation = new FOCA.PanelInformation();
+            this.pictureBoxAdvert = new System.Windows.Forms.PictureBox();
             this.panelLogs = new FOCA.PanelLogs();
             this.menuStripMain.SuspendLayout();
             this.contextMenuStripNetwork.SuspendLayout();
@@ -235,122 +235,6 @@ namespace FOCA
             this.menuStripMain.MenuActivate += new System.EventHandler(this.SetItemsMenu);
             this.menuStripMain.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.menuStripMain_ItemClicked);
             // 
-            // contextMenuStripNetwork
-            // 
-            this.contextMenuStripNetwork.ImageScalingSize = new System.Drawing.Size(24, 24);
-            this.contextMenuStripNetwork.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripMenuItemViewDocumentsUsedFor});
-            this.contextMenuStripNetwork.Name = "contextMenuStripSearch";
-            resources.ApplyResources(this.contextMenuStripNetwork, "contextMenuStripNetwork");
-            this.contextMenuStripNetwork.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStripNetwork_Opening);
-            // 
-            // contextMenuStripDocuments
-            // 
-            this.contextMenuStripDocuments.ImageScalingSize = new System.Drawing.Size(24, 24);
-            this.contextMenuStripDocuments.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.openDocumentToolStripMenuItem,
-            this.toolStripSeparator8,
-            this.removeDocumentToolStripMenuItem});
-            this.contextMenuStripDocuments.Name = "contextMenuStripNodes";
-            resources.ApplyResources(this.contextMenuStripDocuments, "contextMenuStripDocuments");
-            // 
-            // toolStripSeparator8
-            // 
-            this.toolStripSeparator8.Name = "toolStripSeparator8";
-            resources.ApplyResources(this.toolStripSeparator8, "toolStripSeparator8");
-            // 
-            // sfdSaveProject
-            // 
-            this.sfdSaveProject.DefaultExt = "FOCA";
-            resources.ApplyResources(this.sfdSaveProject, "sfdSaveProject");
-            // 
-            // ofdOpenProject
-            // 
-            resources.ApplyResources(this.ofdOpenProject, "ofdOpenProject");
-            // 
-            // toolStripProgressBarDownload
-            // 
-            this.toolStripProgressBarDownload.Name = "toolStripProgressBarDownload";
-            resources.ApplyResources(this.toolStripProgressBarDownload, "toolStripProgressBarDownload");
-            this.toolStripProgressBarDownload.Step = 1;
-            this.toolStripProgressBarDownload.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
-            // 
-            // statusStripMain
-            // 
-            this.statusStripMain.GripStyle = System.Windows.Forms.ToolStripGripStyle.Visible;
-            this.statusStripMain.ImageScalingSize = new System.Drawing.Size(24, 24);
-            this.statusStripMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripStatusLabelLeft,
-            this.toolStripProgressBarDownload,
-            this.toolStripDropDownButtonStop});
-            resources.ApplyResources(this.statusStripMain, "statusStripMain");
-            this.statusStripMain.Name = "statusStripMain";
-            this.statusStripMain.Stretch = false;
-            // 
-            // toolStripStatusLabelLeft
-            // 
-            resources.ApplyResources(this.toolStripStatusLabelLeft, "toolStripStatusLabelLeft");
-            this.toolStripStatusLabelLeft.Name = "toolStripStatusLabelLeft";
-            // 
-            // sfdExport
-            // 
-            this.sfdExport.DefaultExt = "txt";
-            resources.ApplyResources(this.sfdExport, "sfdExport");
-            // 
-            // splitContainer1
-            // 
-            resources.ApplyResources(this.splitContainer1, "splitContainer1");
-            this.splitContainer1.Name = "splitContainer1";
-            // 
-            // splitContainer1.Panel1
-            // 
-            this.splitContainer1.Panel1.Controls.Add(this.splitContainerMain);
-            // 
-            // splitContainer1.Panel2
-            // 
-            this.splitContainer1.Panel2.Controls.Add(this.panelLogs);
-            // 
-            // splitContainerMain
-            // 
-            resources.ApplyResources(this.splitContainerMain, "splitContainerMain");
-            this.splitContainerMain.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
-            this.splitContainerMain.Name = "splitContainerMain";
-            // 
-            // splitContainerMain.Panel1
-            // 
-            this.splitContainerMain.Panel1.Controls.Add(this.TreeView);
-            // 
-            // splitContainerMain.Panel2
-            // 
-            this.splitContainerMain.Panel2.Controls.Add(this.PanelIntroduccion);
-            this.splitContainerMain.Panel2.Controls.Add(this.panelProject);
-            this.splitContainerMain.Panel2.Controls.Add(this.panelDnsSnooping);
-            this.splitContainerMain.Panel2.Controls.Add(this.panelTasks);
-            this.splitContainerMain.Panel2.Controls.Add(this.panelMetadataSearch);
-            this.splitContainerMain.Panel2.Controls.Add(this.panelDNSSearch);
-            this.splitContainerMain.Panel2.Controls.Add(this.panelInformation);
-            this.splitContainerMain.Panel2.Controls.Add(this.pictureBoxAdvert);
-            this.splitContainerMain.Paint += new System.Windows.Forms.PaintEventHandler(this.splitContainerMain_Paint);
-            this.splitContainerMain.Resize += new System.EventHandler(this.splitContainerMain_Resize);
-            // 
-            // contextMenu
-            // 
-            this.contextMenu.ImageScalingSize = new System.Drawing.Size(24, 24);
-            this.contextMenu.Name = "contextMenu";
-            resources.ApplyResources(this.contextMenu, "contextMenu");
-            this.contextMenu.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenu_Opening);
-            // 
-            // PanelIntroduccion
-            // 
-            resources.ApplyResources(this.PanelIntroduccion, "PanelIntroduccion");
-            this.PanelIntroduccion.Name = "PanelIntroduccion";
-            // 
-            // toolStripMenuItemMarket
-            // 
-            resources.ApplyResources(this.toolStripMenuItemMarket, "toolStripMenuItemMarket");
-            this.toolStripMenuItemMarket.Name = "toolStripMenuItemMarket";
-            this.toolStripMenuItemMarket.Click += new System.EventHandler(this.toolStripMenuItemMarket_Click);
-            // 
             // toolStripMenuItemProject
             // 
             this.toolStripMenuItemProject.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -436,10 +320,35 @@ namespace FOCA
             this.toolStripMenuItemAbout.Name = "toolStripMenuItemAbout";
             this.toolStripMenuItemAbout.Click += new System.EventHandler(this.toolStripMenuItemAbout_Click);
             // 
+            // toolStripMenuItemMarket
+            // 
+            resources.ApplyResources(this.toolStripMenuItemMarket, "toolStripMenuItemMarket");
+            this.toolStripMenuItemMarket.Name = "toolStripMenuItemMarket";
+            this.toolStripMenuItemMarket.Click += new System.EventHandler(this.toolStripMenuItemMarket_Click);
+            // 
+            // contextMenuStripNetwork
+            // 
+            this.contextMenuStripNetwork.ImageScalingSize = new System.Drawing.Size(24, 24);
+            this.contextMenuStripNetwork.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripMenuItemViewDocumentsUsedFor});
+            this.contextMenuStripNetwork.Name = "contextMenuStripSearch";
+            resources.ApplyResources(this.contextMenuStripNetwork, "contextMenuStripNetwork");
+            this.contextMenuStripNetwork.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStripNetwork_Opening);
+            // 
             // toolStripMenuItemViewDocumentsUsedFor
             // 
             resources.ApplyResources(this.toolStripMenuItemViewDocumentsUsedFor, "toolStripMenuItemViewDocumentsUsedFor");
             this.toolStripMenuItemViewDocumentsUsedFor.Name = "toolStripMenuItemViewDocumentsUsedFor";
+            // 
+            // contextMenuStripDocuments
+            // 
+            this.contextMenuStripDocuments.ImageScalingSize = new System.Drawing.Size(24, 24);
+            this.contextMenuStripDocuments.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.openDocumentToolStripMenuItem,
+            this.toolStripSeparator8,
+            this.removeDocumentToolStripMenuItem});
+            this.contextMenuStripDocuments.Name = "contextMenuStripNodes";
+            resources.ApplyResources(this.contextMenuStripDocuments, "contextMenuStripDocuments");
             // 
             // openDocumentToolStripMenuItem
             // 
@@ -447,11 +356,49 @@ namespace FOCA
             this.openDocumentToolStripMenuItem.Name = "openDocumentToolStripMenuItem";
             this.openDocumentToolStripMenuItem.Click += new System.EventHandler(this.openDocumentToolStripMenuItem_Click);
             // 
+            // toolStripSeparator8
+            // 
+            this.toolStripSeparator8.Name = "toolStripSeparator8";
+            resources.ApplyResources(this.toolStripSeparator8, "toolStripSeparator8");
+            // 
             // removeDocumentToolStripMenuItem
             // 
             resources.ApplyResources(this.removeDocumentToolStripMenuItem, "removeDocumentToolStripMenuItem");
             this.removeDocumentToolStripMenuItem.Name = "removeDocumentToolStripMenuItem";
             this.removeDocumentToolStripMenuItem.Click += new System.EventHandler(this.removeDocumentToolStripMenuItem_Click);
+            // 
+            // sfdSaveProject
+            // 
+            this.sfdSaveProject.DefaultExt = "FOCA";
+            resources.ApplyResources(this.sfdSaveProject, "sfdSaveProject");
+            // 
+            // ofdOpenProject
+            // 
+            resources.ApplyResources(this.ofdOpenProject, "ofdOpenProject");
+            // 
+            // toolStripProgressBarDownload
+            // 
+            this.toolStripProgressBarDownload.Name = "toolStripProgressBarDownload";
+            resources.ApplyResources(this.toolStripProgressBarDownload, "toolStripProgressBarDownload");
+            this.toolStripProgressBarDownload.Step = 1;
+            this.toolStripProgressBarDownload.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
+            // 
+            // statusStripMain
+            // 
+            this.statusStripMain.GripStyle = System.Windows.Forms.ToolStripGripStyle.Visible;
+            this.statusStripMain.ImageScalingSize = new System.Drawing.Size(24, 24);
+            this.statusStripMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripStatusLabelLeft,
+            this.toolStripProgressBarDownload,
+            this.toolStripDropDownButtonStop});
+            resources.ApplyResources(this.statusStripMain, "statusStripMain");
+            this.statusStripMain.Name = "statusStripMain";
+            this.statusStripMain.Stretch = false;
+            // 
+            // toolStripStatusLabelLeft
+            // 
+            resources.ApplyResources(this.toolStripStatusLabelLeft, "toolStripStatusLabelLeft");
+            this.toolStripStatusLabelLeft.Name = "toolStripStatusLabelLeft";
             // 
             // toolStripDropDownButtonStop
             // 
@@ -461,12 +408,46 @@ namespace FOCA
             this.toolStripDropDownButtonStop.ShowDropDownArrow = false;
             this.toolStripDropDownButtonStop.Click += new System.EventHandler(this.toolStripDropDownButtonAbort_Click);
             // 
-            // pictureBoxAdvert
+            // sfdExport
             // 
-            resources.ApplyResources(this.pictureBoxAdvert, "pictureBoxAdvert");
-            this.pictureBoxAdvert.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.pictureBoxAdvert.Name = "pictureBoxAdvert";
-            this.pictureBoxAdvert.TabStop = false;
+            this.sfdExport.DefaultExt = "txt";
+            resources.ApplyResources(this.sfdExport, "sfdExport");
+            // 
+            // splitContainer1
+            // 
+            resources.ApplyResources(this.splitContainer1, "splitContainer1");
+            this.splitContainer1.Name = "splitContainer1";
+            // 
+            // splitContainer1.Panel1
+            // 
+            this.splitContainer1.Panel1.Controls.Add(this.splitContainerMain);
+            // 
+            // splitContainer1.Panel2
+            // 
+            this.splitContainer1.Panel2.Controls.Add(this.panelLogs);
+            // 
+            // splitContainerMain
+            // 
+            resources.ApplyResources(this.splitContainerMain, "splitContainerMain");
+            this.splitContainerMain.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
+            this.splitContainerMain.Name = "splitContainerMain";
+            // 
+            // splitContainerMain.Panel1
+            // 
+            this.splitContainerMain.Panel1.Controls.Add(this.TreeView);
+            // 
+            // splitContainerMain.Panel2
+            // 
+            this.splitContainerMain.Panel2.Controls.Add(this.PanelIntroduccion);
+            this.splitContainerMain.Panel2.Controls.Add(this.panelProject);
+            this.splitContainerMain.Panel2.Controls.Add(this.panelDnsSnooping);
+            this.splitContainerMain.Panel2.Controls.Add(this.panelTasks);
+            this.splitContainerMain.Panel2.Controls.Add(this.panelMetadataSearch);
+            this.splitContainerMain.Panel2.Controls.Add(this.panelDNSSearch);
+            this.splitContainerMain.Panel2.Controls.Add(this.panelInformation);
+            this.splitContainerMain.Panel2.Controls.Add(this.pictureBoxAdvert);
+            this.splitContainerMain.Paint += new System.Windows.Forms.PaintEventHandler(this.splitContainerMain_Paint);
+            this.splitContainerMain.Resize += new System.EventHandler(this.splitContainerMain_Resize);
             // 
             // TreeView
             // 
@@ -477,6 +458,18 @@ namespace FOCA
             this.TreeView.Tag = "";
             this.TreeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.TreeView_AfterSelect);
             this.TreeView.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.TreeView_NodeMouseClick_1);
+            // 
+            // contextMenu
+            // 
+            this.contextMenu.ImageScalingSize = new System.Drawing.Size(24, 24);
+            this.contextMenu.Name = "contextMenu";
+            resources.ApplyResources(this.contextMenu, "contextMenu");
+            this.contextMenu.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenu_Opening);
+            // 
+            // PanelIntroduccion
+            // 
+            resources.ApplyResources(this.PanelIntroduccion, "PanelIntroduccion");
+            this.PanelIntroduccion.Name = "PanelIntroduccion";
             // 
             // panelProject
             // 
@@ -513,6 +506,13 @@ namespace FOCA
             // 
             resources.ApplyResources(this.panelInformation, "panelInformation");
             this.panelInformation.Name = "panelInformation";
+            // 
+            // pictureBoxAdvert
+            // 
+            resources.ApplyResources(this.pictureBoxAdvert, "pictureBoxAdvert");
+            this.pictureBoxAdvert.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.pictureBoxAdvert.Name = "pictureBoxAdvert";
+            this.pictureBoxAdvert.TabStop = false;
             // 
             // panelLogs
             // 

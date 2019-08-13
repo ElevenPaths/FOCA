@@ -41,39 +41,35 @@ namespace FOCA
             // lblPosition
             // 
             this.lblPosition.AutoSize = true;
-            this.lblPosition.Location = new System.Drawing.Point(18, 14);
-            this.lblPosition.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblPosition.Location = new System.Drawing.Point(12, 9);
             this.lblPosition.Name = "lblPosition";
-            this.lblPosition.Size = new System.Drawing.Size(65, 20);
+            this.lblPosition.Size = new System.Drawing.Size(44, 13);
             this.lblPosition.TabIndex = 0;
             this.lblPosition.Text = "Position";
             // 
             // lblStart
             // 
             this.lblStart.AutoSize = true;
-            this.lblStart.Location = new System.Drawing.Point(18, 103);
-            this.lblStart.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblStart.Location = new System.Drawing.Point(12, 67);
             this.lblStart.Name = "lblStart";
-            this.lblStart.Size = new System.Drawing.Size(85, 20);
+            this.lblStart.Size = new System.Drawing.Size(58, 13);
             this.lblStart.TabIndex = 2;
             this.lblStart.Text = "Start value";
             // 
             // txtStart
             // 
-            this.txtStart.Location = new System.Drawing.Point(114, 98);
-            this.txtStart.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.txtStart.Location = new System.Drawing.Point(76, 64);
             this.txtStart.Name = "txtStart";
-            this.txtStart.Size = new System.Drawing.Size(84, 26);
+            this.txtStart.Size = new System.Drawing.Size(57, 20);
             this.txtStart.TabIndex = 1;
             // 
             // txtEnd
             // 
             this.txtEnd.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtEnd.Location = new System.Drawing.Point(328, 98);
-            this.txtEnd.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.txtEnd.Location = new System.Drawing.Point(219, 64);
             this.txtEnd.Name = "txtEnd";
-            this.txtEnd.Size = new System.Drawing.Size(86, 26);
+            this.txtEnd.Size = new System.Drawing.Size(106, 20);
             this.txtEnd.TabIndex = 2;
             // 
             // lblEnd
@@ -81,10 +77,9 @@ namespace FOCA
             this.lblEnd.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lblEnd.AutoSize = true;
-            this.lblEnd.Location = new System.Drawing.Point(234, 103);
-            this.lblEnd.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblEnd.Location = new System.Drawing.Point(156, 67);
             this.lblEnd.Name = "lblEnd";
-            this.lblEnd.Size = new System.Drawing.Size(79, 20);
+            this.lblEnd.Size = new System.Drawing.Size(55, 13);
             this.lblEnd.TabIndex = 4;
             this.lblEnd.Text = "End value";
             // 
@@ -93,10 +88,9 @@ namespace FOCA
             this.btnAdd.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.btnAdd.Image = global::FOCA.Properties.Resources.add1;
-            this.btnAdd.Location = new System.Drawing.Point(154, 163);
-            this.btnAdd.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.btnAdd.Location = new System.Drawing.Point(103, 129);
             this.btnAdd.Name = "btnAdd";
-            this.btnAdd.Size = new System.Drawing.Size(124, 38);
+            this.btnAdd.Size = new System.Drawing.Size(130, 40);
             this.btnAdd.TabIndex = 3;
             this.btnAdd.Text = "&Add";
             this.btnAdd.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -109,21 +103,20 @@ namespace FOCA
             this.rtfPattern.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.rtfPattern.DetectUrls = false;
-            this.rtfPattern.Location = new System.Drawing.Point(22, 38);
-            this.rtfPattern.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.rtfPattern.Location = new System.Drawing.Point(15, 25);
             this.rtfPattern.Multiline = false;
             this.rtfPattern.Name = "rtfPattern";
             this.rtfPattern.ReadOnly = true;
-            this.rtfPattern.Size = new System.Drawing.Size(392, 29);
+            this.rtfPattern.Size = new System.Drawing.Size(310, 20);
             this.rtfPattern.TabIndex = 0;
             this.rtfPattern.Text = "";
             this.rtfPattern.SelectionChanged += new System.EventHandler(this.richTextBox1_SelectionChanged);
             // 
             // FormAddVariable
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(441, 217);
+            this.ClientSize = new System.Drawing.Size(341, 179);
             this.Controls.Add(this.rtfPattern);
             this.Controls.Add(this.btnAdd);
             this.Controls.Add(this.txtEnd);
@@ -133,7 +126,6 @@ namespace FOCA
             this.Controls.Add(this.lblPosition);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Name = "FormAddVariable";
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;

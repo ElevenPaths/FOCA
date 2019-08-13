@@ -43,71 +43,64 @@ namespace FOCA
             // 
             this.lblAddIp.AutoSize = true;
             this.lblAddIp.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblAddIp.Location = new System.Drawing.Point(256, 18);
-            this.lblAddIp.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblAddIp.Location = new System.Drawing.Point(171, 12);
             this.lblAddIp.Name = "lblAddIp";
-            this.lblAddIp.Size = new System.Drawing.Size(135, 29);
+            this.lblAddIp.Size = new System.Drawing.Size(151, 20);
             this.lblAddIp.TabIndex = 0;
             this.lblAddIp.Text = "Add new IP address";
             // 
             // picFOCA
             // 
             this.picFOCA.Image = ((System.Drawing.Image)(resources.GetObject("picFOCA.Image")));
-            this.picFOCA.Location = new System.Drawing.Point(38, 18);
-            this.picFOCA.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.picFOCA.Location = new System.Drawing.Point(25, 12);
             this.picFOCA.Name = "picFOCA";
-            this.picFOCA.Size = new System.Drawing.Size(180, 86);
+            this.picFOCA.Size = new System.Drawing.Size(103, 56);
             this.picFOCA.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.picFOCA.TabIndex = 1;
             this.picFOCA.TabStop = false;
             // 
             // txtOct1
             // 
-            this.txtOct1.Location = new System.Drawing.Point(261, 69);
-            this.txtOct1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.txtOct1.Location = new System.Drawing.Point(174, 45);
             this.txtOct1.MaxLength = 3;
             this.txtOct1.Name = "txtOct1";
-            this.txtOct1.Size = new System.Drawing.Size(46, 26);
+            this.txtOct1.Size = new System.Drawing.Size(32, 20);
             this.txtOct1.TabIndex = 2;
             this.txtOct1.Text = "0";
             // 
             // txtOct2
             // 
-            this.txtOct2.Location = new System.Drawing.Point(318, 69);
-            this.txtOct2.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.txtOct2.Location = new System.Drawing.Point(212, 45);
             this.txtOct2.MaxLength = 3;
             this.txtOct2.Name = "txtOct2";
-            this.txtOct2.Size = new System.Drawing.Size(46, 26);
+            this.txtOct2.Size = new System.Drawing.Size(32, 20);
             this.txtOct2.TabIndex = 3;
             this.txtOct2.Text = "0";
             // 
             // txtOct3
             // 
-            this.txtOct3.Location = new System.Drawing.Point(375, 69);
-            this.txtOct3.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.txtOct3.Location = new System.Drawing.Point(250, 45);
             this.txtOct3.MaxLength = 3;
             this.txtOct3.Name = "txtOct3";
-            this.txtOct3.Size = new System.Drawing.Size(46, 26);
+            this.txtOct3.Size = new System.Drawing.Size(32, 20);
             this.txtOct3.TabIndex = 4;
             this.txtOct3.Text = "0";
             // 
             // txtOct4
             // 
-            this.txtOct4.Location = new System.Drawing.Point(432, 69);
-            this.txtOct4.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.txtOct4.Location = new System.Drawing.Point(288, 45);
             this.txtOct4.MaxLength = 3;
             this.txtOct4.Name = "txtOct4";
-            this.txtOct4.Size = new System.Drawing.Size(46, 26);
+            this.txtOct4.Size = new System.Drawing.Size(32, 20);
             this.txtOct4.TabIndex = 5;
             this.txtOct4.Text = "0";
             // 
             // btnAddIp
             // 
             this.btnAddIp.Image = global::FOCA.Properties.Resources.add1;
-            this.btnAddIp.Location = new System.Drawing.Point(489, 60);
-            this.btnAddIp.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.btnAddIp.Location = new System.Drawing.Point(326, 31);
             this.btnAddIp.Name = "btnAddIp";
-            this.btnAddIp.Size = new System.Drawing.Size(92, 49);
+            this.btnAddIp.Size = new System.Drawing.Size(82, 40);
             this.btnAddIp.TabIndex = 6;
             this.btnAddIp.Text = "Add";
             this.btnAddIp.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
@@ -116,9 +109,9 @@ namespace FOCA
             // 
             // FormAddIp
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(592, 118);
+            this.ClientSize = new System.Drawing.Size(433, 77);
             this.Controls.Add(this.btnAddIp);
             this.Controls.Add(this.txtOct4);
             this.Controls.Add(this.txtOct3);
@@ -127,10 +120,11 @@ namespace FOCA
             this.Controls.Add(this.picFOCA);
             this.Controls.Add(this.lblAddIp);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.Name = "FormAddIp";
             this.Text = "Add new IP address";
+            this.Load += new System.EventHandler(this.FormAddIp_Load);
             ((System.ComponentModel.ISupportInitialize)(this.picFOCA)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
