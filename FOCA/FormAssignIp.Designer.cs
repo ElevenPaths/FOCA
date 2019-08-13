@@ -28,6 +28,7 @@ namespace FOCA
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormAssignIp));
             this.picFOCA = new System.Windows.Forms.PictureBox();
             this.lblAsignIp = new System.Windows.Forms.Label();
             this.lstIps = new System.Windows.Forms.ListBox();
@@ -41,10 +42,9 @@ namespace FOCA
             // picFOCA
             // 
             this.picFOCA.Image = global::FOCA.Properties.Resources.newlogo;
-            this.picFOCA.Location = new System.Drawing.Point(121, 58);
-            this.picFOCA.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.picFOCA.Location = new System.Drawing.Point(91, 47);
             this.picFOCA.Name = "picFOCA";
-            this.picFOCA.Size = new System.Drawing.Size(204, 69);
+            this.picFOCA.Size = new System.Drawing.Size(153, 56);
             this.picFOCA.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.picFOCA.TabIndex = 10;
             this.picFOCA.TabStop = false;
@@ -53,49 +53,43 @@ namespace FOCA
             // 
             this.lblAsignIp.AutoSize = true;
             this.lblAsignIp.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblAsignIp.Location = new System.Drawing.Point(68, 30);
-            this.lblAsignIp.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblAsignIp.Location = new System.Drawing.Point(51, 24);
             this.lblAsignIp.Name = "lblAsignIp";
-            this.lblAsignIp.Size = new System.Drawing.Size(293, 25);
+            this.lblAsignIp.Size = new System.Drawing.Size(239, 20);
             this.lblAsignIp.TabIndex = 9;
             this.lblAsignIp.Text = "Assign IP address to a computer";
             // 
             // lstIps
             // 
             this.lstIps.FormattingEnabled = true;
-            this.lstIps.ItemHeight = 16;
-            this.lstIps.Location = new System.Drawing.Point(43, 183);
-            this.lstIps.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.lstIps.Location = new System.Drawing.Point(32, 149);
             this.lstIps.Name = "lstIps";
-            this.lstIps.Size = new System.Drawing.Size(333, 84);
+            this.lstIps.Size = new System.Drawing.Size(251, 69);
             this.lstIps.TabIndex = 11;
             // 
             // lblIp
             // 
             this.lblIp.AutoSize = true;
-            this.lblIp.Location = new System.Drawing.Point(44, 151);
-            this.lblIp.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblIp.Location = new System.Drawing.Point(33, 123);
             this.lblIp.Name = "lblIp";
-            this.lblIp.Size = new System.Drawing.Size(20, 17);
+            this.lblIp.Size = new System.Drawing.Size(17, 13);
             this.lblIp.TabIndex = 12;
             this.lblIp.Text = "IP";
             // 
             // txtIp
             // 
-            this.txtIp.Location = new System.Drawing.Point(75, 148);
-            this.txtIp.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txtIp.Location = new System.Drawing.Point(56, 120);
             this.txtIp.Name = "txtIp";
-            this.txtIp.Size = new System.Drawing.Size(157, 22);
+            this.txtIp.Size = new System.Drawing.Size(119, 20);
             this.txtIp.TabIndex = 13;
             this.txtIp.Text = "80.81.106.149";
             // 
             // btnAdd
             // 
             this.btnAdd.Image = global::FOCA.Properties.Resources.add;
-            this.btnAdd.Location = new System.Drawing.Point(257, 148);
-            this.btnAdd.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnAdd.Location = new System.Drawing.Point(193, 120);
             this.btnAdd.Name = "btnAdd";
-            this.btnAdd.Size = new System.Drawing.Size(53, 28);
+            this.btnAdd.Size = new System.Drawing.Size(40, 23);
             this.btnAdd.TabIndex = 14;
             this.btnAdd.UseVisualStyleBackColor = true;
             this.btnAdd.Click += new System.EventHandler(this.btAdd_Click);
@@ -103,19 +97,18 @@ namespace FOCA
             // btnDel
             // 
             this.btnDel.Image = global::FOCA.Properties.Resources.delete;
-            this.btnDel.Location = new System.Drawing.Point(324, 148);
-            this.btnDel.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnDel.Location = new System.Drawing.Point(243, 120);
             this.btnDel.Name = "btnDel";
-            this.btnDel.Size = new System.Drawing.Size(53, 28);
+            this.btnDel.Size = new System.Drawing.Size(40, 23);
             this.btnDel.TabIndex = 15;
             this.btnDel.UseVisualStyleBackColor = true;
             this.btnDel.Click += new System.EventHandler(this.btDel_Click);
             // 
             // FormAssignIp
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(424, 292);
+            this.ClientSize = new System.Drawing.Size(318, 237);
             this.Controls.Add(this.btnDel);
             this.Controls.Add(this.btnAdd);
             this.Controls.Add(this.txtIp);
@@ -124,7 +117,7 @@ namespace FOCA
             this.Controls.Add(this.picFOCA);
             this.Controls.Add(this.lblAsignIp);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.Name = "FormAssignIp";
             this.Text = "Assign IP";

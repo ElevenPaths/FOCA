@@ -40,28 +40,25 @@ namespace FOCA
             // 
             this.lblAddDomain.AutoSize = true;
             this.lblAddDomain.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblAddDomain.Location = new System.Drawing.Point(254, 11);
-            this.lblAddDomain.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblAddDomain.Location = new System.Drawing.Point(115, 18);
             this.lblAddDomain.Name = "lblAddDomain";
-            this.lblAddDomain.Size = new System.Drawing.Size(193, 29);
+            this.lblAddDomain.Size = new System.Drawing.Size(127, 20);
             this.lblAddDomain.TabIndex = 7;
             this.lblAddDomain.Text = "Add new domain";
             // 
             // txtDomain
             // 
-            this.txtDomain.Location = new System.Drawing.Point(260, 65);
-            this.txtDomain.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.txtDomain.Location = new System.Drawing.Point(119, 41);
             this.txtDomain.Name = "txtDomain";
-            this.txtDomain.Size = new System.Drawing.Size(216, 26);
+            this.txtDomain.Size = new System.Drawing.Size(145, 20);
             this.txtDomain.TabIndex = 14;
             // 
             // btnAddDomain
             // 
             this.btnAddDomain.Image = global::FOCA.Properties.Resources.add1;
-            this.btnAddDomain.Location = new System.Drawing.Point(486, 52);
-            this.btnAddDomain.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.btnAddDomain.Location = new System.Drawing.Point(270, 27);
             this.btnAddDomain.Name = "btnAddDomain";
-            this.btnAddDomain.Size = new System.Drawing.Size(92, 49);
+            this.btnAddDomain.Size = new System.Drawing.Size(94, 40);
             this.btnAddDomain.TabIndex = 13;
             this.btnAddDomain.Text = "Add";
             this.btnAddDomain.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
@@ -71,25 +68,24 @@ namespace FOCA
             // picFOCA
             // 
             this.picFOCA.Image = ((System.Drawing.Image)(resources.GetObject("picFOCA.Image")));
-            this.picFOCA.Location = new System.Drawing.Point(15, 11);
-            this.picFOCA.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.picFOCA.Location = new System.Drawing.Point(10, 7);
             this.picFOCA.Name = "picFOCA";
-            this.picFOCA.Size = new System.Drawing.Size(179, 86);
+            this.picFOCA.Size = new System.Drawing.Size(94, 56);
             this.picFOCA.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.picFOCA.TabIndex = 8;
             this.picFOCA.TabStop = false;
             // 
             // FormAddDomain
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(597, 122);
+            this.ClientSize = new System.Drawing.Size(375, 79);
             this.Controls.Add(this.txtDomain);
             this.Controls.Add(this.btnAddDomain);
             this.Controls.Add(this.picFOCA);
             this.Controls.Add(this.lblAddDomain);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.Name = "FormAddDomain";
             this.Text = "Add new domain";
