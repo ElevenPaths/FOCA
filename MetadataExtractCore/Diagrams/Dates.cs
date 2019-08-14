@@ -3,20 +3,12 @@ using System;
 namespace MetadataExtractCore.Diagrams
 {
     [Serializable]
-    public class Dates {
+    public struct Dates
+    {
+        public DateTime? CreationDate { get; set; }
 
-        public int Id { get; set; }
+        public DateTime? ModificationDate { get; set; }
 
-        public DateTime CreationDate = DateTime.Now;
-
-        public bool CreationDateSpecified { get; set; }
-
-        public DateTime ModificationDate = DateTime.Now;
-
-        public bool ModificationDateSpecified { get; set; }
-
-        public DateTime DatePrinting = DateTime.Now;
-
-        public bool DatePrintingSpecified { get; set; }
+        public DateTime? PrintingDate { get; set; }
     }
 }

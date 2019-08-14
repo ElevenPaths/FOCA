@@ -1,6 +1,6 @@
 using System;
 
-namespace MetadataExtractCore.Diagrams
+namespace FOCA.Database.Entities
 {
     [Serializable]
     public class MetaData

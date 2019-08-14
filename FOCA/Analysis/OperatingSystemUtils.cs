@@ -1,3 +1,4 @@
+using FOCA.Database.Entities;
 using MetadataExtractCore.Diagrams;
 using System;
 

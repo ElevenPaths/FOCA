@@ -1,5 +1,5 @@
 using Ionic.Zip;
-using MetadataExtractCore.Metadata;
+using MetadataExtractCore.Extractors;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -155,7 +155,7 @@ namespace MetadataExtractCore.Utilities
         /// <returns></returns>
         public static string GetPathFolder(string pathValue)
         {
-            return Path.GetFileName(pathValue).Length == 0 ? pathValue : pathValue.Replace(Path.GetFileName(pathValue), "");
+            return System.IO.Path.GetFileName(pathValue).Length == 0 ? pathValue : pathValue.Replace(System.IO.Path.GetFileName(pathValue), "");
         }
 
         /// <summary>
@@ -165,11 +165,16 @@ namespace MetadataExtractCore.Utilities
         /// <returns></returns>
         public static string ToPlainText(string source)
         {
-            if (source.Length <= 2 || source[0] != Convert.ToChar(0xFE) || source[1] != Convert.ToChar(0xFF))
-                return source;
-
-            var s = Encoding.ASCII.GetBytes(source);
-            return Encoding.BigEndianUnicode.GetString(s, 2, s.Length - 2);
+            if (source.Length >= 2 && source[0] == Convert.ToChar(0xFE) && source[1] == Convert.ToChar(0xFF))
+            {
+                var s = Encoding.ASCII.GetBytes(source);
+                return Encoding.BigEndianUnicode.GetString(s, 2, s.Length - 2);
+            }
+            else if (source.StartsWith(@"\376\377\"))
+            {
+                return String.Concat(source.Split('\\').Where(p => p.Length == 4).Select(p => p[3]));
+            }
+            return source;
         }
 
         /// <summary>

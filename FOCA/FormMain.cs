@@ -12,7 +12,7 @@ using FOCA.TaskManager;
 using FOCA.Threads;
 using FOCA.Utilites;
 using MetadataExtractCore.Diagrams;
-using MetadataExtractCore.Metadata;
+using MetadataExtractCore.Extractors;
 using Microsoft.WindowsAPICodePack.Taskbar;
 using NLog;
 using System;
@@ -673,7 +673,7 @@ namespace FOCA
 
             string ext = file.Ext;
 
-            if (ext.Length == 0 || !MetaExtractor.IsSupportedExtension(ext))
+            if (ext.Length == 0 || !DocumentExtractor.IsSupportedExtension(ext))
                 ext = "Unknown";
 
             TreeNode parent;
@@ -691,7 +691,7 @@ namespace FOCA
                 parent = TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Documents"].Nodes[ext];
             }
 
-            TreeNode child = parent.Nodes.Insert(SearchTextInNodes(parent.Nodes, Path.GetFileName(file.Path)), file.Path, Path.GetFileName(file.Path));
+            TreeNode child = parent.Nodes.Insert(SearchTextInNodes(parent.Nodes, System.IO.Path.GetFileName(file.Path)), file.Path, System.IO.Path.GetFileName(file.Path));
 
             child.ContextMenuStrip = Program.FormMainInstance.contextMenuStripDocuments;
 
@@ -970,7 +970,7 @@ namespace FOCA
                 {
                     panelInformation.lvwInformation.Groups.Add("Dates", "Dates");
 
-                    var f = (Dates)e.Node.Nodes["Dates"].Tag;
+                    var f = (Database.Entities.Dates)e.Node.Nodes["Dates"].Tag;
                     if (f.CreationDateSpecified)
                         NewItemListView("Creation date", f.CreationDate.ToString(), "Dates");
 
@@ -990,7 +990,7 @@ namespace FOCA
                 {
                     panelInformation.lvwInformation.Groups.Add("History", "History");
 
-                    var h = (History)e.Node.Nodes["History"].Tag;
+                    var h = (Database.Entities.History)e.Node.Nodes["History"].Tag;
                     foreach (var hi in h.Items)
                     {
                         if (String.IsNullOrWhiteSpace(hi.Author))
@@ -1088,14 +1088,11 @@ namespace FOCA
                 InitializePanelInformation();
 
                 panelInformation.lvwInformation.Groups.Add("Dates", "Dates");
-                var f = (Dates)e.Node.Tag;
+                var f = (Database.Entities.Dates)e.Node.Tag;
 
                 if (f.CreationDateSpecified)
                 {
                     NewItemListView("Creation date", f.CreationDate.ToString(), "Dates");
-                    var lvi = panelInformation.lvwInformation.Items.Add("Creation date");
-                    lvi.SubItems.Add(f.CreationDate.ToString());
-                    lvi.Group = panelInformation.lvwInformation.Groups["Dates"];
                 }
                 if (f.DatePrintingSpecified)
                     NewItemListView("Printed date", f.DatePrinting.ToString(), "Dates");
@@ -1143,44 +1140,47 @@ namespace FOCA
             {
                 InitializePanelInformation();
 
-                var ed = (EXIFDocument)e.Node.Tag;
-                var dicExif = ed.dicAnotherMetadata;
-                foreach (var dicExifSection in dicExif)
+                var ed = e.Node.Tag as FileMetadata;
+                if (ed != null)
                 {
-                    panelInformation.lvwInformation.Groups.Add(dicExifSection.Key, dicExifSection.Key);
-                    foreach (var dicExifValue in dicExifSection.Value)
-                        NewItemListView(dicExifValue.Key, dicExifValue.Value, dicExifSection.Key);
-
-                    var lvit = panelInformation.lvwInformation.Items.Add(string.Empty);
-                    lvit.Group = panelInformation.lvwInformation.Groups[dicExifSection.Key];
-                }
-                if (ed.Thumbnail == null) return;
-
-                try
-                {
-                    var pc = new PictureBox();
-                    using (var ms = new MemoryStream(ed.Thumbnail))
+                    var dicExif = ed.Makernotes;
+                    foreach (var dicExifSection in dicExif)
                     {
-                        pc.Image = new Bitmap(ms);
+                        panelInformation.lvwInformation.Groups.Add(dicExifSection.Key, dicExifSection.Key);
+                        foreach (var dicExifValue in dicExifSection.Value)
+                            NewItemListView(dicExifValue.Key, dicExifValue.Value, dicExifSection.Key);
+
+                        var lvit = panelInformation.lvwInformation.Items.Add(string.Empty);
+                        lvit.Group = panelInformation.lvwInformation.Groups[dicExifSection.Key];
                     }
+                    if (ed.Thumbnail == null) return;
 
-                    pc.Height = pc.Image.Height;
-                    panelInformation.lvwInformation.Groups.Add("Thumbnail", "Thumbnail");
-                    var lvi = panelInformation.lvwInformation.Items.Add("Picture");
-                    lvi.SubItems.Add(string.Empty);
-                    lvi.Group = panelInformation.lvwInformation.Groups["Thumbnail"];
-                    panelInformation.lvwInformation.AddEmbeddedControl(pc, 1, lvi.Index, DockStyle.None);
-
-                    var itemHeight = lvi.GetBounds(ItemBoundsPortion.Entire).Height;
-                    for (var i = itemHeight; i < pc.Height; i += itemHeight)
+                    try
                     {
-                        lvi = panelInformation.lvwInformation.Items.Add("");
+                        var pc = new PictureBox();
+                        using (var ms = new MemoryStream(ed.Thumbnail))
+                        {
+                            pc.Image = new Bitmap(ms);
+                        }
+
+                        pc.Height = pc.Image.Height;
+                        panelInformation.lvwInformation.Groups.Add("Thumbnail", "Thumbnail");
+                        var lvi = panelInformation.lvwInformation.Items.Add("Picture");
+                        lvi.SubItems.Add(string.Empty);
                         lvi.Group = panelInformation.lvwInformation.Groups["Thumbnail"];
-                    }
-                }
-                catch
-                {
+                        panelInformation.lvwInformation.AddEmbeddedControl(pc, 1, lvi.Index, DockStyle.None);
 
+                        var itemHeight = lvi.GetBounds(ItemBoundsPortion.Entire).Height;
+                        for (var i = itemHeight; i < pc.Height; i += itemHeight)
+                        {
+                            lvi = panelInformation.lvwInformation.Items.Add("");
+                            lvi.Group = panelInformation.lvwInformation.Groups["Thumbnail"];
+                        }
+                    }
+                    catch
+                    {
+
+                    }
                 }
             }
             else if (e.Node == TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Users"])
@@ -1343,9 +1343,6 @@ namespace FOCA
                     foreach (var s in passwordsFound)
                     {
                         NewItemListView(s.Password, s.Source, "PasswordsFound");
-                        var lvi = panelInformation.lvwInformation.Items.Add(s.Password);
-                        lvi.SubItems.Add(s.Source);
-                        lvi.Group = panelInformation.lvwInformation.Groups["PasswordsFound"];
                     }
                     panelInformation.lvwInformation.ListViewItemSorter = lvcsv;
                 }
@@ -1387,12 +1384,6 @@ namespace FOCA
 
                 var metaDatos = (MetaData)e.Node.Nodes["Other Metadata"].Tag;
                 var valueGroupMetadata = "Other Metadata";
-
-                if (metaDatos.Applications != null && metaDatos.Applications.Items.Count > 0)
-                {
-                    foreach (var aplicacion in metaDatos.Applications.Items)
-                        NewItemListView("Application", aplicacion.Name, valueGroupMetadata);
-                }
 
                 if (metaDatos.Subject != null)
                     NewItemListView("Subject", metaDatos.Subject, valueGroupMetadata);
@@ -1498,7 +1489,7 @@ namespace FOCA
             var historyValue = "History";
 
             panelInformation.lvwInformation.Groups.Add(historyValue, historyValue);
-            var historyItems = (History)e.Node.Tag;
+            var historyItems = (Database.Entities.History)e.Node.Tag;
             foreach (var hi in historyItems.Items)
             {
                 if (!String.IsNullOrWhiteSpace(hi.Author))
@@ -1548,10 +1539,6 @@ namespace FOCA
 
             panelInformation.lvwInformation.Groups.Add("Other Metadata", "Other Metadata");
             MetaData metaDatadosValue = (MetaData)e.Node.Tag;
-
-            if (metaDatadosValue.Applications != null && metaDatadosValue.Applications.Items.Count > 0)
-                foreach (var aplicacion in metaDatadosValue.Applications.Items)
-                    NewItemListView("Application", aplicacion.Name, otherMetaValue);
 
             if (metaDatadosValue.Subject != null && metaDatadosValue.Subject.Trim() != string.Empty)
                 NewItemListView("Subject", metaDatadosValue.Subject, otherMetaValue);
@@ -2732,7 +2719,7 @@ namespace FOCA
                 var list = (PanelUrlsList)tab.Controls[0];
                 for (var i = list.lstView.Items.Count; i < domain.map.Files.Count(); i++)
                 {
-                    list.lstView.Items.Add(domain.map.Files[i]).SubItems.Add(Path.GetExtension(domain.map.Files[i]));
+                    list.lstView.Items.Add(domain.map.Files[i]).SubItems.Add(System.IO.Path.GetExtension(domain.map.Files[i]));
                 }
             }
 

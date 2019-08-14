@@ -1,71 +1,26 @@
 using MetadataExtractCore.Diagrams;
+using MetadataExtractCore.Utilities;
 using System;
 using System.IO;
 using System.Linq;
-using System.Xml.Serialization;
 
-namespace MetadataExtractCore.Metadata
+namespace MetadataExtractCore.Extractors
 {
-
-    [XmlInclude(typeof(EXIFDocument))]
-    [XmlInclude(typeof(Office972003))]
-    [XmlInclude(typeof(OfficeOpenXMLDocument))]
-    [XmlInclude(typeof(OpenOfficeDocument))]
-    [XmlInclude(typeof(PDFDocument))]
-    [XmlInclude(typeof(WPDDocument))]
-    [XmlInclude(typeof(InDDDocument))]
-    [XmlInclude(typeof(SVGDocument))]
-    [XmlInclude(typeof(WPDDocument))]
-    [XmlInclude(typeof(RDPDocument))]
-    [XmlInclude(typeof(ICADocument))]
-    [Serializable]
-
-    public abstract class MetaExtractor
+    public abstract class DocumentExtractor : IDisposable
     {
-        [NonSerialized]
-        protected MemoryStream stm;
-
         public static readonly string[] SupportedExtensions = new string[] { ".sxw", ".odt", ".ods", ".odg", ".odp", ".docx", ".xlsx", ".pptx", ".ppsx", ".doc", ".xls", ".ppt", ".pps", ".pdf", ".wpd", ".raw", ".cr2", ".crw", ".jpg", ".jpeg", ".svg", ".svgz", ".indd", ".rdp", ".ica" };
 
-        public int Id { get; set; }
-        public Emails FoundEmails { get; set; }
-        public Dates FoundDates { get; set; }
-        public Printers FoundPrinters { get; set; }
-        public Paths FoundPaths { get; set; }
-        public OldVersions FoundOldVersions { get; set; }
-        public History FoundHistory { get; set; }
-        public MetaData FoundMetaData { get; set; }
-        public Users FoundUsers { get; set; }
-        public Servers FoundServers { get; set; }
-        public Passwords FoundPasswords { get; set; }
+        protected MemoryStream fileStream;
+        protected FileMetadata foundMetadata;
 
-        public abstract void analyzeFile();
+        private bool disposed = false;
 
-        public MetaExtractor()
+        public abstract FileMetadata AnalyzeFile();
+
+        public DocumentExtractor(Stream fileStream)
         {
-            FoundEmails = new Emails();
-            FoundDates = new Dates();
-            FoundPrinters = new Printers();
-            FoundPaths = new Paths();
-            FoundOldVersions = new OldVersions();
-            FoundHistory = new History();
-            FoundMetaData = new MetaData();
-            FoundUsers = new Users();
-            FoundServers = new Servers();
-            FoundPasswords = new Passwords();
-        }
-
-        /// <summary>
-        /// Release used resources
-        /// </summary>
-        public void Close()
-        {
-
-            if (stm != null)
-            {
-                stm.Close();
-                stm = null;
-            }
+            this.fileStream = new MemoryStream();
+            Functions.CopyStream(fileStream, this.fileStream);
         }
 
         private static string NormalizeExtension(string extension)
@@ -85,15 +40,14 @@ namespace MetadataExtractCore.Metadata
             return SupportedExtensions.Any(p => p.Equals(normalizedExtension));
         }
 
-        public static MetaExtractor Create(string extension, Stream file)
+        public static DocumentExtractor Create(string extension, Stream file)
         {
             if (file == null)
                 throw new ArgumentNullException(nameof(file));
-
             string normalizedExtension = NormalizeExtension(extension);
             if (IsSupportedExtension(normalizedExtension))
             {
-                MetaExtractor document = null;
+                DocumentExtractor document = null;
                 switch (normalizedExtension)
                 {
                     case ".sxw":
@@ -144,7 +98,6 @@ namespace MetadataExtractCore.Metadata
                     default:
                         throw new ArgumentException("Extension not supported", nameof(extension));
                 }
-
                 return document;
             }
             else
@@ -152,5 +105,78 @@ namespace MetadataExtractCore.Metadata
                 throw new ArgumentException("Extension not supported", nameof(extension));
             }
         }
+
+        protected bool IsInterestingLink(string href)
+        {
+            if (href != string.Empty)
+            {
+                if (href.StartsWith("mailto:"))
+                {
+                    string email = href.Substring(7, (href.Contains("?") ? href.IndexOf('?') : href.Length) - 7);
+                    this.foundMetadata?.Add(new Email(email));
+                }
+                else if (href.StartsWith("ftp:"))
+                {
+                    return true;
+                }
+                else if (href.StartsWith("http:"))
+                {
+                    return true;
+                }
+                else if (href.StartsWith("https:"))
+                {
+                    return true;
+                }
+                else if (href.StartsWith("telnet:"))
+                {
+                    return true;
+                }
+                else if (href.StartsWith("ldap:"))
+                {
+                    return true;
+                }
+                else
+                {
+                    Uri url;
+                    if (Uri.TryCreate(href, UriKind.Absolute, out url))
+                    {
+                        if (url.HostNameType != UriHostNameType.Dns)
+                        {
+                            return true;
+                        }
+                    }
+                    else if (!href.StartsWith("#"))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    this.fileStream.Dispose();
+                }
+
+                disposed = true;
+            }
+        }
+
+        ~DocumentExtractor()
+        {
+            Dispose(false);
+        }
+
     }
 }

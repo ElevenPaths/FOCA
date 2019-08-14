@@ -445,9 +445,9 @@ namespace FOCA.Analysis.HttpMap
                     if (!String.IsNullOrWhiteSpace(url))
                     {
                         var uri = new Uri(url);
-                        var file = Path.GetFileName(uri.LocalPath);
-                        var fileName = Path.GetFileNameWithoutExtension(file);
-                        var fileExtension = Path.GetExtension(file);
+                        var file = System.IO.Path.GetFileName(uri.LocalPath);
+                        var fileName = System.IO.Path.GetFileNameWithoutExtension(file);
+                        var fileExtension = System.IO.Path.GetExtension(file);
                         var path = uri.AbsoluteUri;
 
                         if (uri.AbsoluteUri.IndexOf(file, StringComparison.Ordinal) > 0)

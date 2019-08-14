@@ -1,37 +1,33 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
 using MetadataExtractCore.Analysis;
-using MetadataExtractCore.Utilities;
 using MetadataExtractCore.Diagrams;
+using MetadataExtractCore.Utilities;
+using System;
+using System.IO;
 
-namespace MetadataExtractCore.Metadata
+namespace MetadataExtractCore.Extractors
 {
-    public class WPDDocument : MetaExtractor
+    public class WPDDocument : DocumentExtractor
     {
         private enum MetadataType { SharedResource, Printer, File, Unknown };
 
-        public WPDDocument() { }
-
-        public WPDDocument(Stream stm)
+        public WPDDocument(Stream stm) : base(stm)
         {
-            this.stm = new MemoryStream();
-            Functions.CopyStream(stm, this.stm);
         }
 
-        public override void analyzeFile()
+        public override FileMetadata AnalyzeFile()
         {
             try
             {
-                if (IsWPD(stm))
+                this.foundMetadata = new FileMetadata();
+                if (IsWPD(this.fileStream))
                 {
                     long entryPoint = 0;
                     MetadataType tipo;
-                    while ((entryPoint = EntryPointString(stm, out tipo)) > -1)
+                    while ((entryPoint = EntryPointString(this.fileStream, out tipo)) > -1)
                     {
-                        stm.Seek(entryPoint + 2, SeekOrigin.Begin);
+                        this.fileStream.Seek(entryPoint + 2, SeekOrigin.Begin);
 
-                        var aux = ReadBinaryString16(stm);
+                        var aux = ReadBinaryString16(this.fileStream);
                         if (!IsPossibleString(aux)) continue;
                         if (tipo == MetadataType.Unknown && !PathAnalysis.IsValidPath(aux))
                         {
@@ -40,22 +36,22 @@ namespace MetadataExtractCore.Metadata
                                 aux.ToLower().Contains("epson") || aux.ToLower().Contains("lj") || aux.ToLower().Contains("lexmark") ||
                                 aux.ToLower().Contains("xerox") || aux.ToLower().Contains("sharp"))
                             {
-                                FoundPrinters.AddUniqueItem(Functions.FilterPrinter(aux));
+                                this.foundMetadata.Add(new Printer(Functions.FilterPrinter(aux)));
                             }
                             else if (aux.ToLower().Contains("acrobat") || aux.ToLower().Contains("adobe") || aux.ToLower().Contains("creator") ||
                                      aux.ToLower().Contains("writer") || aux.ToLower().Contains("pdf") || aux.ToLower().Contains("converter"))
                             {
-                                FoundMetaData.Applications.Items.Add(new ApplicationsItem(Functions.FilterPrinter(Analysis.ApplicationAnalysis.GetApplicationsFromString(aux))));
+                                this.foundMetadata.Add(new Application(Functions.FilterPrinter(Analysis.ApplicationAnalysis.GetApplicationsFromString(aux))));
                             }
                         }
                         else
                         {
                             var strPath = Functions.GetPathFolder(aux);
                             if (!PathAnalysis.IsValidPath(strPath)) continue;
-                            FoundPaths.AddUniqueItem(PathAnalysis.CleanPath(strPath), true);
+                            this.foundMetadata.Add(new Diagrams.Path(PathAnalysis.CleanPath(strPath), true));
                             var strUser = PathAnalysis.ExtractUserFromPath(strPath);
                             if (!string.IsNullOrEmpty(strUser))
-                                FoundUsers.AddUniqueItem(strUser, true);
+                                this.foundMetadata.Add(new User(strUser, true));
                         }
                     }
                 }
@@ -64,6 +60,7 @@ namespace MetadataExtractCore.Metadata
             {
                 System.Diagnostics.Debug.WriteLine(e.ToString());
             }
+            return this.foundMetadata;
         }
 
         private static long EntryPointString(Stream fs, out MetadataType tipo)

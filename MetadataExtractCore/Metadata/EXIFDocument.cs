@@ -1,63 +1,50 @@
+using MetadataExtractCore.Diagrams;
+using MetadataExtractCore.Utilities;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using com.drew.metadata;
-using com.drew.imaging.tiff;
-using com.drew.imaging.jpg;
 using System.IO;
-using MetadataExtractCore.Utilities;
-using MetadataExtractCore.Diagrams;
 
-namespace MetadataExtractCore.Metadata
+namespace MetadataExtractCore.Extractors
 {
-    [Serializable]
-    public class EXIFDocument : MetaExtractor
+    public class EXIFDocument : DocumentExtractor
     {
         private string strExt;
 
-        public SerializableDictionary<string, SerializableDictionary<string, string>> dicAnotherMetadata { get; set;}
-
-        public byte[] Thumbnail {get; set;}
-
-        public EXIFDocument() { }
-
-        public EXIFDocument(Stream stm, string strExt)
+        public EXIFDocument(Stream stm, string strExt) : base(stm)
         {
-            this.stm = new MemoryStream();
-            Functions.CopyStream(stm, this.stm);
             this.strExt = strExt;
-            dicAnotherMetadata = new SerializableDictionary<string, SerializableDictionary<string, string>>();
         }
 
-        public override void analyzeFile()
+        public override FileMetadata AnalyzeFile()
         {
             com.drew.metadata.Metadata m;
             try
             {
-                if (strExt.ToLower() == ".raw" ||
-                    strExt.ToLower() == ".cr2" ||
-                    strExt.ToLower() == ".crw")
+                this.foundMetadata = new FileMetadata();
+                if (strExt == ".raw" ||
+                    strExt == ".cr2" ||
+                    strExt == ".crw")
                 {
-                    m = TiffMetadataReader.ReadMetadata(stm);
+                    m = com.drew.imaging.tiff.TiffMetadataReader.ReadMetadata(this.fileStream);
                 }
                 else
                 {
-                    m = JpegMetadataReader.ReadMetadata(stm);
+                    m = com.drew.imaging.jpg.JpegMetadataReader.ReadMetadata(this.fileStream);
                 }
-                IEnumerator<AbstractDirectory> lcDirectoryEnum = m.GetDirectoryIterator();
+                IEnumerator<com.drew.metadata.AbstractDirectory> lcDirectoryEnum = m.GetDirectoryIterator();
                 while (lcDirectoryEnum.MoveNext())
                 {
                     if (lcDirectoryEnum.Current.GetName() != "Jpeg Makernote")
                     {
-                        SerializableDictionary<string, string> dicTags = new SerializableDictionary<string, string>();
-                        AbstractDirectory lcDirectory = lcDirectoryEnum.Current;
-                        IEnumerator<Tag> lcTagsEnum = lcDirectory.GetTagIterator();
+                        Dictionary<string, string> dicTags = new Dictionary<string, string>();
+                        com.drew.metadata.AbstractDirectory lcDirectory = lcDirectoryEnum.Current;
+                        IEnumerator<com.drew.metadata.Tag> lcTagsEnum = lcDirectory.GetTagIterator();
                         while (lcTagsEnum.MoveNext())
                         {
-                            Tag tag = lcTagsEnum.Current;
+                            com.drew.metadata.Tag tag = lcTagsEnum.Current;
                             if (tag.GetTagName() == "Thumbnail Data")
                             {
-                                Thumbnail = (byte[])tag.GetTagValue();
+                                foundMetadata.Thumbnail = (byte[])tag.GetTagValue();
                             }
                             string lcDescription = "";
                             try
@@ -68,7 +55,7 @@ namespace MetadataExtractCore.Metadata
                             string lcName = tag.GetTagName();
                             if (lcName.ToLower().StartsWith("unknown") || lcDescription.ToLower().StartsWith("unknown"))
                             {
-                               continue;
+                                continue;
                             }
                             lcName = Functions.RemoveAccentsWithNormalization(lcName);
                             lcDescription = Functions.RemoveAccentsWithNormalization(lcDescription);
@@ -78,20 +65,22 @@ namespace MetadataExtractCore.Metadata
                                     !lcDescription.ToLower().Contains("digital") && !lcDescription.ToLower().Contains("camera") && !lcDescription.ToLower().Contains("(c)") &&
                                     !lcDescription.ToLower().Contains("copyright"))
                                 {
-                                    FoundUsers.AddUniqueItem(lcDescription, false, "Copyright/Owner name");
+                                    this.foundMetadata.Add(new User(lcDescription, false, "Copyright/Owner name"));
                                 }
                             }
                             if (lcName.ToLower() == "software")
                             {
                                 string strSoftware = Analysis.ApplicationAnalysis.GetApplicationsFromString(lcDescription.Trim());
-                                if (!FoundMetaData.Applications.Items.Any(A => A.Name == strSoftware))
-                                    FoundMetaData.Applications.Items.Add(new ApplicationsItem(strSoftware));
+                                this.foundMetadata.Add(new Application(strSoftware));
                             }
                             if (lcName.ToLower() == "model")
-                                FoundMetaData.Model = lcDescription.Trim();
-                            dicTags.Add(lcName, lcDescription);
+                                this.foundMetadata.Model = lcDescription.Trim();
+                            if (!dicTags.ContainsKey(lcName))
+                            {
+                                dicTags.Add(lcName, lcDescription);
+                            }
                         }
-                        dicAnotherMetadata.Add(lcDirectory.GetName(), dicTags);
+                        foundMetadata.Makernotes.Add(lcDirectory.GetName(), dicTags);
                     }
                 }
             }
@@ -99,10 +88,8 @@ namespace MetadataExtractCore.Metadata
             {
                 System.Diagnostics.Debug.WriteLine($"Error analizing EXIF metadata ({e.ToString()})");
             }
-            finally
-            {
-                this.stm.Close();
-            }
+
+            return this.foundMetadata;
         }
     }
 }

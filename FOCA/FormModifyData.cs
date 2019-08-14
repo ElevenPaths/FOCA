@@ -1,5 +1,6 @@
 using System;
 using System.Windows.Forms;
+using FOCA.Database.Entities;
 using MetadataExtractCore.Diagrams;
 
 namespace FOCA
