@@ -48,7 +48,9 @@ namespace FOCA
                     return;
                 }
 
-                if (Program.data.GetIp(strIp) == null)
+
+                IPsItem ip = Program.data.GetIp(strIp);
+                if (ip == null || String.IsNullOrWhiteSpace(ip.Ip))
                 {
                     var t = new Thread(AddIp);
                     t.Start();

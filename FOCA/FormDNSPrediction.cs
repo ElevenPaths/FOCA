@@ -148,19 +148,21 @@ namespace FOCA
 
         private void btnScan_Click(object sender, EventArgs e)
         {
-            if (CalculateTotalValuesCount() == 1)
+            uint totalValues = CalculateTotalValuesCount();
+            if (totalValues <= 1)
             {
                 MessageBox.Show(@"Add at least one variable", Application.ProductName, MessageBoxButtons.OK,
                     MessageBoxIcon.Information);
             }
-            if (CalculateTotalValuesCount() > 10000)
+            else
+            if (totalValues > 10000)
             {
-                MessageBox.Show(@"The number of possibilities exceeds the limit 10000, delete some ranges",
+                MessageBox.Show(@"The number of possibilities exceeds the limit of 10000, narrow down the range.",
                     Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             else
             {
-                GeneraVariaciones();
+                GenerateVariations();
                 DialogResult = DialogResult.OK;
             }
         }
@@ -168,7 +170,7 @@ namespace FOCA
         /// <summary>
         ///     Generate all possible variants
         /// </summary>
-        private void GeneraVariaciones()
+        private void GenerateVariations()
         {
             var nPatterns = listViewPatterns.Items.Count;
             // this array will store the current value of each pattern
