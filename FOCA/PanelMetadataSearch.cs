@@ -465,13 +465,7 @@ namespace FOCA
                     ListViewItem.ListViewSubItem lviAnalyzed;
                     ListViewItem.ListViewSubItem lviModifedDate;
 
-                    foreach (
-                        var lvi in
-                            listViewDocuments.Items.Cast<ListViewItem>().Where(lvi => (FilesItem)lvi.Tag == fi))
-                    {
-                        lviCurrent = lvi;
-                        break;
-                    }
+                    lviCurrent = listViewDocuments.Items.Cast<ListViewItem>().Where(lvi => (FilesItem)lvi.Tag == fi).FirstOrDefault();
 
                     // new item
                     if (lviCurrent == null)
@@ -505,24 +499,20 @@ namespace FOCA
                         }
                     }
                     // represent the item into the ListView
-                    var extension = fi.Ext;
-                    lviExtension.Text = extension.Length > 0 ? extension.Substring(1, extension.Length - 1) : extension;
+                    lviExtension.Text = fi.Ext.TrimStart('.');
                     lviUrl.Text = fi.URL;
 
                     lviDownloaded.Font = new Font(Font.FontFamily, 14);
                     lviDownloaded.Text = fi.Downloaded ? "•" : "×";
                     lviDownloaded.ForeColor = fi.Downloaded ? Color.Green : Color.Red;
-                    lviDownloadedDate.Text = fi.Date == DateTime.MinValue
-                        ? "-"
-                        : fi.Date.ToString(CultureInfo.InvariantCulture);
+                    lviDownloadedDate.Text = fi.Date == DateTime.MinValue ? "-": fi.Date.ToString(CultureInfo.InvariantCulture);
+
                     lviSize.Text = fi.Size > -1 ? GetFileSizeAsString(fi.Size) : "-";
 
                     lviAnalyzed.Font = new Font(Font.FontFamily, 14);
                     lviAnalyzed.Text = fi.Processed ? "•" : "×";
                     lviAnalyzed.ForeColor = fi.Processed ? Color.Green : Color.Red;
-                    lviModifedDate.Text = fi.ModifiedDate == DateTime.MinValue
-                        ? "-"
-                        : fi.ModifiedDate.ToString(CultureInfo.InvariantCulture);
+                    lviModifedDate.Text = fi.ModifiedDate == DateTime.MinValue ? "-" : fi.ModifiedDate.ToString(CultureInfo.InvariantCulture);
                 }));
             }
             catch (Exception ex)
@@ -2266,7 +2256,7 @@ namespace FOCA
                             btnSearch.Image = Resources.magnifier;
                             checkedListBoxExtensions.Enabled = panelSearchConfiguration.Enabled = true;
                         }));
-                        Program.FormMainInstance.ChangeStatus("All searchers has been finished");
+                        Program.FormMainInstance.ChangeStatus("All searchers have finished");
                         this.searchCancelToken.Dispose();
                         this.searchCancelToken = null;
                     });
@@ -2429,14 +2419,13 @@ namespace FOCA
                     };
                     Program.data.files.Items.Add(fi);
                     Program.FormMainInstance.treeViewMetadata_UpdateDocumentsNumber();
-                    var lvi = listViewDocuments_Update(fi);
+                    listViewDocuments_Update(fi);
                     HttpSizeDaemonInst.AddURL(fi);
                 }));
                 // add the domain from the found link to the project's domains
                 if (Program.data.Project.ProjectState == Project.ProjectStates.Uninitialized)
                     continue;
-                Program.data.AddDomain(link.Host, "Documents search", 0,
-                    Program.cfgCurrent);
+                Program.data.AddDomain(link.Host, "Documents search", 0, Program.cfgCurrent);
                 // add the URL to the domain's map
                 Program.data.GetDomain(link.Host).map.AddDocument(link.ToString());
             }

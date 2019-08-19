@@ -236,9 +236,9 @@ namespace FOCA.Search
 			}
 		}
 
-        #region Código para mostrar los iconos de orden en las columnas
+        #region Logic to show the order icons in the columns 
         /// <summary>
-        /// Redefinimos el método ordenar para insertar los iconos de ordenamiento
+        /// Redefine the Sort method to insert de order icons
         /// </summary>
         public new void Sort()
         {

@@ -26,7 +26,7 @@ namespace FOCA
         private void btDel_Click(object sender, EventArgs e)
         {
             var ip = txtIp.Text;
-            foreach (var i in Program.data.computerIPs.Items.Where(i => i.Ip.Ip == ip))
+            foreach (var i in Program.data.computerIPs.Items.Where(i => i.Ip.Ip == ip).ToList())
             {
                 Program.data.computerIPs.Items.Remove(i);
             }

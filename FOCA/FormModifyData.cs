@@ -6,11 +6,17 @@ namespace FOCA
 {
     public partial class FormModifyData : Form
     {
-        private readonly Applications aLst;
-        private readonly Descriptions dLst;
+        private readonly Applications Applications;
+        private readonly Descriptions Descriptions;
         private readonly Type _type;
-        private readonly Users uLst;
-        public object Result;
+        private readonly Users Users;
+
+        private enum Type
+        {
+            Users,
+            Applications,
+            Summary
+        }
 
         public FormModifyData()
         {
@@ -19,7 +25,7 @@ namespace FOCA
 
         public FormModifyData(Users u) : this()
         {
-            uLst = u;
+            Users = u;
             _type = Type.Users;
             foreach (var ui in u.Items)
             {
@@ -31,7 +37,7 @@ namespace FOCA
 
         public FormModifyData(Applications a) : this()
         {
-            aLst = a;
+            Applications = a;
             _type = Type.Applications;
             foreach (var ai in a.Items)
             {
@@ -43,7 +49,7 @@ namespace FOCA
 
         public FormModifyData(Descriptions d) : this()
         {
-            dLst = d;
+            Descriptions = d;
             _type = Type.Summary;
             foreach (var di in d.Items)
             {
@@ -60,26 +66,28 @@ namespace FOCA
 
         private void btnSave_Click(object sender, EventArgs e)
         {
-            uLst.Items.Clear();
             switch (_type)
             {
                 case Type.Summary:
+                    Descriptions.Items.Clear();
                     foreach (ListViewItem lvi in lvwValues.Items)
                     {
-                        dLst.Items.Add(lvi.Tag as DescriptionsItem);
+                        Descriptions.Items.Add(lvi.Tag as DescriptionsItem);
                     }
                     break;
                 case Type.Users:
-
+                    Users.Items.Clear();
                     foreach (ListViewItem lvi in lvwValues.Items)
                     {
-                        uLst.Items.Add(lvi.Tag as UserItem);
+                        
+                        Users.Items.Add(lvi.Tag as UserItem);
                     }
                     break;
                 case Type.Applications:
+                    Applications.Items.Clear();
                     foreach (ListViewItem lvi in lvwValues.Items)
                     {
-                        aLst.Items.Add(lvi.Tag as ApplicationsItem);
+                        Applications.Items.Add(lvi.Tag as ApplicationsItem);
                     }
                     break;
             }
@@ -89,39 +97,39 @@ namespace FOCA
         private void btnAdd_Click(object sender, EventArgs e)
         {
             var frm = new FormValueNotes();
+
+            if (frm.ShowDialog() != DialogResult.OK) return;
+
             ListViewItem lvi;
             switch (_type)
             {
                 case Type.Users:
                 {
-                    if (frm.ShowDialog() != DialogResult.OK) return;
-                    var ui = new UserItem
+                    var user = new UserItem
                     {
                         Name = frm.Value,
                         Notes = frm.Notes,
                         IsComputerUser = true
                     };
-                    lvi = lvwValues.Items.Add(ui.Name);
-                    lvi.SubItems.Add(ui.Notes);
-                    lvi.Tag = ui;
+                    lvi = lvwValues.Items.Add(user.Name);
+                    lvi.SubItems.Add(user.Notes);
+                    lvi.Tag = user;
                     break;
                 }
                 case Type.Applications:
                 {
-                    if (frm.ShowDialog() != DialogResult.OK) return;
-                    var ai = new ApplicationsItem(frm.Value, frm.Notes);
-                    lvi = lvwValues.Items.Add(ai.Name);
-                    lvi.SubItems.Add(ai.Source);
-                    lvi.Tag = ai;
+                    var application = new ApplicationsItem(frm.Value, frm.Notes);
+                    lvi = lvwValues.Items.Add(application.Name);
+                    lvi.SubItems.Add(application.Source);
+                    lvi.Tag = application;
                     break;
                 }
                 case Type.Summary:
                 {
-                    if (frm.ShowDialog() != DialogResult.OK) return;
-                    var di = new DescriptionsItem(frm.Value, frm.Notes);
-                    lvi = lvwValues.Items.Add(di.Description);
-                    lvi.SubItems.Add(di.Source);
-                    lvi.Tag = di;
+                    var description = new DescriptionsItem(frm.Value, frm.Notes);
+                    lvi = lvwValues.Items.Add(description.Description);
+                    lvi.SubItems.Add(description.Source);
+                    lvi.Tag = description;
                     break;
                 }
             }
@@ -132,13 +140,6 @@ namespace FOCA
             if (lvwValues.SelectedItems.Count <= 0) return;
             foreach (ListViewItem lvi in lvwValues.SelectedItems)
                 lvi.Remove();
-        }
-
-        private enum Type
-        {
-            Users,
-            Applications,
-            Summary
         }
     }
 }

@@ -95,7 +95,7 @@ namespace FOCA
                             };
                             Program.data.files.Items.Add(fi);
                             Program.FormMainInstance.treeViewMetadata_UpdateDocumentsNumber();
-                            var lvi = Program.FormMainInstance.panelMetadataSearch.listViewDocuments_Update(fi);
+                            Program.FormMainInstance.panelMetadataSearch.listViewDocuments_Update(fi);
                             Program.FormMainInstance.panelMetadataSearch.HttpSizeDaemonInst.AddURL(fi);
                         }
                     }

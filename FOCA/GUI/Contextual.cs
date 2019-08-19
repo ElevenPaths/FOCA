@@ -256,19 +256,16 @@ namespace FOCA.GUI
             };
             tsiRemoveClient.Click += delegate
             {
-                var comp = (ComputersItem)tn.Tag;
-                Program.data.computers.Items.Remove(comp);
+                Program.data.computers.Items.Remove(computer);
             };
             tsiModifySoftware.Click += delegate
             {
-                var comp = (ComputersItem)tn.Tag;
-                var fModDat = new FormModifyData(comp.Software) { StartPosition = FormStartPosition.CenterParent };
+                var fModDat = new FormModifyData(computer.Software) { StartPosition = FormStartPosition.CenterParent };
                 fModDat.ShowDialog();
             };
             tsiModifyUser.Click += delegate
             {
-                var comp = (ComputersItem)tn.Tag;
-                var fModDat = new FormModifyData(comp.Users) { StartPosition = FormStartPosition.CenterParent };
+                var fModDat = new FormModifyData(computer.Users) { StartPosition = FormStartPosition.CenterParent };
                 fModDat.ShowDialog();
             };
             tsiModifyDescription.Click += delegate
