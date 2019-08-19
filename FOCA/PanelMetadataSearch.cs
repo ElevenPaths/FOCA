@@ -2377,8 +2377,17 @@ namespace FOCA
         /// <param name="e"></param>
         public void HandleLinkFoundEvent(object sender, EventsThreads.CollectionFound<Uri> e)
         {
-            string searcherName = ((LinkSearcher)sender).Name;
-            Program.LogThis(new Log(Log.ModuleType.MetadataSearch, $"{searcherName}: Found {e.Data.Count} links", Log.LogType.debug));
+            string source = String.Empty;
+            if (sender is LinkSearcher ls)
+            {
+                source = ls.Name;
+            }
+            else
+            {
+                source = "Manually added";
+            }
+
+            Program.LogThis(new Log(Log.ModuleType.MetadataSearch, $"{source}: Found {e.Data.Count} links", Log.LogType.debug));
 
             foreach (Uri link in e.Data)
             {
@@ -2389,7 +2398,7 @@ namespace FOCA
                         continue;
 
                     if (Program.data.GetDomain(link.Host) == null)
-                        Program.data.AddDomain(link.Host, "WebSearch", Program.cfgCurrent.MaxRecursion, Program.cfgCurrent);
+                        Program.data.AddDomain(link.Host, source, Program.cfgCurrent.MaxRecursion, Program.cfgCurrent);
 
                     var dominio = Program.data.GetDomain(link.Host);
                     dominio.map.AddUrl(link.ToString());
