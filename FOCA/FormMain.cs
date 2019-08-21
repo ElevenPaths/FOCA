@@ -38,11 +38,6 @@ namespace FOCA
         private CancellationTokenSource updateUITokenSource;
 
         /// <summary>
-        /// Array with extensions.
-        /// </summary>
-        public string[] AstrSuportedExtensions;
-
-        /// <summary>
         /// Thread with all actions.
         /// </summary>
         public Thread ScannThread;
@@ -88,28 +83,8 @@ namespace FOCA
             if (TaskbarManager.IsPlatformSupported)
                 _tm = TaskbarManager.Instance;
 
-            FillSupportedExtensions();
-
             ProjectManager = new ProjectManager(this);
             this.updateUITokenSource = new CancellationTokenSource();
-        }
-
-        /// <summary>
-        /// Load AstrSuportedExtensions with all extension for Foca
-        /// </summary>
-        private void FillSupportedExtensions()
-        {
-            var nroExtensiones = panelMetadataSearch.checkedListBoxExtensions.Items.Count + 1;
-
-            AstrSuportedExtensions = new string[nroExtensiones];
-
-            for (var i = 0; i < panelMetadataSearch.checkedListBoxExtensions.Items.Count; i++)
-            {
-                panelMetadataSearch.checkedListBoxExtensions.SetItemChecked(i, true);
-                AstrSuportedExtensions[i] = ((string)panelMetadataSearch.checkedListBoxExtensions.Items[i]).Replace("*", "");
-            }
-
-            AstrSuportedExtensions[nroExtensiones - 1] = "jpg";
         }
 
         private void formMain_Load(object sender, EventArgs e)
@@ -698,7 +673,7 @@ namespace FOCA
 
             string ext = file.Ext;
 
-            if (ext.Length == 0 || !AstrSuportedExtensions.Contains(ext.Substring(1).ToLower()))
+            if (ext.Length == 0 || !MetaExtractor.IsSupportedExtension(ext))
                 ext = "Unknown";
 
             TreeNode parent;

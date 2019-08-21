@@ -405,7 +405,7 @@ namespace FOCA
             if (s == null) return;
             var extension = s.ToLower();
             // verify that it's a well-known extension, if not, guess filetype
-            var knownExtension = Program.FormMainInstance.AstrSuportedExtensions.Any(ext => "." + ext == s.ToLower());
+            var knownExtension = MetaExtractor.IsSupportedExtension(extension);
             if (!knownExtension)
             {
                 using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read))
@@ -2514,7 +2514,7 @@ namespace FOCA
                     fi.Downloaded = true;
                     fi.Date = DateTime.Now;
                     fi.Size = (int)new FileInfo(file.PhysicalPath).Length;
-                    bool unknownExtension = String.IsNullOrWhiteSpace(fi.Ext) || !Program.FormMainInstance.AstrSuportedExtensions.Any(ext => String.Equals("." + ext, fi.Ext, StringComparison.OrdinalIgnoreCase));
+                    bool unknownExtension = String.IsNullOrWhiteSpace(fi.Ext) || !MetaExtractor.IsSupportedExtension(fi.Ext);
 
                     if (unknownExtension)
                     {
