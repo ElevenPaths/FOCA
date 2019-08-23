@@ -81,7 +81,7 @@ namespace FOCA
             ProjectName = Project.DefaultProjectName;
             DomainWebsite = string.Empty;
             AlternativeDomains = string.Empty;
-            FolderDocuments = Path.GetTempPath();
+            FolderDocuments = System.IO.Path.GetTempPath();
             Notes = string.Empty;
             definedProject = false;
             Program.data = new Data();
@@ -181,7 +181,7 @@ namespace FOCA
             if (!bNewAlternativeDomains || !bAnyServer) return;
             if (
                 MessageBox.Show(@"New alternative domains found, do you want reanalyze network servers?",
-                    Application.ProductName, MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation,
+                    System.Windows.Forms.Application.ProductName, MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation,
                     MessageBoxDefaultButton.Button2) == DialogResult.Yes)
             {
                 var tReAnalysis = new Thread(Program.FormMainInstance.panelMetadataSearch.ReanalyzeServers)
@@ -211,12 +211,12 @@ namespace FOCA
                     Program.FormMainInstance.LoadProjectGui(false);
                     MessageBox.Show(
                         $"The folder {FolderDocuments} doesn't exist and can't be created. Please, select another folder.");
-                    Program.data.Project.FolderToDownload = Path.GetTempPath();
+                    Program.data.Project.FolderToDownload = System.IO.Path.GetTempPath();
                     return false;
                 }
             }
             else
-                Program.data.Project.FolderToDownload = Path.GetTempPath();
+                Program.data.Project.FolderToDownload = System.IO.Path.GetTempPath();
             return true;
         }
 

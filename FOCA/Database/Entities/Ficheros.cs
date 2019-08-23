@@ -1,6 +1,5 @@
 using System;
 using FOCA.ModifiedComponents;
-using MetadataExtractCore.Metadata;
 using Newtonsoft.Json;
 
 namespace FOCA.Database.Entities

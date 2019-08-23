@@ -130,7 +130,7 @@ namespace FOCA.Core
                     {
                         TreeNode tn_file = Program.FormMainInstance.TreeViewMetadataAddDocument(fi);
                         tn_file.Tag = fi;
-                        string extension = Path.GetExtension(fi.Path).ToLower();
+                        string extension = System.IO.Path.GetExtension(fi.Path).ToLower();
                         tn_file.ImageIndex =
                             tn_file.SelectedImageIndex = Program.FormMainInstance.GetImageToExtension(extension);
                         //Carga los metadatos si los tiene

@@ -1,31 +1,27 @@
 using System;
 using System.Collections.Generic;
 
-namespace MetadataExtractCore.Diagrams
+namespace FOCA.Database.Entities
 {
     [Serializable]
-    public class OldVersions
+    public class History
     {
         public int Id { get; set; }
-        public List<OldVersionsItem> Items { get; set; }
+        public List<HistoryItem> Items { get; set; }
 
-        public OldVersions()
+        public History()
         {
-            Items = new List<OldVersionsItem>();
+            Items = new List<HistoryItem>();
         }
     }
 
     [Serializable]
-    public class OldVersionsItem
+    public class HistoryItem
     {
         public int Id { get; set; }
         public string Author { get; set; }
 
         public string Comments { get; set; }
-
-        public DateTime Date = new DateTime();
-
-        public bool SpecificDate { get; set; }
 
         public string Path { get; set; }
     }

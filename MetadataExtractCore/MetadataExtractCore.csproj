@@ -85,26 +85,30 @@
   <ItemGroup>
     <Compile Include="Analysis\ApplicationAnalysis.cs" />
     <Compile Include="Analysis\PathAnalysis.cs" />
-    <Compile Include="Diagrams\Applications.cs" />
-    <Compile Include="Diagrams\Descriptions.cs" />
-    <Compile Include="Diagrams\Emails.cs" />
+    <Compile Include="Diagrams\Application.cs" />
+    <Compile Include="Diagrams\Email.cs" />
     <Compile Include="Diagrams\Dates.cs" />
     <Compile Include="Diagrams\History.cs" />
-    <Compile Include="Diagrams\Printers.cs" />
-    <Compile Include="Diagrams\MetaData.cs" />
-    <Compile Include="Diagrams\Passwords.cs" />
-    <Compile Include="Diagrams\Paths.cs" />
-    <Compile Include="Diagrams\Servers.cs" />
-    <Compile Include="Diagrams\Users.cs" />
-    <Compile Include="Diagrams\OldVersions.cs" />
+    <Compile Include="Diagrams\MetadataValue.cs" />
+    <Compile Include="Diagrams\OldVersion.cs" />
+    <Compile Include="Diagrams\Printer.cs" />
+    <Compile Include="Diagrams\FileMetadata.cs" />
+    <Compile Include="Diagrams\Password.cs" />
+    <Compile Include="Diagrams\Path.cs" />
+    <Compile Include="Diagrams\Server.cs" />
+    <Compile Include="Diagrams\User.cs" />
+    <Compile Include="Metadata\EXIFDocument.cs" />
     <Compile Include="Metadata\ICADocument.cs" />
     <Compile Include="Metadata\InDDDocument.cs" />
+    <Compile Include="Metadata\Office972003.cs" />
+    <Compile Include="Metadata\OfficeOpenXML.cs" />
+    <Compile Include="Metadata\OleDocument.cs" />
+    <Compile Include="Metadata\OpenOfficeDocument.cs" />
     <Compile Include="Metadata\RDPDocument.cs" />
-    <Compile Include="ThreadSafeList.cs">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="Metadata\SVGDocument.cs" />
+    <Compile Include="Metadata\WPDDocument.cs" />
+    <Compile Include="Metadata\XMPExtractor.cs" />
     <Compile Include="Utilities\Functions.cs" />
-    <Compile Include="Metadata\EXIFDocument.cs" />
     <Compile Include="Metadata\EXIF\codec\jpeg\JPEGDecodeParam.cs" />
     <Compile Include="Metadata\EXIF\codec\jpeg\JPEGHuffmanTable.cs" />
     <Compile Include="Metadata\EXIF\codec\jpeg\JPEGQTable.cs" />
@@ -180,16 +184,9 @@
     <Compile Include="Metadata\EXIF\utils\xml\TxtOutPutStreamHandler.cs" />
     <Compile Include="Metadata\EXIF\utils\xml\XmlNewOutPutStreamHandler.cs" />
     <Compile Include="Metadata\EXIF\utils\xml\XmlOutPutStreamHandler.cs" />
-    <Compile Include="Metadata\IMetaExtractor.cs" />
-    <Compile Include="Metadata\Office972003.cs" />
-    <Compile Include="Metadata\OfficeOpenXML.cs" />
-    <Compile Include="Metadata\OleDocument.cs" />
-    <Compile Include="Metadata\OpenOfficeDocument.cs" />
+    <Compile Include="Metadata\DocumentExtractor.cs" />
     <Compile Include="Metadata\PDFDocument.cs" />
-    <Compile Include="Metadata\SVGDocument.cs" />
-    <Compile Include="Metadata\WPDDocument.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Utilities\SerializableDictionary.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="resources\CanonMarkernote.txt" />

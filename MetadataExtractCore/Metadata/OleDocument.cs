@@ -1,26 +1,23 @@
+using MetadataExtractCore.Diagrams;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.IO;
-using System.Runtime.CompilerServices;
-using MetadataExtractCore.Diagrams;
+using System.Text;
 
-namespace MetadataExtractCore.Metadata
+namespace MetadataExtractCore.Extractors
 {
-    [Serializable]
     public class OleDocument
     {
         private static byte[] magic_number = new byte[8] { 0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1 };
-        [NonSerialized]
         private OleFileHeader ofh;
         enum SecIDType { MSATSecID = -4, SATSecID, EOFSecID, FreeSecID };
-        private Int32[] MSAT; 
+        private Int32[] MSAT;
         private Int32[] SAT;
         private Int32[] SSAT;
         private List<DirEntry> DirEntries;
         private Stream stmDocument;
 
-  
+
         public class OleFileHeader
         {
             public byte[] signature = new byte[8];
@@ -44,7 +41,7 @@ namespace MetadataExtractCore.Metadata
         {
             public byte[] EntryName = new byte[64];
             public UInt16 EntryNameLength;
-            public byte EntryType; 
+            public byte EntryType;
             public byte NodeColourEntry;
             public Int32 DirIDLeftChild;
             public Int32 DirIDRigthChild;
@@ -64,23 +61,23 @@ namespace MetadataExtractCore.Metadata
             this.stmDocument.Seek(0, SeekOrigin.Begin);
             this.ofh = new OleFileHeader();
             BinaryReader br = new BinaryReader(this.stmDocument);
-            br.Read(this.ofh.signature, 0, 8);           
-            br.Read(this.ofh.UID, 0, 16);                 
-            this.ofh.RevisionNumber = br.ReadUInt16();    
-            this.ofh.VersionNumber = br.ReadUInt16();    
-            this.ofh.ByteOrder = br.ReadUInt16();        
-            this.ofh.SizeOfSector = (UInt16)Math.Pow(2, br.ReadUInt16());      
+            br.Read(this.ofh.signature, 0, 8);
+            br.Read(this.ofh.UID, 0, 16);
+            this.ofh.RevisionNumber = br.ReadUInt16();
+            this.ofh.VersionNumber = br.ReadUInt16();
+            this.ofh.ByteOrder = br.ReadUInt16();
+            this.ofh.SizeOfSector = (UInt16)Math.Pow(2, br.ReadUInt16());
             this.ofh.SizeOfShortSector = (UInt16)Math.Pow(2, br.ReadUInt16());
-            br.ReadBytes(10); 
+            br.ReadBytes(10);
             this.ofh.NumberOfSectorsSAT = br.ReadUInt32();
             this.ofh.FirstSecIDDirectory = br.ReadInt32();
-            br.ReadBytes(4);  
-            this.ofh.MinSizeOfStandardStream = br.ReadUInt32();  
+            br.ReadBytes(4);
+            this.ofh.MinSizeOfStandardStream = br.ReadUInt32();
             this.ofh.FirstSecIDSSAT = br.ReadInt32();
             this.ofh.NumberOfSectorsSSAT = br.ReadUInt32();
-            this.ofh.FirstSecIDMSAT = br.ReadInt32();         
+            this.ofh.FirstSecIDMSAT = br.ReadInt32();
             this.ofh.NumberOfSectorsMSAT = br.ReadUInt32();
-            for (int i = 0; i < 109; i++)  
+            for (int i = 0; i < 109; i++)
             {
                 this.ofh.FirstPartOfMSAT[i] = br.ReadInt32();
             }
@@ -129,11 +126,11 @@ namespace MetadataExtractCore.Metadata
                 while (nextSecID != (int)SecIDType.EOFSecID && j < this.ofh.NumberOfSectorsSAT)
                 {
                     this.stmDocument.Seek(SectorOffset(nextSecID), SeekOrigin.Begin);
-                    for (int i = 0; i < ((this.ofh.SizeOfSector - 4)/ 4) && j < this.ofh.NumberOfSectorsSAT; i++, j++)
+                    for (int i = 0; i < ((this.ofh.SizeOfSector - 4) / 4) && j < this.ofh.NumberOfSectorsSAT; i++, j++)
                     {
                         this.MSAT[j] = br.ReadInt32();
                     }
-                    nextSecID = br.ReadInt32(); 
+                    nextSecID = br.ReadInt32();
                 }
             }
         }
@@ -146,7 +143,7 @@ namespace MetadataExtractCore.Metadata
             for (int i = 0; i < this.ofh.NumberOfSectorsSAT; i++)
             {
                 this.stmDocument.Seek(SectorOffset(MSAT[i]), SeekOrigin.Begin);
-                for(int j = 0; j < this.ofh.SizeOfSector / 4; j++, p++)
+                for (int j = 0; j < this.ofh.SizeOfSector / 4; j++, p++)
                 {
                     this.SAT[p] = br.ReadInt32();
                 }
@@ -162,7 +159,7 @@ namespace MetadataExtractCore.Metadata
             int NextSecID = this.ofh.FirstSecIDSSAT;
             for (int i = 0; i < this.ofh.NumberOfSectorsSSAT; i++)
             {
-                if(NextSecID < 0)
+                if (NextSecID < 0)
                 {
                     throw new Exception("Error leyendo secuencia SSAT");
                 }
@@ -183,7 +180,7 @@ namespace MetadataExtractCore.Metadata
             while (NextSecID >= 0)
             {
                 this.stmDocument.Seek(SectorOffset(NextSecID), SeekOrigin.Begin);
-               
+
                 for (int i = 0; i < (this.ofh.SizeOfSector / 128); i++)
                 {
                     DirEntry Directorio = new DirEntry();
@@ -204,7 +201,7 @@ namespace MetadataExtractCore.Metadata
                     Directorio.Reserved = br.ReadInt32();
                     this.DirEntries.Add(Directorio);
                 }
-                
+
                 if (NextSecID == this.SAT[NextSecID])
                     return;
                 NextSecID = this.SAT[NextSecID];
@@ -228,15 +225,15 @@ namespace MetadataExtractCore.Metadata
                     nombre = nombre.Replace("\x05", "").Replace("\x01", "");
                     if (lstStreamPath[0] == nombre)
                     {
-                      
+
                         if (lstStreamPath.Count > 0 && this.DirEntries[i].DirIDRootNodeEntry != -1)
                         {
                             lstStreamPath.RemoveAt(0);
-                            
+
                             nodos.Clear();
                             nodos.Add(this.DirEntries[i].DirIDRootNodeEntry);
                         }
-                        
+
                         else if (this.DirEntries[i].LengthStream > 0)
                         {
                             return this.DirEntries[i];
@@ -291,7 +288,7 @@ namespace MetadataExtractCore.Metadata
                 Stream SSTATBytes = new MemoryStream();
                 Int32 NextSecID = this.DirEntries[0].FirstSecIDStream;
                 byte[] buffer = new byte[this.ofh.SizeOfSector];
-     
+
                 while (NextSecID != (Int32)SecIDType.EOFSecID)
                 {
                     this.stmDocument.Seek(SectorOffset(NextSecID), SeekOrigin.Begin);
@@ -301,7 +298,7 @@ namespace MetadataExtractCore.Metadata
                 }
                 NextSecID = de.FirstSecIDStream;
                 buffer = new byte[this.ofh.SizeOfShortSector];
-                
+
                 while (NextSecID != (Int32)SecIDType.EOFSecID)
                 {
                     SSTATBytes.Seek(NextSecID * this.ofh.SizeOfShortSector, SeekOrigin.Begin);
@@ -557,7 +554,7 @@ namespace MetadataExtractCore.Metadata
             this.stream.Seek(0, SeekOrigin.Begin);
             Cabecera = new Header(this.stream);
             Cuerpos = new Body[Cabecera.SectionCount];
-            for(int i = 0; i < Cabecera.SectionCount; i++)
+            for (int i = 0; i < Cabecera.SectionCount; i++)
             {
                 this.stream.Seek(Cabecera.Sections[i].Offset, SeekOrigin.Begin);
                 Cuerpos[i] = new Body(this.stream, Cabecera.Sections[i].UID, Cabecera.Sections[i].Offset);
@@ -566,7 +563,8 @@ namespace MetadataExtractCore.Metadata
 
         private string CodePageToCodification(int codepage)
         {
-            switch(codepage){
+            switch (codepage)
+            {
                 case 1250:
                     return "Center Europe";
                 case 1251:
@@ -612,7 +610,7 @@ namespace MetadataExtractCore.Metadata
             return true;
         }
 
-      
+
         private String GetValueType(Int64 Offset, Int32 Tipo)
         {
             try
@@ -621,7 +619,7 @@ namespace MetadataExtractCore.Metadata
                 BinaryReader br = new BinaryReader(this.stream);
                 switch (Tipo)
                 {
-                    case Body.Property.PROPERTY_TYPE_VT_VARIANT: 
+                    case Body.Property.PROPERTY_TYPE_VT_VARIANT:
                         Tipo = br.ReadInt32();
                         return GetValueType(this.stream.Position, Tipo);
                     case Body.Property.PROPERTY_TYPE_VT_EMPTY:
@@ -673,8 +671,8 @@ namespace MetadataExtractCore.Metadata
                         if (Size > 0 && Size < 128)
                         {
                             String s = Encoding.Default.GetString(br.ReadBytes((int)Size)).Replace('\0', ' ');
-                          
-                            for (int i = 0; i < s.Length; )
+
+                            for (int i = 0; i < s.Length;)
                                 if (char.IsControl(s[i])) s = s.Remove(i, 1);
                                 else i++;
                             return s;
@@ -691,7 +689,7 @@ namespace MetadataExtractCore.Metadata
             }
         }
 
-       
+
         private String GetValue(Int64 Offset)
         {
             this.stream.Seek(Offset, SeekOrigin.Begin);
@@ -719,15 +717,15 @@ namespace MetadataExtractCore.Metadata
         public void GetOperatingSystem(out byte high, out byte low)
         {
             high = Cabecera.OSH;
-            low  = Cabecera.OSL;
+            low = Cabecera.OSL;
         }
 
-        public void GetMetadata(MetaData FoundMetaData, Users FoundUsers, Dates FoundDates, Emails foundEmails)
+        public void GetMetadata(FileMetadata foundMetadata)
         {
             String strCreator = string.Empty;
             String strLastModifiedBy = string.Empty;
 
-            foreach(Body Cuerpo in this.Cuerpos)
+            foreach (Body Cuerpo in this.Cuerpos)
             {
                 if (CompareUID(Cuerpo.UID, Body.UIDSummaryInformation))
                 {
@@ -738,40 +736,40 @@ namespace MetadataExtractCore.Metadata
                         {
                             case Body.PropertyEntry.SUMMARYINFORMATION_TITULO:
                                 if (!string.IsNullOrEmpty(Valor.Trim()))
-                                    FoundMetaData.Title = Valor;
+                                    foundMetadata.Title = Valor;
                                 break;
                             case Body.PropertyEntry.SUMMARYINFORMATION_SUBJECT:
                                 if (!string.IsNullOrEmpty(Valor.Trim()))
-                                    FoundMetaData.Subject = Valor;
+                                    foundMetadata.Subject = Valor;
                                 break;
                             case Body.PropertyEntry.SUMMARYINFORMATION_NUMBER_OF_PAGES:
                             case Body.PropertyEntry.SUMMARYINFORMATION_NUMBER_OF_WORDS:
                             case Body.PropertyEntry.SUMMARYINFORMATION_NUMBER_OF_CHARACTERS:
                                 if (!string.IsNullOrEmpty(Valor.Trim()))
-                                    FoundMetaData.Statistic += Body.PropertyEntry.SummaryInformationPropertyToString(Propiedad.IdPropiedad) + ": " + Valor + "  ";
+                                    foundMetadata.Statistic += Body.PropertyEntry.SummaryInformationPropertyToString(Propiedad.IdPropiedad) + ": " + Valor + "  ";
                                 break;
                             case Body.PropertyEntry.SUMMARYINFORMATION_APPLICATION:
                                 if (!string.IsNullOrEmpty(Valor.Trim()))
-                                    FoundMetaData.Applications.Items.Add(new ApplicationsItem(Analysis.ApplicationAnalysis.GetApplicationsFromString(Valor, this.Cabecera.OSH == 3 && this.Cabecera.OSL == 10)));
+                                    foundMetadata.Add(new Application(Analysis.ApplicationAnalysis.GetApplicationsFromString(Valor, this.Cabecera.OSH == 3 && this.Cabecera.OSL == 10)));
                                 break;
                             case Body.PropertyEntry.SUMMARYINFORMATION_KEYWORDS:
                                 if (!string.IsNullOrEmpty(Valor.Trim()))
-                                    FoundMetaData.Keywords = Valor;
+                                    foundMetadata.Keywords = Valor;
                                 break;
                             case Body.PropertyEntry.SUMMARYINFORMATION_COMMENTS:
                                 if (!string.IsNullOrEmpty(Valor.Trim()))
-                                    FoundMetaData.Comments = Valor;
+                                    foundMetadata.Comments = Valor;
                                 break;
                             case Body.PropertyEntry.SUMMARYINFORMATION_TEMPLATE:
                                 if (!string.IsNullOrEmpty(Valor.Trim()))
-                                    FoundMetaData.Template = Valor;
+                                    foundMetadata.Template = Valor;
                                 break;
                             case Body.PropertyEntry.SUMMARYINFORMATION_REVISIONNUMBER:
                                 if (!string.IsNullOrEmpty(Valor.Trim()))
                                 {
                                     Decimal d;
                                     if (Decimal.TryParse(Valor, out d))
-                                        FoundMetaData.VersionNumber = d;
+                                        foundMetadata.VersionNumber = d;
                                 }
                                 break;
                             case Body.PropertyEntry.SUMMARYINFORMATION_CREATETIME:
@@ -780,8 +778,7 @@ namespace MetadataExtractCore.Metadata
                                     DateTime d;
                                     if (DateTime.TryParse(Valor, out d))
                                     {
-                                        FoundDates.CreationDateSpecified = true;
-                                        FoundDates.CreationDate = d.ToLocalTime();
+                                        foundMetadata.Dates.CreationDate = d.ToLocalTime();
                                     }
                                 }
                                 break;
@@ -791,8 +788,7 @@ namespace MetadataExtractCore.Metadata
                                     DateTime d;
                                     if (DateTime.TryParse(Valor, out d))
                                     {
-                                        FoundDates.ModificationDateSpecified = true;
-                                        FoundDates.ModificationDate = d.ToLocalTime();
+                                        foundMetadata.Dates.ModificationDate = d.ToLocalTime();
                                     }
                                 }
                                 break;
@@ -802,8 +798,7 @@ namespace MetadataExtractCore.Metadata
                                     DateTime d;
                                     if (DateTime.TryParse(Valor, out d))
                                     {
-                                        FoundDates.DatePrintingSpecified = true;
-                                        FoundDates.DatePrinting = d.ToLocalTime();
+                                        foundMetadata.Dates.PrintingDate = d.ToLocalTime();
                                     }
                                 }
                                 break;
@@ -814,7 +809,7 @@ namespace MetadataExtractCore.Metadata
                                     if (DateTime.TryParse(Valor, out d))
                                     {
                                         d = new DateTime(d.ToFileTimeUtc());
-                                        FoundMetaData.EditTime = d.Ticks;
+                                        foundMetadata.EditTime = d.Ticks;
                                     }
                                 }
                                 break;
@@ -833,7 +828,7 @@ namespace MetadataExtractCore.Metadata
                             case Body.PropertyEntry.SUMMARYINFORMATION_CODEPAGE:
                                 Valor = CodePageToCodification(Convert.ToInt32(Valor));
                                 if (!string.IsNullOrEmpty(Valor.Trim()))
-                                    FoundMetaData.Codification = Valor;
+                                    foundMetadata.Codification = Valor;
                                 break;
                         }
                     }
@@ -847,7 +842,7 @@ namespace MetadataExtractCore.Metadata
                         {
                             case Body.PropertyEntry.DOCUMENTSUMMARYINFORMATION_CATEGORY:
                                 if (!string.IsNullOrEmpty(Valor.Trim()))
-                                    FoundMetaData.Category = Valor;
+                                    foundMetadata.Category = Valor;
                                 break;
                             case Body.PropertyEntry.DOCUMENTSUMMARYINFORMATION_BYTES:
                             case Body.PropertyEntry.DOCUMENTSUMMARYINFORMATION_LINES:
@@ -857,17 +852,17 @@ namespace MetadataExtractCore.Metadata
                             case Body.PropertyEntry.DOCUMENTSUMMARYINFORMATION_HIDDENSLIDES:
                             case Body.PropertyEntry.DOCUMENTSUMMARYINFORMATION_MMCLIPS:
                                 if (!string.IsNullOrEmpty(Valor.Trim()))
-                                    FoundMetaData.Statistic += Body.PropertyEntry.DocumentSummaryInformationPropertyToString(Propiedad.IdPropiedad) + ": " + Valor + "  ";
+                                    foundMetadata.Statistic += Body.PropertyEntry.DocumentSummaryInformationPropertyToString(Propiedad.IdPropiedad) + ": " + Valor + "  ";
                                 break;
                             case Body.PropertyEntry.DOCUMENTSUMMARYINFORMATION_MANAGER:
                                 if (!string.IsNullOrEmpty(Valor.Trim()))
                                 {
-                                    FoundUsers.AddUniqueItem(Valor, false);
+                                    foundMetadata.Add(new User(Valor, false));
                                 }
                                 break;
                             case Body.PropertyEntry.DOCUMENTSUMMARYINFORMATION_COMPANY:
                                 if (!string.IsNullOrEmpty(Valor.Trim()))
-                                    FoundMetaData.Company = Valor;
+                                    foundMetadata.Company = Valor;
                                 break;
                             case Body.PropertyEntry.DOCUMENTSUMMARYINFORMATION_HEADINGPAIRS: break;
                             case Body.PropertyEntry.DOCUMENTSUMMARYINFORMATION_TITLESOFPARTS: break;
@@ -883,7 +878,7 @@ namespace MetadataExtractCore.Metadata
                         br.ReadInt32();
                         Boolean UnicodeNames = br.ReadInt32() == 0x4B0;
                         this.stream.Seek(Cuerpo.Offset + Cuerpo.Propiedades[0].Offset, SeekOrigin.Begin);
-                        FoundMetaData.UserInfo = string.Empty;
+                        foundMetadata.UserInfo = string.Empty;
                         for (int NumberOfCustomProperties = br.ReadInt32(); NumberOfCustomProperties > 0; NumberOfCustomProperties--)
                         {
                             int PropertyNumber = br.ReadInt32();
@@ -896,16 +891,16 @@ namespace MetadataExtractCore.Metadata
                                 if (i < Cuerpo.Propiedades.Length)
                                 {
                                     long pos = this.stream.Position;
-                                    
+
                                     if (UnicodeNames && pos % 4 != 0)
                                         pos += 2;
                                     String Valor = this.GetValue(Cuerpo.Offset + Cuerpo.Propiedades[i].Offset).Trim();
                                     this.stream.Seek(pos, SeekOrigin.Begin);
                                     if (!string.IsNullOrEmpty(Valor.Trim()))
                                     {
-                                        FoundMetaData.UserInfo += Name + ": " + Valor.Trim() + "\t";
+                                        foundMetadata.UserInfo += Name + ": " + Valor.Trim() + "\t";
                                         if (Name == "_AuthorEmail")
-                                            foundEmails.AddUniqueItem(Valor.Trim());
+                                            foundMetadata.Add(new Email(Valor.Trim()));
                                     }
                                 }
                             }
@@ -915,12 +910,12 @@ namespace MetadataExtractCore.Metadata
             }
             if (!string.IsNullOrEmpty(strLastModifiedBy))
             {
-                FoundUsers.AddUniqueItem(strLastModifiedBy, true);
+                foundMetadata.Add(new User(strLastModifiedBy, true));
             }
             if (!string.IsNullOrEmpty(strCreator))
             {
-                
-                FoundUsers.AddUniqueItem(strCreator, string.IsNullOrEmpty(strLastModifiedBy));
+
+                foundMetadata.Add(new User(strCreator, string.IsNullOrEmpty(strLastModifiedBy)));
             }
         }
     }

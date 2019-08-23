@@ -1,4 +1,3 @@
-using MetadataExtractCore.Diagrams;
 using System;
 using System.IO;
 using System.Linq;
@@ -6,6 +5,7 @@ using System.Net;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
+using FOCA.Database.Entities;
 
 namespace FOCA.Analysis.FingerPrinting
 {
@@ -491,7 +491,7 @@ namespace FOCA.Analysis.FingerPrinting
                 }
             }
 
-            string certificatesFullPath = Path.Combine(Program.data.Project.FolderToDownload, CertificatesFolderName);
+            string certificatesFullPath = System.IO.Path.Combine(Program.data.Project.FolderToDownload, CertificatesFolderName);
             if (!Directory.Exists(certificatesFullPath))
             {
                 try
@@ -507,7 +507,7 @@ namespace FOCA.Analysis.FingerPrinting
             FileStream fs = null;
             try
             {
-                fs = new FileStream(Path.Combine(certificatesFullPath, sourceRequest.Address.Host + "_" + aux_certName.Replace('*', '%') + ".crt"),
+                fs = new FileStream(System.IO.Path.Combine(certificatesFullPath, sourceRequest.Address.Host + "_" + aux_certName.Replace('*', '%') + ".crt"),
                     FileMode.Create);
                 fs.Write(certificate.GetRawCertData(), 0, certificate.GetRawCertData().Length);
             }

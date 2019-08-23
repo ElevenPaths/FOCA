@@ -147,7 +147,7 @@ namespace FOCA.GUI
                 List<ComputersItem> lst = new List<ComputersItem>(Program.data.computers.Items);
                 foreach (ComputersItem computer in lst)
                 {
-                    Application.DoEvents();
+                    System.Windows.Forms.Application.DoEvents();
 
                     TreeNode tn = null;
                     switch (computer.type)
@@ -463,7 +463,7 @@ namespace FOCA.GUI
                 {
                     foreach (string domain in domains)
                     {
-                        Application.DoEvents();
+                        System.Windows.Forms.Application.DoEvents();
                         cancelToken.ThrowIfCancellationRequested();
 
                         if (Program.data.IsDomainOrAlternative(domain))

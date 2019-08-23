@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MetadataExtractCore.Diagrams
+namespace FOCA.Database.Entities
 {
     [Serializable]
     public class Passwords
@@ -35,16 +35,10 @@ namespace MetadataExtractCore.Diagrams
 
         public PasswordsItem() { }
 
-        public PasswordsItem(string password, string type)
+        public PasswordsItem(string password, string type, string source)
         {
             Type = type;
             Password = password;
-        }
-
-        public PasswordsItem(string nombre, string type, string source)
-        {
-            Type = type;
-            Password = Password;
             Source = source;
         }
     }

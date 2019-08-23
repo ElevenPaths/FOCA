@@ -7,8 +7,7 @@ using FOCA.SubdomainSearcher;
 using FOCA.Threads;
 using MetadataExtractCore.Analysis;
 using MetadataExtractCore.Diagrams;
-using MetadataExtractCore.Metadata;
-using MetadataExtractCore.Utilities;
+using MetadataExtractCore.Extractors;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -176,7 +175,7 @@ namespace FOCA
 
                 {//Selected items
                     IEnumerable<FilesItem> selectedFiles = (from ListViewItem lvi in lv.SelectedItems where lvi.Tag != null select (FilesItem)lvi.Tag);
-                    bool someFileDownloadedAndNotProcessed = selectedFiles.Any(fi => fi.Downloaded && !fi.Processed);
+                    bool someFileDownloadedAndNotProcessed = selectedFiles.Any(fi => fi.Downloaded && !fi.Processed && fi.Size > 0);
                     bool someFilePendingToDownload = selectedFiles.Any(fi => !fi.Downloaded || !File.Exists(fi.Path));
 
                     this.toolStripMenuItemExtractMetadata.Enabled = someFileDownloadedAndNotProcessed;
@@ -188,7 +187,7 @@ namespace FOCA
 
                 {//All items
                     IEnumerable<FilesItem> allFiles = (from ListViewItem lvi in lv.Items where lvi.Tag != null select (FilesItem)lvi.Tag);
-                    bool someFileDownloadedAndNotProcessed = allFiles.Any(fi => fi.Downloaded && !fi.Processed);
+                    bool someFileDownloadedAndNotProcessed = allFiles.Any(fi => fi.Downloaded && !fi.Processed && fi.Size > 0);
                     bool someFilePendingToDownload = allFiles.Any(fi => !fi.Downloaded || !File.Exists(fi.Path));
                     bool someFileDownloadedAndProcessed = (from ListViewItem lvi in lv.Items where lvi.Tag != null select (FilesItem)lvi.Tag).Any(p => p.Downloaded && p.Processed);
 
@@ -401,44 +400,47 @@ namespace FOCA
         /// <param name="path"></param>
         public void AddFile(string path)
         {
-            var s = Path.GetExtension(path);
-            if (s == null) return;
-            var extension = s.ToLower();
-            // verify that it's a well-known extension, if not, guess filetype
-            var knownExtension = MetaExtractor.IsSupportedExtension(extension);
-            if (!knownExtension)
+            try
             {
-                using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read))
+                string extension = System.IO.Path.GetExtension(path)?.ToLower();
+                if (extension == null)
+                    return;
+                // verify that it's a well-known extension, if not, guess filetype
+                if (!DocumentExtractor.IsSupportedExtension(extension))
                 {
-                    extension = MetadataExtractCore.Utilities.Functions.GetFormatFile(fs);
+                    using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read))
+                    {
+                        extension = MetadataExtractCore.Utilities.Functions.GetFormatFile(fs);
+                    }
+                    if (!String.IsNullOrWhiteSpace(extension))
+                    {
+                        Program.LogThis(new Log(Log.ModuleType.MetadataSearch, $"Unknown extension {path}, found filetype {extension}", Log.LogType.medium));
+                        string newFile = GetNotExistsPath(path + extension);
+                        File.Move(path, newFile);
+                        Program.LogThis(new Log(Log.ModuleType.MetadataSearch, $"File moved {path} to {newFile}", Log.LogType.medium));
+                        path = newFile;
+                    }
                 }
-                if (!string.IsNullOrEmpty(extension))
+                FilesItem fi = new FilesItem
                 {
-                    Program.LogThis(new Log(Log.ModuleType.MetadataSearch,
-                        $"Unknow extension {path}, found filetype {extension}", Log.LogType.medium));
-                    var newFile = GetNotExistsPath(path + extension);
-                    File.Move(path, newFile);
-                    Program.LogThis(new Log(Log.ModuleType.MetadataSearch,
-                        $"File moved {path} to {newFile}", Log.LogType.medium));
-                    path = newFile;
-                }
-            }
-            var fi = new FilesItem
-            {
-                Ext = extension,
-                URL = path,
-                Date = DateTime.Now,
-                Size = (int)new FileInfo(path).Length,
-                Downloaded = true,
-                Processed = false,
-                Path = path
-            };
-            Program.data.files.Items.Add(fi);
-            listViewDocuments_Update(fi);
-            Program.FormMainInstance.treeViewMetadata_UpdateDocumentsNumber();
+                    Ext = extension,
+                    URL = path,
+                    Date = DateTime.Now,
+                    Size = (int)new FileInfo(path).Length,
+                    Downloaded = true,
+                    Processed = false,
+                    Path = path
+                };
+                Program.data.files.Items.Add(fi);
+                listViewDocuments_Update(fi);
+                Program.FormMainInstance.treeViewMetadata_UpdateDocumentsNumber();
 
-            Program.LogThis(new Log(Log.ModuleType.MetadataSearch, $"Added document {fi.Path}",
-                Log.LogType.debug));
+                Program.LogThis(new Log(Log.ModuleType.MetadataSearch, $"Added document {fi.Path}", Log.LogType.debug));
+            }
+            catch (Exception e)
+            {
+                Program.LogThis(new Log(Log.ModuleType.MetadataSearch, $"The file {path} could not be added: {e.ToString()}", Log.LogType.debug));
+            }
         }
 
         #endregion
@@ -505,7 +507,7 @@ namespace FOCA
                     lviDownloaded.Font = new Font(Font.FontFamily, 14);
                     lviDownloaded.Text = fi.Downloaded ? "•" : "×";
                     lviDownloaded.ForeColor = fi.Downloaded ? Color.Green : Color.Red;
-                    lviDownloadedDate.Text = fi.Date == DateTime.MinValue ? "-": fi.Date.ToString(CultureInfo.InvariantCulture);
+                    lviDownloadedDate.Text = fi.Date == DateTime.MinValue ? "-" : fi.Date.ToString(CultureInfo.InvariantCulture);
 
                     lviSize.Text = fi.Size > -1 ? GetFileSizeAsString(fi.Size) : "-";
 
@@ -782,42 +784,43 @@ namespace FOCA
                             Parallel.ForEach(fileChunk, po, currentFile =>
                             {
                                 currentFile.Processed = true;
-
+                                FileMetadata foundMetadata = null;
                                 if (!String.IsNullOrWhiteSpace(currentFile.Ext))
                                 {
                                     try
                                     {
-                                        MetaExtractor doc = null;
                                         using (var fs = new FileStream(currentFile.Path, FileMode.Open, FileAccess.Read))
                                         {
-                                            doc = MetaExtractor.Create(currentFile.Ext, fs);
-                                        }
-
-                                        // Analyze file and extract metadata
-                                        doc.analyzeFile();
-                                        // close the document
-                                        doc.Close();
-                                        // fi.Metadata contains the file's metadata so that other parts can also use them
-                                        currentFile.Metadata = doc;
-
-                                        Program.LogThis(new Log(Log.ModuleType.MetadataSearch, $"Document metadata extracted: {currentFile.Path}", Log.LogType.low));
-
-                                        // Extract primary metadata from the document
-                                        ExtractGenericMetadata(doc, users, passwords, servers,
-                                                folders, printers, emails, software, operatingsystems);
-                                        // if any date has been found, use it for the 'Last modified' field into the ListView
-                                        if (doc.FoundDates.ModificationDateSpecified)
-                                            currentFile.ModifiedDate = doc.FoundDates.ModificationDate;
-                                        else if (doc.FoundDates.CreationDateSpecified)
-                                            currentFile.ModifiedDate = doc.FoundDates.CreationDate;
-                                        // if there're no older versions, just the existing ones in OpenOffice, extract the metadata summary from them
-                                        if (doc is OpenOfficeDocument document)
-                                        {
-                                            SerializableDictionary<string, OpenOfficeDocument> dicOldVersions = document.dicOldVersions;
-                                            foreach (KeyValuePair<string, OpenOfficeDocument> oldVersion in dicOldVersions)
+                                            using (DocumentExtractor doc = DocumentExtractor.Create(currentFile.Ext, fs))
                                             {
-                                                // Add every version's information to the summary
-                                                this.ExtractGenericMetadata(oldVersion.Value, users, passwords, servers, folders, printers, emails, software, operatingsystems);
+                                                // Analyze file and extract metadata
+                                                foundMetadata = doc.AnalyzeFile();
+                                                Program.LogThis(new Log(Log.ModuleType.MetadataSearch, $"Document metadata extracted: {currentFile.Path}", Log.LogType.low));
+                                                if (foundMetadata.HasMetadata())
+                                                {
+                                                    // fi.Metadata contains the file's metadata so that other parts can also use them
+                                                    currentFile.Metadata = new MetaExtractor(foundMetadata);
+
+                                                    // Extract primary metadata from the document
+                                                    ExtractGenericMetadata(currentFile.Metadata, users, passwords, servers,
+                                                            folders, printers, emails, software, operatingsystems);
+                                                    // if any date has been found, use it for the 'Last modified' field into the ListView
+                                                    if (currentFile.Metadata.FoundDates.ModificationDateSpecified)
+                                                        currentFile.ModifiedDate = currentFile.Metadata.FoundDates.ModificationDate;
+                                                    else if (currentFile.Metadata.FoundDates.CreationDateSpecified)
+                                                        currentFile.ModifiedDate = currentFile.Metadata.FoundDates.CreationDate;
+                                                    // if there're no older versions, just the existing ones in OpenOffice, extract the metadata summary from them
+                                                    if (foundMetadata.OldVersions.Count > 0)
+                                                    {
+                                                        foreach (var oldVersion in foundMetadata.OldVersions)
+                                                        {
+                                                            // Add every version's information to the summary
+                                                            this.ExtractGenericMetadata(new MetaExtractor(oldVersion.Metadata), users, passwords, servers, folders, printers, emails, software, operatingsystems);
+                                                        }
+                                                    }
+                                                }
+
+
                                             }
                                         }
 
@@ -826,23 +829,21 @@ namespace FOCA
                                     {
                                     }
                                 }
+
+                                Program.FormMainInstance.TreeView.Invoke(new MethodInvoker(delegate
+                                {
+                                    TreeNode tnFile = Program.FormMainInstance.TreeViewMetadataAddDocument(currentFile);
+                                    tnFile.Tag = currentFile;
+                                    tnFile.Nodes.Clear();
+                                    tnFile.ImageIndex = tnFile.SelectedImageIndex = Program.FormMainInstance.GetImageToExtension(currentFile.Ext);
+                                    if (currentFile.Metadata != null)
+                                    {
+                                        this.AddDocumentNodes(currentFile.Metadata, tnFile, foundMetadata);
+                                    }
+                                }));
+
                                 Interlocked.Increment(ref extractedFileCount);
                             });
-
-                            Program.FormMainInstance.TreeView.Invoke(new MethodInvoker(delegate
-                            {
-                                foreach (FilesItem item in fileChunk)
-                                {
-                                    TreeNode tnFile = Program.FormMainInstance.TreeViewMetadataAddDocument(item);
-                                    tnFile.Tag = item;
-                                    tnFile.Nodes.Clear();
-                                    tnFile.ImageIndex = tnFile.SelectedImageIndex = Program.FormMainInstance.GetImageToExtension(item.Ext);
-                                    if (item.Metadata != null)
-                                    {
-                                        AddDocumentNodes(item.Metadata, tnFile);
-                                    }
-                                }
-                            }));
 
                             Invoke(new MethodInvoker(delegate
                             {
@@ -1016,7 +1017,7 @@ namespace FOCA
         /// </summary>
         /// <param name="doc"></param>
         /// <param name="trnParentNode">Parent node to which information will be added</param>
-        internal void AddDocumentNodes(MetaExtractor doc, TreeNode trnParentNode)
+        internal void AddDocumentNodes(MetaExtractor doc, TreeNode trnParentNode, FileMetadata originalMetadata = null)
         {
             List<Action> methodsToInvoke = new List<Action>();
             if (doc.FoundUsers.Items.Count != 0)
@@ -1077,10 +1078,18 @@ namespace FOCA
                 }));
             }
 
+            if (doc.FoundMetaData != null && doc.FoundMetaData.Applications.Items.Count > 0)
+            {
+                methodsToInvoke.Add(new Action(() =>
+                {
+                    var tnSoftware = trnParentNode.Nodes.Add("Software", "Software", 30, 30);
+                    tnSoftware.Tag = doc.FoundMetaData.Applications;
+                }));
+            }
+
             var m = doc.FoundMetaData;
-            // if any metadata as found
-            if ((m.Applications != null && m.Applications.Items.Count > 0) ||
-                !string.IsNullOrEmpty(m.Subject) ||
+
+            if (!string.IsNullOrEmpty(m.Subject) ||
                 !string.IsNullOrEmpty(m.DataBase) ||
                 !string.IsNullOrEmpty(m.Category) ||
                 !string.IsNullOrEmpty(m.Codification) ||
@@ -1120,71 +1129,51 @@ namespace FOCA
                     tnOld.Tag = doc.FoundHistory;
                 }));
             }
-            if (doc.FoundMetaData.Applications.Items.Count > 0)
+
+            if (originalMetadata != null)
             {
-                methodsToInvoke.Add(new Action(() =>
-                {
-                    var tnSoftware = trnParentNode.Nodes.Add("Software", "Software", 30, 30);
-                    tnSoftware.Tag = doc.FoundMetaData.Applications;
-                }));
-            }
-            if (doc is EXIFDocument exifDoc)
-            {
-                if (exifDoc.dicAnotherMetadata.Count != 0 || exifDoc.Thumbnail != null)
+                if (originalMetadata.Makernotes.Count > 0 || originalMetadata.Thumbnail != null)
                 {
                     methodsToInvoke.Add(new Action(() =>
                     {
                         var tnExif = trnParentNode.Nodes.Add("EXIF", "EXIF", 33, 33);
-                        tnExif.Tag = doc;
+                        tnExif.Tag = originalMetadata;
                     }));
                 }
-            }
 
-            // extract EXIF information from embeded images
-            SerializableDictionary<string, EXIFDocument> dicPictureExif = null;
-            SerializableDictionary<string, OpenOfficeDocument> dicOldVersions = null;
-            if (doc is Office972003 office972003)
-                dicPictureExif = office972003.dicPictureEXIF;
-            else if (doc is OpenOfficeDocument officeDocument)
-            {
-                dicPictureExif = officeDocument.dicPictureEXIF;
-                dicOldVersions = officeDocument.dicOldVersions;
-            }
-            else if (doc is OfficeOpenXMLDocument openXmlDocument)
-                dicPictureExif = openXmlDocument.dicPictureEXIF;
-
-            if (dicPictureExif != null && dicPictureExif.Count != 0)
-            {
-                methodsToInvoke.Add(new Action(delegate
+                if (originalMetadata.EmbeddedImages.Count > 0)
                 {
-                    IEnumerable<KeyValuePair<string, EXIFDocument>> filesWithExif = dicPictureExif.Where(p => p.Value.dicAnotherMetadata.Count > 0 || p.Value.Thumbnail != null);
-                    if (filesWithExif.Any())
+                    methodsToInvoke.Add(new Action(delegate
                     {
-                        TreeNode tnExifRoot = trnParentNode.Nodes.Add("EXIF in pictures", "EXIF in pictures", 32, 32);
-                        foreach (KeyValuePair<string, EXIFDocument> dicPicture in filesWithExif)
+                        IEnumerable<KeyValuePair<string, FileMetadata>> filesWithExif = originalMetadata.EmbeddedImages.Where(p => p.Value.Makernotes.Count > 0 || p.Value.Thumbnail != null);
+                        if (filesWithExif.Any())
                         {
-                            TreeNode tnExifPic = tnExifRoot.Nodes.Add(Path.GetFileName(dicPicture.Key), Path.GetFileName(dicPicture.Key), 34, 34);
-                            TreeNode tnExif = tnExifPic.Nodes.Add("EXIF", "EXIF", 33, 33);
-                            tnExif.Tag = dicPicture.Value;
+                            TreeNode tnExifRoot = trnParentNode.Nodes.Add("EXIF in pictures", "EXIF in pictures", 32, 32);
+                            foreach (KeyValuePair<string, FileMetadata> dicPicture in filesWithExif)
+                            {
+                                TreeNode tnExifPic = tnExifRoot.Nodes.Add(System.IO.Path.GetFileName(dicPicture.Key), System.IO.Path.GetFileName(dicPicture.Key), 34, 34);
+                                TreeNode tnExif = tnExifPic.Nodes.Add("EXIF", "EXIF", 33, 33);
+                                tnExif.Tag = dicPicture.Value;
+                            }
                         }
-                    }
-                }));
-            }
+                    }));
 
-            // extract old versions from OpenOffice documents
-            if (dicOldVersions != null && dicOldVersions.Count != 0)
-            {
-                methodsToInvoke.Add(new Action(() =>
+                }
+
+                if (originalMetadata.OldVersions.Count > 0)
                 {
-                    var tnOldVersionsRoot = trnParentNode.Nodes["Old versions"];
-                    foreach (var oldVersion in dicOldVersions)
+                    methodsToInvoke.Add(new Action(() =>
                     {
-                        var tnOldVersion = tnOldVersionsRoot.Nodes.Add(oldVersion.Key, oldVersion.Key);
-                        tnOldVersion.ImageIndex =
-                            tnOldVersion.SelectedImageIndex = tnOldVersion.Parent.Parent.SelectedImageIndex;
-                        AddDocumentNodes(oldVersion.Value, tnOldVersion);
-                    }
-                }));
+                        var tnOldVersionsRoot = trnParentNode.Nodes["Old versions"];
+                        foreach (var oldVersion in originalMetadata.OldVersions)
+                        {
+                            var tnOldVersion = tnOldVersionsRoot.Nodes.Add(oldVersion.Value, oldVersion.Value);
+                            tnOldVersion.ImageIndex =
+                                tnOldVersion.SelectedImageIndex = tnOldVersion.Parent.Parent.SelectedImageIndex;
+                            AddDocumentNodes(new MetaExtractor(oldVersion.Metadata), tnOldVersion, oldVersion.Metadata);
+                        }
+                    }));
+                }
             }
 
             Program.FormMainInstance.TreeView.Invoke(new MethodInvoker(() =>
@@ -1721,7 +1710,7 @@ namespace FOCA
                         ciClient.NotOS = true;
                         ciClient.Users.AddUniqueItem(hi.Author, true);
                         var strNodeName = $"PC_{hi.Author}";
-                        if (Program.data.computers.Items.Any(c => c.name.ToLower() == strNodeName.ToLower()))
+                        if (Program.data.computers.Items.Any(c => c.name?.ToLower() == strNodeName.ToLower()))
                             strNodeName = $"PC_Unknown{++unIdentifiedComputer}";
                         ciClient.name = strNodeName;
                         ciClient.RemoteFolders.AddUniqueItem(hi.Path, false);
@@ -2408,7 +2397,7 @@ namespace FOCA
                 {
                     var fi = new FilesItem
                     {
-                        Ext = Path.GetExtension(link.AbsolutePath).ToLower(),
+                        Ext = System.IO.Path.GetExtension(link.AbsolutePath).ToLower(),
                         URL = link.ToString(),
                         Downloaded = false,
                         Processed = false,
@@ -2503,7 +2492,7 @@ namespace FOCA
                     fi.Downloaded = true;
                     fi.Date = DateTime.Now;
                     fi.Size = (int)new FileInfo(file.PhysicalPath).Length;
-                    bool unknownExtension = String.IsNullOrWhiteSpace(fi.Ext) || !MetaExtractor.IsSupportedExtension(fi.Ext);
+                    bool unknownExtension = String.IsNullOrWhiteSpace(fi.Ext) || !DocumentExtractor.IsSupportedExtension(fi.Ext);
 
                     if (unknownExtension)
                     {
@@ -2517,7 +2506,7 @@ namespace FOCA
                             string newFile = GetNotExistsPath(fi.Path + "." + lvi.SubItems[1].Text);
                             File.Move(fi.Path, newFile);
                             fi.Path = newFile;
-                            fi.Ext = Path.GetExtension(fi.Path);
+                            fi.Ext = System.IO.Path.GetExtension(fi.Path);
                         }
                     }
 
@@ -2632,7 +2621,7 @@ namespace FOCA
                         if (!currentDownload.IsCanceled && fi != null && !fi.Downloaded)
                         {
                             currentDownload.DownloadStatus = Download.Status.Downloading;
-                            string fileName = Path.GetFileName(new Uri(currentDownload.Lvi.SubItems[2].Text).AbsolutePath);
+                            string fileName = System.IO.Path.GetFileName(new Uri(currentDownload.Lvi.SubItems[2].Text).AbsolutePath);
 
                             //Delete incorrect filename characters
                             for (var j = 0; fileName.IndexOfAny(MyInvalidPathChars) != -1; j++)

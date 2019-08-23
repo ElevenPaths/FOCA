@@ -1,129 +1,87 @@
+using MetadataExtractCore.Analysis;
+using MetadataExtractCore.Diagrams;
 using System;
 using System.IO;
-using MetadataExtractCore.Analysis;
-using MetadataExtractCore.Utilities;
-using MetadataExtractCore.Diagrams;
 
 
-namespace MetadataExtractCore.Metadata
+namespace MetadataExtractCore.Extractors
 {
-    [Serializable]
-    public class ICADocument : MetaExtractor
+    public class ICADocument : DocumentExtractor
     {
-        /// <summary>
-        /// Propertie Serialize
-        /// </summary>
-        public ICADocument() { }
-
         /// <summary>
         /// Ctor for class
         /// </summary>
         /// <param name="stm"></param>
-        public ICADocument(Stream stm)
+        public ICADocument(Stream stm) : base(stm)
         {
-            this.stm = new MemoryStream();
-            Functions.CopyStream(stm, this.stm);
         }
 
-        public override void analyzeFile()
+        public override FileMetadata AnalyzeFile()
         {
             try
             {
-                StreamReader sr = new StreamReader(this.stm);
-                string line = string.Empty;
-
-                while ((line = sr.ReadLine()) != null)
+                this.foundMetadata = new FileMetadata();
+                using (StreamReader sr = new StreamReader(this.fileStream))
                 {
-                    string parametro = string.Empty;
-                    string valor = string.Empty;
+                    string line = string.Empty;
 
-                    try
+                    while ((line = sr.ReadLine()) != null)
                     {
-                        parametro = line.Split(new char[] { '=' })[0];
+                        string[] separatedValues = line.Split(new char[] { '=' });
+                        if (separatedValues.Length < 2)
+                            continue;
 
-                        int entryPoint = parametro.Length + 1;
-                        valor = line.Substring(entryPoint, line.Length - entryPoint);
-                    }
-                    catch
-                    {
-                        continue;
-                    }
+                        string key = separatedValues[0].ToLower();
+                        string value = line.Remove(0, key.Length + 1);
 
-                    if (string.IsNullOrEmpty(valor))
-                        continue;
+                        if (String.IsNullOrWhiteSpace(value))
+                            continue;
 
-                    if (parametro.ToString().ToLower().StartsWith("Address".ToLower()))
-                    {
-                        string ipOrHost = valor.Split(new char[] { ':' })[0];
-                        FoundServers.AddUniqueItem(new ServersItem(ipOrHost, "ICA file Analysis"));
-                    }
-                    else if (parametro.ToString().ToLower().StartsWith("HttpBrowserAddress".ToLower()))
-                    {
-                        string ipOrHost = valor.Split(new char[] { ':' })[0];
-                        FoundServers.AddUniqueItem(new ServersItem(ipOrHost, "ICA file Analysis"));
-                    }
-                    else if (parametro.ToString().ToLower().StartsWith("TcpBrowserAddress".ToLower()))
-                    {
-                        string ipOrHost = valor.Split(new char[] { ':' })[0];
-                        FoundServers.AddUniqueItem(new ServersItem(ipOrHost, "ICA file Analysis"));
-                    }
-                    else if (parametro.ToString().ToLower().StartsWith("Username".ToLower()))
-                    {
-                        FoundUsers.AddUniqueItem(valor, true);
-                    }
-                    else if (parametro.ToString().ToLower().StartsWith("ClearPassword".ToLower()))
-                    {
-                        FoundPasswords.AddUniqueItem(new PasswordsItem(valor, "ICA Clear password"));
-                    }
-                    else if (parametro.ToString().ToLower().StartsWith("Password".ToLower()))
-                    {
-                        FoundPasswords.AddUniqueItem(new PasswordsItem(valor, "ICA password"));
-                    }
-                    else if ( (parametro.ToString().ToLower().StartsWith("PersistentCachePath".ToLower())) ||
-                              (parametro.ToString().ToLower().StartsWith("WorkDirectory".ToLower()))       ||
-                              (parametro.ToString().ToLower().StartsWith("InitialProgram".ToLower()))
-                            )
-                    {
-                        FoundPaths.AddUniqueItem(valor, true);
+                        if (key.StartsWith("address") ||
+                            key.StartsWith("httpbrowseraddress") ||
+                            key.StartsWith("tcpbrowseraddress") ||
+                            key.StartsWith("sslproxyhost"))
+                        {
+                            string ipOrHost = value.Split(new char[] { ':' })[0];
+                            if (ipOrHost != "*")
+                            {
+                                this.foundMetadata.Add(new Server(ipOrHost, "ICA file Analysis"));
+                            }
+                        }
+                        else if (key.StartsWith("username"))
+                        {
+                            this.foundMetadata.Add(new User(value, true));
+                        }
+                        else if (key.StartsWith("clearpassword") ||
+                                 key.StartsWith("password"))
+                        {
+                            this.foundMetadata.Add(new Password(value, "ICA Clear password"));
+                        }
+                        else if (key.StartsWith("persistentcachepath") ||
+                                 key.StartsWith("workdirectory") ||
+                                 key.StartsWith("initialprogram") ||
+                                 key.StartsWith("iconpath"))
+                        {
+                            this.foundMetadata.Add(new Diagrams.Path(value, true));
 
-                        string user = PathAnalysis.ExtractUserFromPath(valor);
-                        if (user != string.Empty)
-                            FoundUsers.AddUniqueItem(user, true);
+                            string user = PathAnalysis.ExtractUserFromPath(value);
+                            if (user != string.Empty)
+                                this.foundMetadata.Add(new User(user, true));
 
-                        string softName = Analysis.ApplicationAnalysis.GetApplicationsFromString(valor);
-                        if (!string.IsNullOrEmpty(valor))
-                            FoundMetaData.Applications.AddUniqueItem(new ApplicationsItem(softName));
-                        else
-                            FoundMetaData.Applications.AddUniqueItem(new ApplicationsItem(valor));
+                            string softName = ApplicationAnalysis.GetApplicationsFromString(value);
+                            if (!string.IsNullOrEmpty(value))
+                                this.foundMetadata.Add(new Application(softName));
+                            else
+                                this.foundMetadata.Add(new Application(value));
+                        }
                     }
-                    else if (parametro.ToString().ToLower().StartsWith("IconPath".ToLower()))
-                    {
-                        FoundPaths.AddUniqueItem(valor, true);
-
-                        string user = PathAnalysis.ExtractUserFromPath(valor);
-                        if (user != string.Empty)
-                            FoundUsers.AddUniqueItem(user, true);
-
-                        string softName = Analysis.ApplicationAnalysis.GetApplicationsFromString(valor);
-                        if (!string.IsNullOrEmpty(valor))
-                            FoundMetaData.Applications.AddUniqueItem(new ApplicationsItem(softName));
-                        else
-                            FoundMetaData.Applications.AddUniqueItem(new ApplicationsItem(valor));
-                    }
-                    else if (parametro.ToString().ToLower().StartsWith("SSLProxyHost".ToLower()))
-                    {
-                        string ipOrHost = valor.Split(new char[] { ':' })[0];
-                        if (ipOrHost != "*")
-                            FoundServers.AddUniqueItem(new ServersItem(ipOrHost, "ICA file Analysis"));
-                    }
-
                 }
             }
             catch (Exception e)
             {
                 System.Diagnostics.Debug.WriteLine(e.ToString());
-
             }
+            return this.foundMetadata;
         }
     }
 }

@@ -1,7 +1,8 @@
+using FOCA.ModifiedComponents;
 using System;
 using System.Linq;
 
-namespace MetadataExtractCore.Diagrams
+namespace FOCA.Database.Entities
 {
     [Serializable]
     public class Applications {

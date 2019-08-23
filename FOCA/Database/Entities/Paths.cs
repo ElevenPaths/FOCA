@@ -4,7 +4,7 @@ using System.Linq;
 using MetadataExtractCore.Analysis;
 using MetadataExtractCore.Utilities;
 
-namespace MetadataExtractCore.Diagrams
+namespace FOCA.Database.Entities
 {
     [Serializable]
     public class Paths {

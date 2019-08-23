@@ -1,4 +1,5 @@
-﻿using FOCA.Utilites;
+﻿using FOCA.ModifiedComponents;
+using FOCA.Utilites;
 using MetadataExtractCore;
 using System;
 using System.Collections.Generic;

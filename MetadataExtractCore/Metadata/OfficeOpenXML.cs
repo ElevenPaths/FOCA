@@ -1,40 +1,30 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using System.Xml;
-using System.IO.Packaging;
-using MetadataExtractCore.Utilities;
 using MetadataExtractCore.Analysis;
 using MetadataExtractCore.Diagrams;
+using MetadataExtractCore.Utilities;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.IO.Packaging;
+using System.Linq;
+using System.Text;
+using System.Xml;
 
-namespace MetadataExtractCore.Metadata
+namespace MetadataExtractCore.Extractors
 {
-    [Serializable]
-    public class OfficeOpenXMLDocument : MetaExtractor
+    public class OfficeOpenXMLDocument : DocumentExtractor
     {
         private string strExtlo;
-        public SerializableDictionary<string, EXIFDocument> dicPictureEXIF { get; set; }
-
-        public OfficeOpenXMLDocument()
+        public OfficeOpenXMLDocument(Stream stm, string strExt) : base(stm)
         {
-            dicPictureEXIF = new SerializableDictionary<string, EXIFDocument>();
-        }
-
-        public OfficeOpenXMLDocument(Stream stm, string strExt): this()
-        {
-            this.stm = new MemoryStream();
-            //Copia el stream de modo que pueda ser liberado o usado en la clase cliente
-            Functions.CopyStream(stm, this.stm);
             this.strExtlo = strExt.ToLower();
         }
 
-        public override void analyzeFile()
+        public override FileMetadata AnalyzeFile()
         {
             try
             {
-                using (Package pZip = Package.Open(stm))
+                this.foundMetadata = new FileMetadata();
+                using (Package pZip = Package.Open(this.fileStream))
                 {
                     Uri uriFile = new Uri("/docProps/core.xml", UriKind.Relative);
                     if (pZip.PartExists(uriFile))
@@ -42,7 +32,7 @@ namespace MetadataExtractCore.Metadata
                         PackagePart pDocument = pZip.GetPart(uriFile);
                         using (Stream stmDoc = pDocument.GetStream(FileMode.Open, FileAccess.Read))
                         {
-                            analizeFileCore(stmDoc);
+                            AnalizeFileCore(stmDoc);
                         }
                     }
                     uriFile = new Uri("/docProps/app.xml", UriKind.Relative);
@@ -51,7 +41,7 @@ namespace MetadataExtractCore.Metadata
                         PackagePart pDocument = pZip.GetPart(uriFile);
                         using (Stream stmDoc = pDocument.GetStream(FileMode.Open, FileAccess.Read))
                         {
-                            analizeFileApp(stmDoc);
+                            AnalizeFileApp(stmDoc);
                         }
                     }
                     //Control de versiones
@@ -63,11 +53,11 @@ namespace MetadataExtractCore.Metadata
                             PackagePart pDocument = pZip.GetPart(uriFile);
                             using (Stream stmDoc = pDocument.GetStream(FileMode.Open, FileAccess.Read))
                             {
-                                analizeFileDocument(stmDoc);
+                                AnalizeFileDocument(stmDoc);
                             }
                         }
                         //Consulta el fichero settings para recuperar el idioma del documento
-                        if (FoundMetaData.Language == string.Empty)
+                        if (foundMetadata.Language == string.Empty)
                         {
                             uriFile = new Uri("/word/settings.xml", UriKind.Relative);
                             if (pZip.PartExists(uriFile))
@@ -75,7 +65,7 @@ namespace MetadataExtractCore.Metadata
                                 PackagePart pDocument = pZip.GetPart(uriFile);
                                 using (Stream stmDoc = pDocument.GetStream(FileMode.Open, FileAccess.Read))
                                 {
-                                    analizeFileSettings(stmDoc);
+                                    AnalizeFileSettings(stmDoc);
                                 }
                             }
                         }
@@ -86,7 +76,7 @@ namespace MetadataExtractCore.Metadata
                             PackagePart pDocument = pZip.GetPart(uriFile);
                             using (Stream stmDoc = pDocument.GetStream(FileMode.Open, FileAccess.Read))
                             {
-                                analizeLinks(stmDoc);
+                                AnalizeLinks(stmDoc);
                             }
                         }
                     }
@@ -106,7 +96,7 @@ namespace MetadataExtractCore.Metadata
                                     {
                                         sr.Read(name, 0, 32);
                                     }
-                                    FoundPrinters.AddUniqueItem(Functions.FilterPrinter((new string(name).Replace("\0", ""))));
+                                    this.foundMetadata.Add(new Printer(Functions.FilterPrinter((new string(name).Replace("\0", "")))));
                                 }
                             }
                             if (pp.Uri.ToString().StartsWith("/xl/worksheets/_rels/"))
@@ -114,7 +104,7 @@ namespace MetadataExtractCore.Metadata
                                 PackagePart pDocument = pZip.GetPart(pp.Uri);
                                 using (Stream stmDoc = pDocument.GetStream(FileMode.Open, FileAccess.Read))
                                 {
-                                    analizeLinks(stmDoc);
+                                    AnalizeLinks(stmDoc);
                                 }
                             }
                         }
@@ -129,7 +119,7 @@ namespace MetadataExtractCore.Metadata
                                 PackagePart pDocument = pZip.GetPart(pp.Uri);
                                 using (Stream stmDoc = pDocument.GetStream(FileMode.Open, FileAccess.Read))
                                 {
-                                    analizeLinks(stmDoc);
+                                    AnalizeLinks(stmDoc);
                                 }
                             }
                         }
@@ -146,17 +136,13 @@ namespace MetadataExtractCore.Metadata
                             (strFileNameLo.EndsWith(".jpg") ||
                              strFileNameLo.EndsWith(".jpeg")))
                         {
-                            EXIFDocument eDoc = new EXIFDocument(pp.GetStream(FileMode.Open, FileAccess.Read), Path.GetExtension(strFileNameLo));
-                            eDoc.analyzeFile();
-                            dicPictureEXIF.Add(Path.GetFileName(strFileName), eDoc);
-                            //Copiamos los metadatos sobre usuarios y Applications de la imagen al documento
-                            foreach (UserItem uiEXIF in eDoc.FoundUsers.Items)
-                                FoundUsers.AddUniqueItem(uiEXIF.Name, false,uiEXIF.Notes);
-                            foreach (ApplicationsItem Application in eDoc.FoundMetaData.Applications.Items)
+                            using (EXIFDocument eDoc = new EXIFDocument(pp.GetStream(FileMode.Open, FileAccess.Read), System.IO.Path.GetExtension(strFileNameLo)))
                             {
-                                string strApplication = Application.Name;
-                                if (!FoundMetaData.Applications.Items.Any(A => A.Name == strApplication.Trim()))
-                                    FoundMetaData.Applications.Items.Add(new ApplicationsItem(strApplication.Trim()));
+                                FileMetadata exifMetadata = eDoc.AnalyzeFile();
+                                foundMetadata.EmbeddedImages.Add(System.IO.Path.GetFileName(strFileName), exifMetadata);
+                                //Copiamos los metadatos sobre usuarios y Applications de la imagen al documento
+                                this.foundMetadata.AddRange(exifMetadata.Users.ToArray());
+                                this.foundMetadata.AddRange(exifMetadata.Applications.ToArray());
                             }
                         }
                     }
@@ -166,9 +152,11 @@ namespace MetadataExtractCore.Metadata
             {
                 System.Diagnostics.Debug.WriteLine(e.ToString());
             }
+
+            return this.foundMetadata;
         }
 
-        private void analizeFileCore(Stream stm)
+        private void AnalizeFileCore(Stream stm)
         {
             try
             {
@@ -180,33 +168,33 @@ namespace MetadataExtractCore.Metadata
                 if (xnl.Count != 0)
                     if (xnl[0].HasChildNodes)
                     {
-                        FoundMetaData.Title = xnl[0].FirstChild.Value;
+                        this.foundMetadata.Title = xnl[0].FirstChild.Value;
                         //Si el título es una ruta válida, agregar como una ruta del equipo
-                        FoundPaths.AddUniqueItem(PathAnalysis.CleanPath(FoundMetaData.Title), true);
+                        this.foundMetadata.Add(new Diagrams.Path(PathAnalysis.CleanPath(foundMetadata.Title), true));
                     }
                 xnl = doc.GetElementsByTagName("dc:subject");
                 if (xnl.Count != 0)
                     if (xnl[0].HasChildNodes)
-                        FoundMetaData.Subject = xnl[0].FirstChild.Value;
+                        this.foundMetadata.Subject = xnl[0].FirstChild.Value;
                 xnl = doc.GetElementsByTagName("dc:description");
                 if (xnl.Count != 0)
                     if (xnl[0].HasChildNodes)
-                        FoundMetaData.Description = xnl[0].FirstChild.Value;
+                        this.foundMetadata.Description = xnl[0].FirstChild.Value;
                 xnl = doc.GetElementsByTagName("cp:lastModifiedBy");
                 if (xnl.Count != 0)
                     if (xnl[0].HasChildNodes)
-                        FoundUsers.AddUniqueItem(xnl[0].FirstChild.Value, true, "cp:lastModifiedBy");
+                        this.foundMetadata.Add(new User(xnl[0].FirstChild.Value, true, "cp:lastModifiedBy"));
                 xnl = doc.GetElementsByTagName("dc:creator");
                 if (xnl.Count != 0)
                     if (xnl[0].HasChildNodes)
-                        FoundUsers.AddUniqueItem(xnl[0].FirstChild.Value, FoundUsers.Items.Count == 0, "dc:creator");
+                        this.foundMetadata.Add(new User(xnl[0].FirstChild.Value, this.foundMetadata.Users.Count == 0, "dc:creator"));
                 xnl = doc.GetElementsByTagName("cp:revision");
                 if (xnl.Count != 0)
                     if (xnl[0].HasChildNodes)
                     {
                         Decimal d;
                         if (Decimal.TryParse(xnl[0].FirstChild.Value, out d))
-                            FoundMetaData.VersionNumber = d;
+                            this.foundMetadata.VersionNumber = d;
                     }
                 xnl = doc.GetElementsByTagName("dcterms:created");
                 if (xnl.Count != 0)
@@ -216,8 +204,7 @@ namespace MetadataExtractCore.Metadata
                             DateTime d;
                             if (DateTime.TryParse(xnl[0].FirstChild.Value.Replace("T", " ").Replace("Z", ""), out d))
                             {
-                                FoundDates.CreationDateSpecified = true;
-                                FoundDates.CreationDate = d.ToLocalTime();
+                                this.foundMetadata.Dates.CreationDate = d.ToLocalTime();
                             }
                         }
                 xnl = doc.GetElementsByTagName("dcterms:modified");
@@ -228,22 +215,21 @@ namespace MetadataExtractCore.Metadata
                             DateTime d;
                             if (DateTime.TryParse(xnl[0].FirstChild.Value.Replace("T", " ").Replace("Z", ""), out d))
                             {
-                                FoundDates.ModificationDateSpecified = true;
-                                FoundDates.ModificationDate = d.ToLocalTime();
+                                this.foundMetadata.Dates.ModificationDate = d.ToLocalTime();
                             }
                         }
                 xnl = doc.GetElementsByTagName("cp:keywords");
                 if (xnl.Count != 0)
                     if (xnl[0].HasChildNodes)
-                        FoundMetaData.Keywords = xnl[0].FirstChild.Value;
+                        this.foundMetadata.Keywords = xnl[0].FirstChild.Value;
                 xnl = doc.GetElementsByTagName("cp:category");
                 if (xnl.Count != 0)
                     if (xnl[0].HasChildNodes)
-                        FoundMetaData.Category = xnl[0].FirstChild.Value;
+                        this.foundMetadata.Category = xnl[0].FirstChild.Value;
                 xnl = doc.GetElementsByTagName("dc:language");
                 if (xnl.Count != 0)
                     if (xnl[0].HasChildNodes)
-                        FoundMetaData.Language = xnl[0].FirstChild.Value;
+                        this.foundMetadata.Language = xnl[0].FirstChild.Value;
                 xnl = doc.GetElementsByTagName("cp:lastPrinted");
                 if (xnl.Count != 0)
                     if (xnl[0].HasChildNodes)
@@ -253,8 +239,7 @@ namespace MetadataExtractCore.Metadata
                                 DateTime d;
                                 if (DateTime.TryParse(xnl[0].FirstChild.Value.Replace("T", " ").Replace("Z", ""), out d))
                                 {
-                                    FoundDates.DatePrintingSpecified = true;
-                                    FoundDates.DatePrinting = d.ToLocalTime();
+                                    this.foundMetadata.Dates.PrintingDate = d.ToLocalTime();
                                 }
                             }
             }
@@ -262,9 +247,14 @@ namespace MetadataExtractCore.Metadata
             {
                 System.Diagnostics.Debug.WriteLine(String.Format("Error reading file core.xml ({0}).", e.ToString()));
             }
+            finally
+            {
+                if (foundMetadata == null)
+                    this.foundMetadata = new FileMetadata();
+            }
         }
 
-        private void analizeFileApp(Stream stm)
+        private void AnalizeFileApp(Stream stm)
         {
             try
             {
@@ -280,47 +270,49 @@ namespace MetadataExtractCore.Metadata
                         if (xnl.Count != 0)
                             if (xnl[0].HasChildNodes)
                             {
-                                string strSoftware = Analysis.ApplicationAnalysis.GetApplicationsFromString(app + " - " + xnl[0].FirstChild.Value);
-                                FoundMetaData.Applications.Items.Add(new ApplicationsItem(strSoftware));
+                                string strSoftware = ApplicationAnalysis.GetApplicationsFromString(app + " - " + xnl[0].FirstChild.Value);
+                                this.foundMetadata.Add(new Application(strSoftware));
                             }
                     }
                 xnl = doc.GetElementsByTagName("Company");
                 if (xnl.Count != 0)
                     if (xnl[0].HasChildNodes)
-                        FoundMetaData.Company = xnl[0].FirstChild.Value;
+                        this.foundMetadata.Company = xnl[0].FirstChild.Value;
                 xnl = doc.GetElementsByTagName("Manager");
                 if (xnl.Count != 0)
                     if (xnl[0].HasChildNodes)
-                        FoundUsers.AddUniqueItem(xnl[0].FirstChild.Value, false, "Manager");
+                        this.foundMetadata.Add(new User(xnl[0].FirstChild.Value, false, "Manager"));
                 xnl = doc.GetElementsByTagName("TotalTime");
                 if (xnl.Count != 0)
                     if (xnl[0].HasChildNodes)
                     {
                         Double d;
                         if (Double.TryParse(xnl[0].FirstChild.Value, out d))
-                            FoundMetaData.EditTime = (decimal)d;
+                            this.foundMetadata.EditTime = (decimal)d;
                     }
-                String estadisticas = string.Empty;
+
+                StringBuilder statisticBuilder = new StringBuilder();
                 xnl = doc.GetElementsByTagName("Pages");
                 if (xnl.Count != 0)
                     if (xnl[0].HasChildNodes)
-                        estadisticas += "Pages: " + xnl[0].FirstChild.Value;
+                        statisticBuilder.Append("Pages: " + xnl[0].FirstChild.Value);
                 xnl = doc.GetElementsByTagName("Words");
                 if (xnl.Count != 0)
                     if (xnl[0].HasChildNodes)
-                        estadisticas += "\tWords: " + xnl[0].FirstChild.Value;
+                        statisticBuilder.Append("\tWords: " + xnl[0].FirstChild.Value);
                 xnl = doc.GetElementsByTagName("Characters");
                 if (xnl.Count != 0)
                     if (xnl[0].HasChildNodes)
-                        estadisticas += "\tCharacters: " + xnl[0].FirstChild.Value;
+                        statisticBuilder.Append("\tCharacters: " + xnl[0].FirstChild.Value);
                 xnl = doc.GetElementsByTagName("Lines");
                 if (xnl.Count != 0)
                     if (xnl[0].HasChildNodes)
-                        estadisticas += "\tLines: " + xnl[0].FirstChild.Value;
+                        statisticBuilder.Append("\tLines: " + xnl[0].FirstChild.Value);
                 xnl = doc.GetElementsByTagName("Paragraphs");
                 if (xnl.Count != 0)
                     if (xnl[0].HasChildNodes)
-                        estadisticas += "\tParagraphs: " + xnl[0].FirstChild.Value;
+                        statisticBuilder.Append("\tParagraphs: " + xnl[0].FirstChild.Value);
+                this.foundMetadata.Statistic = statisticBuilder.ToString().Trim();
             }
             catch (Exception e)
             {
@@ -328,7 +320,7 @@ namespace MetadataExtractCore.Metadata
             }
         }
 
-        private void analizeFileDocument(Stream stm)
+        private void AnalizeFileDocument(Stream stm)
         {
             try
             {
@@ -339,7 +331,7 @@ namespace MetadataExtractCore.Metadata
                 XmlNodeList xnlDel = doc.GetElementsByTagName("w:del");
                 if (xnlIns.Count > 0 || xnlDel.Count > 0)
                 {
-                    SerializableDictionary<string, PairValue<int, int>> dicHistoryControl = new SerializableDictionary<string, PairValue<int, int>>();
+                    Dictionary<string, PairValue<int, int>> dicHistoryControl = new Dictionary<string, PairValue<int, int>>();
                     //Recorre la inserciones
                     foreach (XmlNode xn in xnlIns)
                     {
@@ -365,15 +357,14 @@ namespace MetadataExtractCore.Metadata
                     }
                     foreach (string strKey in dicHistoryControl.Keys)
                     {
-                        HistoryItem hi = new HistoryItem();
-                        hi.Author = strKey;
+                        string comment = String.Empty;
                         if (dicHistoryControl[strKey].x > 0)
-                            hi.Comments = dicHistoryControl[strKey].x + " insertions";
+                            comment = dicHistoryControl[strKey].x + " insertions";
                         if (dicHistoryControl[strKey].y > 0)
-                            hi.Comments += hi.Comments.Length == 0 ? dicHistoryControl[strKey].y + " deletes" : ", " + dicHistoryControl[strKey].y + " deletes";
-                        FoundHistory.Items.Add(hi);
+                            comment += comment.Length == 0 ? dicHistoryControl[strKey].y + " deletes" : ", " + dicHistoryControl[strKey].y + " deletes";
+                        this.foundMetadata.Add(new History(strKey, comment));
                         //Añadimos a la lista de usuarios del documento
-                        FoundUsers.AddUniqueItem(strKey, false, "history");
+                        this.foundMetadata.Add(new User(strKey, false, "history"));
                     }
                 }
             }
@@ -383,7 +374,7 @@ namespace MetadataExtractCore.Metadata
             }
         }
 
-        private void analizeFileSettings(Stream stm)
+        private void AnalizeFileSettings(Stream stm)
         {
             try
             {
@@ -392,7 +383,7 @@ namespace MetadataExtractCore.Metadata
                 doc.Load(stm);
                 XmlNodeList xnl = doc.GetElementsByTagName("w:themeFontLang");
                 if (xnl.Count != 0)
-                    FoundMetaData.Language = xnl[0].Attributes["w:val"].Value;
+                    this.foundMetadata.Language = xnl[0].Attributes["w:val"].Value;
             }
             catch (Exception e)
             {
@@ -400,7 +391,7 @@ namespace MetadataExtractCore.Metadata
             }
         }
 
-        private void analizeLinks(Stream stm)
+        private void AnalizeLinks(Stream stm)
         {
             try
             {
@@ -419,7 +410,7 @@ namespace MetadataExtractCore.Metadata
                             if (href.StartsWith("mailto:"))
                             {
                                 String email = href.Substring(7, (href.Contains("?") ? href.IndexOf('?') : href.Length) - 7);
-                                FoundEmails.AddUniqueItem(email);
+                                this.foundMetadata.Add(new Email(email));
                             }
                             else if (href.StartsWith("ftp:"))
                             {
@@ -481,10 +472,7 @@ namespace MetadataExtractCore.Metadata
                 }
                 if (links.Count != 0)
                 {
-                    foreach (String link in links)
-                    {
-                        FoundPaths.AddUniqueItem(PathAnalysis.CleanPath(link), true);//false);
-                    }
+                    this.foundMetadata.AddRange(links.Select(p => new Diagrams.Path(PathAnalysis.CleanPath(p), true)).ToArray());
                 }
             }
             catch (Exception e)

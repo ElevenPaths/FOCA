@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using FOCA.ModifiedComponents;
 using MetadataExtractCore.Utilities;
 
-namespace MetadataExtractCore.Diagrams
+namespace FOCA.Database.Entities
 {
     [Serializable]
     public class Users {

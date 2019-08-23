@@ -4,26 +4,24 @@ using System.Xml;
 using System.Text.RegularExpressions;
 using MetadataExtractCore.Analysis;
 using MetadataExtractCore.Utilities;
+using MetadataExtractCore.Diagrams;
 
-namespace MetadataExtractCore.Metadata
+namespace MetadataExtractCore.Extractors
 {
-    public class SVGDocument : MetaExtractor
+    public class SVGDocument : DocumentExtractor
     {
-        public SVGDocument() { }
-
-        public SVGDocument(Stream stm)
+        public SVGDocument(Stream stm):base(stm)
         {
-            this.stm = new MemoryStream();
-            Functions.CopyStream(stm, this.stm);
         }
 
-        public override void analyzeFile()
+        public override FileMetadata AnalyzeFile()
         {
             XmlTextReader avgReader = null;
 
             try
             {
-                avgReader = new XmlTextReader(this.stm) {XmlResolver = null};
+                this.foundMetadata = new FileMetadata();
+                avgReader = new XmlTextReader(this.fileStream) {XmlResolver = null};
                 avgReader.Read();
 
                 while (avgReader.Read())
@@ -34,8 +32,8 @@ namespace MetadataExtractCore.Metadata
                         var cleanPath = PathAnalysis.CleanPath(avgReader.Value);
                         var user = PathAnalysis.ExtractUserFromPath(cleanPath);
                         if (user != string.Empty)
-                            FoundUsers.AddUniqueItem(user, true);
-                        FoundPaths.AddUniqueItem(cleanPath, true);
+                            this.foundMetadata.Add(new User(user, true));
+                        this.foundMetadata.Add(new Diagrams.Path(cleanPath, true));
                     }
 
                     while (avgReader.MoveToNextAttribute())
@@ -45,8 +43,8 @@ namespace MetadataExtractCore.Metadata
                         var cleanPath = PathAnalysis.CleanPath(avgReader.Value);
                         var user = PathAnalysis.ExtractUserFromPath(cleanPath);
                         if (user != string.Empty)
-                            FoundUsers.AddUniqueItem(user, true);
-                        FoundPaths.AddUniqueItem(cleanPath, true);
+                            this.foundMetadata.Add(new User(user, true));
+                        this.foundMetadata.Add(new Diagrams.Path(cleanPath, true));
                     }
 
                 }
@@ -59,6 +57,7 @@ namespace MetadataExtractCore.Metadata
             {
                 avgReader?.Close();
             }
+            return this.foundMetadata;
         }
 
         private static bool CheckPath(string path)
