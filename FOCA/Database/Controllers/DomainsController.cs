@@ -16,13 +16,15 @@ namespace FOCA.Database.Controllers
 
             using (FocaContextDb context = new FocaContextDb())
             {
+                HttpMapController httpMap = new HttpMapController();
+
                 foreach (var domainsItem in items)
                 {
                     context.Domains.AddOrUpdate(domainsItem);
 
                     context.SaveChanges();
 
-                    new HttpMapController().Save(domainsItem.map);
+                    httpMap.Save(domainsItem.map);
                 }
 
                 context.SaveChanges();
