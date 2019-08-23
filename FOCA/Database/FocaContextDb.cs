@@ -8,6 +8,11 @@ namespace FOCA.Database
 {
     public class FocaContextDb : DbContext
     {
+        static FocaContextDb()
+        {
+            System.Data.Entity.Database.SetInitializer(new MigrateDatabaseToLatestVersion<FocaContextDb, Migrations.Configuration>());
+        }
+
         public DbSet<Project> Projects { get; set; }
         public DbSet<FilesItem> Files { get; set; }
         public DbSet<DomainsItem> Domains { get; set; }
@@ -26,11 +31,6 @@ namespace FOCA.Database
 
         public FocaContextDb(string connectionString) : base(connectionString)
         { }
-
-        protected override void OnModelCreating(DbModelBuilder modelBuilder)
-        {
-            System.Data.Entity.Database.SetInitializer(new MigrateDatabaseToLatestVersion<FocaContextDb, Migrations.Configuration>());
-        }
 
         public static bool IsDatabaseAvailable(string connectionString)
         {
