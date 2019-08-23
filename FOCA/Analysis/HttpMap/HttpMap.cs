@@ -33,23 +33,11 @@ namespace FOCA.Analysis.HttpMap
         [JsonIgnore]
         public int Id { get; set; }
 
-        public ThreadSafeList<HttpMapTypesFiles> HttpMapTypesFiles { get; set; }
-
         /// <summary>
         ///     Modified filenames for backup files search actions
         /// </summary>
         [JsonIgnore]
         public ThreadSafeList<string> BackupModifiedFilenames { get; set; }
-
-        /// <summary>
-        /// Modified filenames for backup files search actions
-        /// </summary>
-        public ThreadSafeList<string> Pathfilenames { get; set; } = new ThreadSafeList<string>();
-
-        /// <summary>
-        ///     Backup Files found
-        /// </summary>
-        public ThreadSafeList<BackUpFile> Backups { get; set; }
 
         /// <summary>
         ///     Documents found
@@ -67,27 +55,6 @@ namespace FOCA.Analysis.HttpMap
         public ThreadSafeList<string> Folders { get; set; }
 
         /// <summary>
-        ///     List of directories with insecure methods enabled
-        /// </summary>
-        public ThreadSafeList<FuzzMethodFolderObject> InsecureMethodFoldersFound;
-
-        /// <summary>
-        ///     List of directories where a public .listing file was found
-        /// </summary>
-        public ThreadSafeList<string> ListingFilesFound;
-
-        /// <summary>
-        ///     List of directories where the .listing file has already been tested
-        /// </summary>
-        [JsonIgnore]
-        public ThreadSafeList<string> ListingFilesTest;
-
-        /// <summary>
-        ///     List of open directories
-        /// </summary>
-        public ThreadSafeList<FuzzOpenFolderObject> OpenFoldersFound;
-
-        /// <summary>
         ///     List of endpoints where parameters were found
         /// </summary>
         public ThreadSafeList<string> Parametrized { get; set; }
@@ -96,11 +63,6 @@ namespace FOCA.Analysis.HttpMap
         ///     All links search status
         /// </summary>
         public SearchStatus SearchingAllLinks;
-
-        /// <summary>
-        ///     Backups search status
-        /// </summary>
-        public SearchStatus SearchingBackUps;
 
         /// <summary>
         ///     Insecure methods search status
@@ -127,18 +89,12 @@ namespace FOCA.Analysis.HttpMap
         /// </summary>
         public HttpMap()
         {
-            Backups = new ThreadSafeList<BackUpFile>();
             Documents = new ThreadSafeList<string>();
             Files = new ThreadSafeList<string>();
             BackupModifiedFilenames = new ThreadSafeList<string>();
             Folders = new ThreadSafeList<string>();
-            InsecureMethodFoldersFound = new ThreadSafeList<FuzzMethodFolderObject>();
-            ListingFilesFound = new ThreadSafeList<string>();
-            ListingFilesTest = new ThreadSafeList<string>();
-            OpenFoldersFound = new ThreadSafeList<FuzzOpenFolderObject>();
             Parametrized = new ThreadSafeList<string>();
 
-            SearchingBackUps = SearchStatus.NotInitialized;
             SearchingAllLinks = SearchStatus.NotInitialized;
             SearchingMethods = SearchStatus.NotInitialized;
             SearchingOpenFolders = SearchStatus.NotInitialized;
@@ -264,26 +220,6 @@ namespace FOCA.Analysis.HttpMap
             object[] oUrl = { new object[] { url } };
             tPluginOnNewUrl.Start(oUrl);
 #endif
-        }
-
-        /// <summary>
-        ///     Add URL to the listing record
-        /// </summary>
-        /// <param name="url"></param>
-        public void AddFileListingTest(string url)
-        {
-            if (!ListingFilesTest.Contains(url))
-                ListingFilesTest.Add(url);
-        }
-
-        /// <summary>
-        ///     Add a backup file if it doesn't exist
-        /// </summary>
-        /// <param name="backupFile"></param>
-        public void AddBackUp(BackUpFile backupFile)
-        {
-            if (!ExistBackUp(backupFile))
-                Backups.Add(backupFile);
         }
 
         /// <summary>
@@ -638,16 +574,6 @@ namespace FOCA.Analysis.HttpMap
         }
 
         /// <summary>
-        /// Check if a backup file was already added to the project
-        /// </summary>
-        /// <param name="backUpFile"></param>
-        /// <returns></returns>
-        private bool ExistBackUp(BackUpFile backUpFile)
-        {
-            return Backups.Any(b => b.Url.Equals(backUpFile.Url));
-        }
-
-        /// <summary>
         /// Check if a file already exists in the project
         /// </summary>
         /// <param name="url"></param>
@@ -702,11 +628,6 @@ namespace FOCA.Analysis.HttpMap
                     Documents.Dispose();
                     Folders.Dispose();
                     Parametrized.Dispose();
-                    ListingFilesTest.Dispose();
-                    ListingFilesFound.Dispose();
-                    Backups.Dispose();
-                    OpenFoldersFound.Dispose();
-                    InsecureMethodFoldersFound.Dispose();
                 }
 
                 Files = null;
@@ -714,11 +635,6 @@ namespace FOCA.Analysis.HttpMap
                 Documents = null;
                 Folders = null;
                 Parametrized = null;
-                ListingFilesTest = null;
-                ListingFilesFound = null;
-                Backups = null;
-                OpenFoldersFound = null;
-                InsecureMethodFoldersFound = null;
 
                 _disposedValue = true;
             }
@@ -730,17 +646,5 @@ namespace FOCA.Analysis.HttpMap
         }
 
         #endregion
-    }
-
-    public struct BackUpFile
-    {
-        public HttpStatusCode Code;
-        public string Url;
-
-        public BackUpFile(string url, HttpStatusCode code)
-        {
-            Url = url;
-            Code = code;
-        }
     }
 }
