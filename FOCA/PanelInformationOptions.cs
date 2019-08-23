@@ -1,12 +1,12 @@
 using FOCA.Analysis.HttpMap;
+using FOCA.Database.Entities;
 using FOCA.Searcher;
 using FOCA.Threads;
+using MetadataExtractCore.Extractors;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Windows.Forms;
-using FOCA.Database.Entities;
 
 namespace FOCA
 {
@@ -76,15 +76,13 @@ namespace FOCA
                 {
                     try
                     {
-                        var fileWithMetadata =
-                            Program.FormMainInstance.panelMetadataSearch.checkedListBoxExtensions.Items.Cast<string>()
-                                .Any(checkedListbox => url.ToString().EndsWith(checkedListbox));
+                        string fileExtension = Path.GetExtension(url.AbsolutePath).ToLowerInvariant();
 
-                        if (fileWithMetadata)
+                        if (!String.IsNullOrWhiteSpace(fileExtension) && DocumentExtractor.IsSupportedExtension(fileExtension))
                         {
                             var fi = new FilesItem
                             {
-                                Ext = Path.GetExtension(url.AbsolutePath).ToLower(),
+                                Ext = fileExtension,
                                 URL = url.ToString(),
                                 Downloaded = false,
                                 Processed = false,
@@ -103,15 +101,20 @@ namespace FOCA
                     {
                     }
                     // add the url to the files list
-                    var d = Program.data.GetDomain(url.Host);
-                    d.map.AddUrl(url.ToString());
+                    DomainsItem domain = Program.data.GetDomain(url.Host);
+                    if (domain == null)
+                    {
+                        Program.data.AddDomain(url.Host, "Crawling", Program.cfgCurrent.MaxRecursion, Program.cfgCurrent);
+                        Program.LogThis(new Log(Log.ModuleType.Crawling, "Domain found: " + url.Host, Log.LogType.medium));
+                        domain = Program.data.GetDomain(url.Host);
+                    }
 
-                    if (d.techAnalysis.domain == null)
-                        d.techAnalysis.domain = d.Domain;
-
-                    var listaUrl = new List<Uri> { url };
-                    d.techAnalysis.eventLinkFoundDetailed(null,
-                        new EventsThreads.CollectionFound<Uri>(listaUrl));
+                    domain.map.AddUrl(url.ToString());
+                    if (domain.techAnalysis.domain == null)
+                    {
+                        domain.techAnalysis.domain = domain.Domain;
+                    }
+                    domain.techAnalysis.eventLinkFoundDetailed(null, new EventsThreads.CollectionFound<Uri>(new List<Uri> { url }));
                 }
                 catch
                 {
