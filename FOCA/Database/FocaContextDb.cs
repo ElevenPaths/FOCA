@@ -27,6 +27,11 @@ namespace FOCA.Database
         public FocaContextDb(string connectionString) : base(connectionString)
         { }
 
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            System.Data.Entity.Database.SetInitializer(new MigrateDatabaseToLatestVersion<FocaContextDb, Migrations.Configuration>());
+        }
+
         public static bool IsDatabaseAvailable(string connectionString)
         {
             if (String.IsNullOrWhiteSpace(connectionString))
