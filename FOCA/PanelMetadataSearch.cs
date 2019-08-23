@@ -2376,18 +2376,19 @@ namespace FOCA
                     if (Program.data.files.Items.Count(li => string.Equals(li.URL, link.ToString(), StringComparison.CurrentCultureIgnoreCase)) > 0)
                         continue;
 
-                    if (Program.data.GetDomain(link.Host) == null)
+                    DomainsItem currentDomain = Program.data.GetDomain(link.Host);
+                    if (currentDomain == null)
+                    {
                         Program.data.AddDomain(link.Host, source, Program.cfgCurrent.MaxRecursion, Program.cfgCurrent);
+                        currentDomain = Program.data.GetDomain(link.Host);
+                    }
 
-                    var dominio = Program.data.GetDomain(link.Host);
-                    dominio.map.AddUrl(link.ToString());
+                    currentDomain.map.AddUrl(link.ToString());
 
-                    if (dominio.techAnalysis.domain == null)
-                        dominio.techAnalysis.domain = dominio.Domain;
+                    if (currentDomain.techAnalysis.domain == null)
+                        currentDomain.techAnalysis.domain = currentDomain.Domain;
 
-                    var listaUrl = new List<Uri> { link };
-                    dominio.techAnalysis.eventLinkFoundDetailed(null,
-                        new EventsThreads.CollectionFound<Uri>(listaUrl));
+                    currentDomain.techAnalysis.eventLinkFoundDetailed(null, new EventsThreads.CollectionFound<Uri>(new List<Uri> { link }));
                 }
                 catch
                 {
