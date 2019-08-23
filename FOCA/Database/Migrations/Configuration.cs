@@ -7,7 +7,7 @@ namespace FOCA.Migrations
         public Configuration()
         {
             AutomaticMigrationsEnabled = false;
-            this.MigrationsDirectory = @"Database";
+            this.MigrationsDirectory = @"Database\Migrations\";
         }
 
         protected override void Seed(FOCA.Database.FocaContextDb contextDb)

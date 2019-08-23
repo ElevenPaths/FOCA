@@ -8,6 +8,11 @@ namespace FOCA.Database
 {
     public class FocaContextDb : DbContext
     {
+        static FocaContextDb()
+        {
+            System.Data.Entity.Database.SetInitializer(new MigrateDatabaseToLatestVersion<FocaContextDb, Migrations.Configuration>());
+        }
+
         public DbSet<Project> Projects { get; set; }
         public DbSet<FilesItem> Files { get; set; }
         public DbSet<DomainsItem> Domains { get; set; }
