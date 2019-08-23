@@ -1,12 +1,34 @@
 using FOCA.Database.Entities;
 using FOCA.ModifiedComponents;
 using System.Data.Entity;
+using System.Data.Entity.Migrations;
 using System.Linq;
 
 namespace FOCA.Database.Controllers
 {
     public class DomainsController : BaseController<DomainsItem>
     {
+
+        public void Save(ThreadSafeList<DomainsItem> items)
+        {
+            if (items.Count == 0)
+                return;
+
+            using (FocaContextDb context = new FocaContextDb())
+            {
+                foreach (var domainsItem in items)
+                {
+                    context.Domains.AddOrUpdate(domainsItem);
+
+                    context.SaveChanges();
+
+                    new HttpMapController().Save(domainsItem.map);
+                }
+
+                context.SaveChanges();
+            }
+
+        }
 
         /// <summary>
         /// Get Domains by Id.
