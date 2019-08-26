@@ -7,7 +7,7 @@ namespace FOCA.Database.Controllers
 {
     public class RelationsController : BaseController<RelationsItem>
     {
-        public ThreadSafeList<RelationsItem> GetReltationsByIdProject(int idProject)
+        public ThreadSafeList<RelationsItem> GetRelationsByIdProject(int idProject)
         {
             using (FocaContextDb context = new FocaContextDb())
             {

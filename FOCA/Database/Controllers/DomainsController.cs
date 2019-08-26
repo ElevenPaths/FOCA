@@ -1,5 +1,6 @@
 using FOCA.Database.Entities;
 using FOCA.ModifiedComponents;
+using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.Migrations;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace FOCA.Database.Controllers
     public class DomainsController : BaseController<DomainsItem>
     {
 
-        public void Save(ThreadSafeList<DomainsItem> items)
+        public override void Save(IList<DomainsItem> items)
         {
             if (items.Count == 0)
                 return;

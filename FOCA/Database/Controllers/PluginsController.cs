@@ -1,13 +1,14 @@
 ﻿using FOCA.ModifiedComponents;
 using FOCA.Plugins;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace FOCA.Database.Controllers
 {
     public class PluginsController : BaseController<Plugin>
     {
-        public void Save(ThreadSafeList<Plugin> items)
+        public override void Save(IList<Plugin> items)
         {
             try
             {

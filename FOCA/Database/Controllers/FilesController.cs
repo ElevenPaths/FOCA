@@ -1,6 +1,7 @@
 using FOCA.Database.Entities;
 using FOCA.ModifiedComponents;
 using System;
+using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.Migrations;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace FOCA.Database.Controllers
 {
     public class FilesController : BaseController<FilesItem>
     {
-        public void Save(ThreadSafeList<FilesItem> items)
+        public override void Save(IList<FilesItem> items)
         {
             try
             {
