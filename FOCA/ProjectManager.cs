@@ -154,7 +154,7 @@ namespace FOCA.Core
             Program.data.computerIPs.Items = new ComputerIpsController().GetComputerIpsByIdProject(idProject);
             Program.data.computerDomains.Items = new ComputerDomainController().GetComputerDomainByIdProject(idProject);
             Program.data.lstLimits = new LimitsController().GetLimitsByIdProject(idProject);
-            Program.data.relations.Items = new RelationsController().GetReltationsByIdProject(idProject);
+            Program.data.relations.Items = new RelationsController().GetRelationsByIdProject(idProject);
             Program.data.files.Items = new FilesController().GetFilesByIdProject(idProject);
             Program.data.Ips.Items = new IpsController().GetIpsByIdProject(idProject);
             Program.data.plugins.lstPlugins = new PluginsController().GetAllPlugins();
