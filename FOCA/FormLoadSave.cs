@@ -45,19 +45,16 @@ namespace FOCA
             var lstDominios = Program.data.GetDomains();
             ulong numberMutexFiles = 0;
             ulong numberFolders = 0;
-            ulong numberBackups = 0;
 
             foreach (var strDom in lstDominios)
             {
                 var dom = Program.data.GetDomain(strDom);
                 numberMutexFiles += (ulong) dom.map.BackupModifiedFilenames.Count;
                 numberFolders += (ulong) dom.map.Folders.Count;
-                numberBackups += (ulong) dom.map.Backups.Count;
             }
 
             lblMutexValue.Text = numberMutexFiles.ToString();
             lblFoldersValue.Text = numberFolders.ToString();
-            lblBackupsValue.Text = numberBackups.ToString();
 
             lblComputersValue.Text = Program.data.computers.Items.Count.ToString();
             lblDomainsValue.Text = Program.data.domains.Items.Count.ToString();

@@ -10,7 +10,5 @@
 
         public string Value { get; set; }
 
-        public string Extension { get; set; }
-
     }
 }

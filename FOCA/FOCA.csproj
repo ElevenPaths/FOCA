@@ -222,6 +222,10 @@
     </Compile>
     <Compile Include="Database\Entities\IPs.cs" />
     <Compile Include="Database\Entities\Limits.cs" />
+    <Compile Include="Database\Migrations\201908230648106_RemoveUnusedBackupSupport.cs" />
+    <Compile Include="Database\Migrations\201908230648106_RemoveUnusedBackupSupport.Designer.cs">
+      <DependentUpon>201908230648106_RemoveUnusedBackupSupport.cs</DependentUpon>
+    </Compile>
     <Compile Include="Utilities\Log.cs" />
     <Compile Include="Utilities\NetRange.cs" />
     <Compile Include="Utilities\OperatingSystem.cs" />
@@ -501,6 +505,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="Database\Migrations\201908230648106_RemoveUnusedBackupSupport.resx">
+      <DependentUpon>201908230648106_RemoveUnusedBackupSupport.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FormAddAltDNSParser.resx">
       <DependentUpon>FormAddAltDNSParser.cs</DependentUpon>
     </EmbeddedResource>

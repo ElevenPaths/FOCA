@@ -233,7 +233,6 @@ namespace FOCA
             resources.ApplyResources(this.menuStripMain, "menuStripMain");
             this.menuStripMain.Name = "menuStripMain";
             this.menuStripMain.MenuActivate += new System.EventHandler(this.SetItemsMenu);
-            this.menuStripMain.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.menuStripMain_ItemClicked);
             // 
             // toolStripMenuItemProject
             // 
@@ -283,7 +282,6 @@ namespace FOCA
             this.dNSSnoopingToolStripMenuItem});
             resources.ApplyResources(this.pluginsToolStripMenuItem, "pluginsToolStripMenuItem");
             this.pluginsToolStripMenuItem.Name = "pluginsToolStripMenuItem";
-            this.pluginsToolStripMenuItem.Click += new System.EventHandler(this.pluginsToolStripMenuItem_Click);
             // 
             // loadUnloadPluginsToolStripMenuItem
             // 
@@ -495,7 +493,6 @@ namespace FOCA
             // 
             resources.ApplyResources(this.panelMetadataSearch, "panelMetadataSearch");
             this.panelMetadataSearch.Name = "panelMetadataSearch";
-            this.panelMetadataSearch.Load += new System.EventHandler(this.panelMetadataSearch_Load);
             // 
             // panelDNSSearch
             // 
@@ -518,7 +515,6 @@ namespace FOCA
             // 
             resources.ApplyResources(this.panelLogs, "panelLogs");
             this.panelLogs.Name = "panelLogs";
-            this.panelLogs.Load += new System.EventHandler(this.panelLogs_Load);
             // 
             // FormMain
             // 

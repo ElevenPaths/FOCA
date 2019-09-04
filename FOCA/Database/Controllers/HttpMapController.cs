@@ -1,7 +1,7 @@
-﻿using System.Linq;
-using FOCA.Analysis.HttpMap;
+﻿using FOCA.Analysis.HttpMap;
 using FOCA.Database.Entities;
 using FOCA.ModifiedComponents;
+using System.Linq;
 
 namespace FOCA.Database.Controllers
 {
@@ -11,15 +11,11 @@ namespace FOCA.Database.Controllers
         {
             using (FocaContextDb context = new FocaContextDb())
             {
-                var listBackups =
-                item.Backups.Select(x => new HttpMapTypesFiles() { IdHttMap = item.Id, IdType = 1, Value = x.Url }).ToList();
-
                 var listDocuments = item.Documents.Select(x => new HttpMapTypesFiles() { IdHttMap = item.Id, IdType = 2, Value = x.ToString() }).ToList();
                 var listFiles = item.Files.Select(x => new HttpMapTypesFiles() { IdHttMap = item.Id, IdType = 3, Value = x.ToString() }).ToList();
                 var listFolders = item.Folders.Select(x => new HttpMapTypesFiles() { IdHttMap = item.Id, IdType = 4, Value = x.ToString() }).ToList();
                 var listParametrized = item.Parametrized.Select(x => new HttpMapTypesFiles() { IdHttMap = item.Id, IdType = 5, Value = x.ToString() }).ToList();
 
-                context.HttpMapTypesFiles.AddRange(listBackups);
                 context.HttpMapTypesFiles.AddRange(listDocuments);
                 context.HttpMapTypesFiles.AddRange(listFiles);
                 context.HttpMapTypesFiles.AddRange(listFolders);

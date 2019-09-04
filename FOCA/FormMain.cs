@@ -1,5 +1,4 @@
 ﻿using FOCA.Analysis.FingerPrinting;
-using FOCA.Analysis.HttpMap;
 using FOCA.Analysis.Pinger;
 using FOCA.Core;
 using FOCA.Database.Entities;
@@ -2705,7 +2704,6 @@ namespace FOCA
             }
             panelInformation.lbDomain.Text = "Domain: " + domain.Domain;
             CreateTabs(domain);
-            UpdateButtom(domain);
             UpdateUrLsTabs(domain);
         }
 
@@ -2747,20 +2745,6 @@ namespace FOCA
                 }
             }
 
-            if (ExistsTab("Backups"))
-            {
-                var tab = panelInformation.tabMap.TabPages["Backups"];
-                tab.Text = "Backups (" + domain.map.Backups.Count() + " found)";
-
-                var list = (PanelUrlsList)tab.Controls[0];
-                for (int i = list.lstView.Items.Count; i < domain.map.Backups.Count(); i++)
-                {
-                    list.lstView.Items.Add(domain.map.Backups[i].Url).SubItems.Add(domain.map.Backups[i].Code + " (" + (int)domain.map.Backups[i].Code + ")");
-                }
-
-            }
-
-
             if (ExistsTab("Parameterized"))
             {
                 var tab = panelInformation.tabMap.TabPages["Parameterized"];
@@ -2770,63 +2754,6 @@ namespace FOCA
                 for (var i = list.lstView.Items.Count; i < domain.map.Parametrized.Count(); i++)
                 {
                     list.lstView.Items.Add(domain.map.Parametrized[i]);
-                }
-            }
-
-
-            if (ExistsTab("Directory Listing enabled"))
-            {
-                var tab = panelInformation.tabMap.TabPages["Directory Listing enabled"];
-                tab.Text = "Directory Listing enabled (" + domain.map.OpenFoldersFound.Count() + " found)";
-                switch (domain.map.SearchingOpenFolders)
-                {
-                    case HttpMap.SearchStatus.Finished:
-                        tab.Text = tab.Text + " [FINISHED]";
-                        break;
-                    case HttpMap.SearchStatus.Searching:
-                        tab.Text = tab.Text + " [SEARCHING]";
-                        break;
-                    case HttpMap.SearchStatus.NotInitialized:
-                        tab.Text = tab.Text + " [NOT INITIALIZED]";
-                        break;
-                    case HttpMap.SearchStatus.Pasive:
-                        tab.Text = tab.Text + " [PASIVE]";
-                        break;
-
-                }
-
-                var list = (PanelUrlsList)tab.Controls[0];
-                for (int i = list.lstView.Items.Count; i < domain.map.OpenFoldersFound.Count(); i++)
-                {
-                    list.lstView.Items.Add(domain.map.OpenFoldersFound[i].url);
-                }
-            }
-
-            if (ExistsTab("Methods on Folders"))
-            {
-
-                var tab = panelInformation.tabMap.TabPages["Methods on Folders"];
-                tab.Text = "Methods on Folders (" + domain.map.InsecureMethodFoldersFound.Count() + " found)";
-                switch (domain.map.SearchingMethods)
-                {
-                    case HttpMap.SearchStatus.Finished:
-                        tab.Text = tab.Text + " [FINISHED]";
-                        break;
-                    case HttpMap.SearchStatus.Searching:
-                        tab.Text = tab.Text + " [SEARCHING]";
-                        break;
-                    case HttpMap.SearchStatus.NotInitialized:
-                        tab.Text = tab.Text + " [NOT INITIALIZED]";
-                        break;
-                    case HttpMap.SearchStatus.Pasive:
-                        tab.Text = tab.Text + " [PASIVE]";
-                        break;
-                }
-
-                var list = (PanelUrlsList)tab.Controls[0];
-                for (int i = list.lstView.Items.Count; i < domain.map.InsecureMethodFoldersFound.Count(); i++)
-                {
-                    list.lstView.Items.Add(domain.map.InsecureMethodFoldersFound[i].url).SubItems.Add(domain.map.InsecureMethodFoldersFound[i].methods);
                 }
             }
 
@@ -2845,11 +2772,6 @@ namespace FOCA
                     list.lstView.Items.Add(tech.GetURLs()[iTech]);
                 }
             }
-        }
-
-        private void UpdateButtom(DomainsItem domain)
-        {
-
         }
 
         /// <summary>
@@ -2889,17 +2811,6 @@ namespace FOCA
                 list.lstView.Columns.Add("Document", "Document").Width = -2;
             }
 
-            if (!ExistsTab("Backups"))
-            {
-                var tab = CreateTab("Backups");
-                var list = new PanelUrlsList();
-                list.Domain = domain.Domain;
-                list.Dock = DockStyle.Fill;
-                tab.Controls.Add(list);
-                list.lstView.Columns.Add("Document", "Document").Width = 400;
-                list.lstView.Columns.Add("Code", "Code").Width = 80;
-            }
-
             if (!ExistsTab("Parameterized"))
             {
                 var tab = CreateTab("Parameterized");
@@ -2908,27 +2819,6 @@ namespace FOCA
                 list.Dock = DockStyle.Fill;
                 tab.Controls.Add(list);
                 list.lstView.Columns.Add("Document", "Document").Width = 480;
-            }
-
-            if ((domain.map.SearchingOpenFolders != HttpMap.SearchStatus.NotInitialized) && (!ExistsTab("Directory Listing enabled")))
-            {
-                var tab = CreateTab("Directory Listing enabled");
-                var list = new PanelUrlsList();
-                list.Domain = domain.Domain;
-                list.Dock = DockStyle.Fill;
-                tab.Controls.Add(list);
-                list.lstView.Columns.Add("Folder", "Folder").Width = -2;
-            }
-
-            if ((domain.map.SearchingMethods != HttpMap.SearchStatus.NotInitialized) && (!ExistsTab("Methods on Folders")))
-            {
-                var tab = CreateTab("Methods on Folders");
-                var list = new PanelUrlsList();
-                list.Domain = domain.Domain;
-                list.Dock = DockStyle.Fill;
-                tab.Controls.Add(list);
-                list.lstView.Columns.Add("Folder", "Folder").Width = 400;
-                list.lstView.Columns.Add("Methods", "Methods").Width = 80;
             }
 
             for (var i = 0; i < domain.techAnalysis.SelectedTechnologies.Count; i++)
@@ -3022,21 +2912,6 @@ namespace FOCA
             LoadTasksGui();
         }
 
-        private void panelMetadataSearch_Load(object sender, EventArgs e)
-        {
-
-        }
-
-        private void menuStripMain_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
-        {
-
-        }
-
-        private void pluginsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
-        }
-
         private void TreeView_NodeMouseClick_1(object sender, TreeNodeMouseClickEventArgs e)
         {
             if (e.Button == MouseButtons.Right)
@@ -3114,11 +2989,6 @@ namespace FOCA
 
                 tnCat = tnCat.Parent;
             }
-        }
-
-        private void panelLogs_Load(object sender, EventArgs e)
-        {
-
         }
 
         private void contextMenu_Opening(object sender, CancelEventArgs e)
@@ -3262,11 +3132,6 @@ namespace FOCA
             FormPlugins pluginsForm = new FormPlugins();
             pluginsForm.ShowDialog();
 #endif
-        }
-
-        private void lbLinkElevenPaths_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            Process.Start("https://www.elevenpaths.com");
         }
 
         private void dNSSnoopingToolStripMenuItem_Click_1(object sender, EventArgs e)
