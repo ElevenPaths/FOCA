@@ -28,12 +28,20 @@ To run the solution locally the system will need:
 
 * When starting the app the system will check if there is a **SQL Server** instance available. If none is found, the system will prompt a window for introducing a connection string.  
 
-## 📜 License
+## 📜 Licence
 
-[GNU GENERAL PUBLIC LICENSE](https://www.gnu.org/licenses/gpl-3.0.en.html)
+[GNU GENERAL PUBLIC LICENCE](https://www.gnu.org/licenses/gpl-3.0.en.html)
+
+## 🔊 Stay tuned
+
+Get the news of our latest doings and send us a message. We 💛 hearing about you. 
+
+* [<img src="./doc/Twitter_Social_Icon_Circle_Color.svg" width="30" height="24"/>](https://twitter.com/Fear_the_Foca)  https://twitter.com/Fear_the_Foca
+
 
 ## ☕ Further reading 
 
 * https://www.elevenpaths.com/labstools/foca/index.html
 * [ES] https://0xword.com/es/libros/59-pentesting-con-foca.html
+* [ES] https://es.wikipedia.org/wiki/FOCA_Tool
 * [ES] https://empresas.blogthinkbig.com/como-analizar-documentos-con-foca/
