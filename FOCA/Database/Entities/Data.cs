@@ -655,7 +655,10 @@ namespace FOCA.Database.Entities
         public void SetIPInformation(string ip, ExtendedIPInformation info)
         {
             var i = GetIp(ip);
-            i?.Information = info;
+            if (i != null)
+            {
+                i.Information = info;
+            }
         }
 
         public ExtendedIPInformation GetIPInformation(string ip)
