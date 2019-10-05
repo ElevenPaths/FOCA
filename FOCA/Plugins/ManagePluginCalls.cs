@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading;
 using FOCA.ModifiedComponents;
@@ -70,96 +70,113 @@ namespace FOCA.Plugins
         /// <param name="e"></param>
         private void FocaCall(object sender, EventArgs e)
         {
-            var iObject = (ImportObject) sender;
+            var iObject = (ImportObject)sender;
 
             switch (iObject.operation)
             {
                 case Import.Operation.AssociationDomainIp:
-                {
-                    AddAssociationDomainIp((AssociationDomainIP) iObject.o);
-                }
+                    {
+                        AddAssociationDomainIp((AssociationDomainIP)iObject.o);
+                    }
                     break;
                 case Import.Operation.AddDomain:
-                {
-                    AddDomain(iObject.o.ToString());
-                }
+                    {
+                        AddDomain(iObject.o.ToString());
+                    }
                     break;
                 case Import.Operation.AddIp:
-                {
-                    AddIp(iObject.o.ToString());
-                }
+                    {
+                        AddIp(iObject.o.ToString());
+                    }
                     break;
                 case Import.Operation.AddUrl:
-                {
-                    var url = iObject.o.ToString();
-                    var error = false;
-                    try
                     {
-                        var uri = new Uri(url);
-                        var domain = Program.data.GetDomain(uri.Host);
-                        if (domain == null)
+                        var url = iObject.o.ToString();
+                        var error = false;
+                        try
                         {
-                            Program.data.AddDomain(uri.Host, "Plugins", Program.cfgCurrent.MaxRecursion,
-                                Program.cfgCurrent);
-                        }
-                        else
-                        {
-                            domain = Program.data.GetDomain(uri.Host);
+                            var uri = new Uri(url);
+                            var domain = Program.data.GetDomain(uri.Host);
                             if (domain == null)
-                                error = true;
+                            {
+                                Program.data.AddDomain(uri.Host, "Plugins", Program.cfgCurrent.MaxRecursion,
+                                    Program.cfgCurrent);
+                            }
+                            else
+                            {
+                                domain = Program.data.GetDomain(uri.Host);
+                                if (domain == null)
+                                    error = true;
+                            }
+                        }
+                        catch
+                        {
+                            error = true;
+                        }
+
+                        if (!error)
+                        {
+                            var tAddUrl = new Thread(AddUrlAsync);
+                            var taskAddUrl = new TaskFOCA(tAddUrl, iObject.o, "[Plugin] Add url: " + url);
+                            Program.data.tasker.AddTask(taskAddUrl);
                         }
                     }
-                    catch
-                    {
-                        error = true;
-                    }
-
-                    if (!error)
-                    {
-                        var tAddUrl = new Thread(AddUrlAsync);
-                        var taskAddUrl = new TaskFOCA(tAddUrl, iObject.o, "[Plugin] Add url: " + url);
-                        Program.data.tasker.AddTask(taskAddUrl);
-                    }
-                }
                     break;
 
                 case Import.Operation.AddContextMenu:
-                {
-                    if (iObject.o is Global)
-                        lstContextGlobal.Add((Global) iObject.o);
-                    else if (iObject.o is ShowDomainsDomainItemMenu)
-                        lstContextShowDomainsDomainItemMenu.Add((ShowDomainsDomainItemMenu) iObject.o);
-                    else if (iObject.o is ShowDomainsDomainMenu)
-                        lstContextShowDomainsDomainMenu.Add((ShowDomainsDomainMenu) iObject.o);
-                    else if (iObject.o is ShowDomainsDomainRelatedDomainsItemMenu)
-                        lstContextShowDomainsDomainRelatedDomainsItemMenu.Add(
-                            (ShowDomainsDomainRelatedDomainsItemMenu) iObject.o);
-                    else if (iObject.o is ShowDomainsDomainRelatedDomainsMenu)
-                        lstContextShowDomainsDomainRelatedDomainsMenu.Add(
-                            (ShowDomainsDomainRelatedDomainsMenu) iObject.o);
-                    else if (iObject.o is ShowDomainsMenu)
-                        lstContextShowDomainsMenu.Add((ShowDomainsMenu) iObject.o);
-                    else if (iObject.o is ShowMetadataMenu)
-                        lstContextShowMetadataMenu.Add((ShowMetadataMenu) iObject.o);
-                    else if (iObject.o is ShowNetworkClientsItemMenu)
-                        lstContextShowNetworkClientsItemMenu.Add((ShowNetworkClientsItemMenu) iObject.o);
-                    else if (iObject.o is ShowNetworkClientsMenu)
-                        lstContextShowNetworkClientsMenu.Add((ShowNetworkClientsMenu) iObject.o);
-                    else if (iObject.o is ShowNetworkIpRangeMenu)
-                        lstContextShowNetworkIpRangeMenu.Add((ShowNetworkIpRangeMenu) iObject.o);
-                    else if (iObject.o is ShowNetworkMenu)
-                        lstContextShowNetworkMenu.Add((ShowNetworkMenu) iObject.o);
-                    else if (iObject.o is ShowNetworkServersItemMenu)
-                        lstContextShowNetworkServersItemMenu.Add((ShowNetworkServersItemMenu) iObject.o);
-                    else if (iObject.o is ShowNetworkServersMenu)
-                        lstContextShowNetworkServersMenu.Add((ShowNetworkServersMenu) iObject.o);
-                    else if (iObject.o is ShowNetworkUnlocatedItemMenu)
-                        lstContextShowNetworkUnlocatedItemMenu.Add((ShowNetworkUnlocatedItemMenu) iObject.o);
-                    else if (iObject.o is ShowNetworkUnlocatedMenu)
-                        lstContextShowNetworkUnlocatedMenu.Add((ShowNetworkUnlocatedMenu) iObject.o);
-                    else if (iObject.o is ShowProjectMenu)
-                        lstContextShowProjectMenu.Add((ShowProjectMenu) iObject.o);
-                }
+                    {
+                        switch (iObject.o)
+                        {
+                            case Global global:
+                                lstContextGlobal.Add(global);
+                                break;
+                            case ShowDomainsDomainItemMenu showDomainsDomainItem:
+                                lstContextShowDomainsDomainItemMenu.Add(showDomainsDomainItem);
+                                break;
+                            case ShowDomainsDomainMenu showDomainsDomainMenu:
+                                lstContextShowDomainsDomainMenu.Add(showDomainsDomainMenu);
+                                break;
+                            case ShowDomainsDomainRelatedDomainsItemMenu showDomainsDomainRelatedDomainsItemMenu:
+                                lstContextShowDomainsDomainRelatedDomainsItemMenu.Add(showDomainsDomainRelatedDomainsItemMenu);
+                                break;
+                            case ShowDomainsDomainRelatedDomainsMenu showDomainsDomainRelatedDomainsMenu:
+                                lstContextShowDomainsDomainRelatedDomainsMenu.Add(showDomainsDomainRelatedDomainsMenu);
+                                break;
+                            case ShowDomainsMenu showDomainsMenu:
+                                lstContextShowDomainsMenu.Add(showDomainsMenu);
+                                break;
+                            case ShowMetadataMenu showMetadataMenu:
+                                lstContextShowMetadataMenu.Add(showMetadataMenu);
+                                break;
+                            case ShowNetworkClientsItemMenu showNetworkClientsItemMenu:
+                                lstContextShowNetworkClientsItemMenu.Add(showNetworkClientsItemMenu);
+                                break;
+                            case ShowNetworkClientsMenu showNetworkClientsMenu:
+                                lstContextShowNetworkClientsMenu.Add(showNetworkClientsMenu);
+                                break;
+                            case ShowNetworkIpRangeMenu showNetworkIpRangeMenu:
+                                lstContextShowNetworkIpRangeMenu.Add(showNetworkIpRangeMenu);
+                                break;
+                            case ShowNetworkMenu showNetworkMenu:
+                                lstContextShowNetworkMenu.Add(showNetworkMenu);
+                                break;
+                            case ShowNetworkServersItemMenu showNetworkServersItemMenu:
+                                lstContextShowNetworkServersItemMenu.Add(showNetworkServersItemMenu);
+                                break;
+                            case ShowNetworkServersMenu showNetworkServersMenu:
+                                lstContextShowNetworkServersMenu.Add(showNetworkServersMenu);
+                                break;
+                            case ShowNetworkUnlocatedItemMenu showNetworkUnlocatedItemMenu:
+                                lstContextShowNetworkUnlocatedItemMenu.Add(showNetworkUnlocatedItemMenu);
+                                break;
+                            case ShowNetworkUnlocatedMenu showNetworkUnlocatedMenu:
+                                lstContextShowNetworkUnlocatedMenu.Add(showNetworkUnlocatedMenu);
+                                break;
+                            case ShowProjectMenu showProjectMenu:
+                                lstContextShowProjectMenu.Add(showProjectMenu);
+                                break;
+                        }
+                    }
                     break;
             }
         }

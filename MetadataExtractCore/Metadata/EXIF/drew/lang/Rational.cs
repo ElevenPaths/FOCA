@@ -199,10 +199,9 @@ namespace com.drew.lang
         {
             if (anObject == null) return false;
             if (anObject == this) return true;
-            if (anObject is Rational)
+            if (anObject is Rational rational)
             {
-                Rational that = (Rational)anObject;
-                return this.DoubleValue() == that.DoubleValue();
+                return this.DoubleValue() == rational.DoubleValue();
             }
             return false;
         }

@@ -234,14 +234,13 @@ namespace MetadataExtractCore.Extractors
                 if (xnl.Count != 0)
                     if (xnl[0].HasChildNodes)
                         if (xnl[0].FirstChild.Value != "1601-01-01T00:00:00Z")
-                            if (xnl[0].FirstChild.Value != "1601-01-01T00:00:00Z")
+                        {
+                            DateTime d;
+                            if (DateTime.TryParse(xnl[0].FirstChild.Value.Replace("T", " ").Replace("Z", ""), out d))
                             {
-                                DateTime d;
-                                if (DateTime.TryParse(xnl[0].FirstChild.Value.Replace("T", " ").Replace("Z", ""), out d))
-                                {
-                                    this.foundMetadata.Dates.PrintingDate = d.ToLocalTime();
-                                }
+                                this.foundMetadata.Dates.PrintingDate = d.ToLocalTime();
                             }
+                        }
             }
             catch (Exception e)
             {

@@ -565,7 +565,7 @@ namespace com.drew.metadata.exif
             }
 
 
-            else if ("Canon".ToUpper().Equals(cameraModel.ToUpper()))
+            else if (cameraModel != null && "Canon".ToUpper().Equals(cameraModel.ToUpper()))
             {
                 Trace.TraceInformation("Found a Canon directory.");
                 ProcessDirectory(
@@ -841,7 +841,7 @@ namespace com.drew.metadata.exif
             int formatCode)
         {
             // Olympus has this padded with trailing spaces.  Remove these first.
-            // ArrayIndexOutOfBoundsException bug fixed by Hendrik Wördehoff - 20 Sep 2002
+            // ArrayIndexOutOfBoundsException bug fixed by Hendrik Wï¿½rdehoff - 20 Sep 2002
             int byteCount = componentCount * BYTES_PER_FORMAT[formatCode];
             for (int i = byteCount - 1; i >= 0; i--)
             {

@@ -1,4 +1,4 @@
-using FOCA.Analysis.FingerPrinting;
+﻿using FOCA.Analysis.FingerPrinting;
 using FOCA.ModifiedComponents;
 using FOCA.Plugins;
 using FOCA.TaskManager;
@@ -398,7 +398,7 @@ namespace FOCA.Database.Entities
                 ip = ip + "0";
 
             var sbIp = new StringBuilder();
-            for (var bloque = 0; bloque < ip.Split(new char[] { ':' }).Count(); bloque++)
+            for (var bloque = 0; bloque < ip.Split(new char[] { ':' }).Length; bloque++)
             {
                 var sBloque = ip.Split(new char[] { ':' })[bloque];
 
@@ -416,12 +416,12 @@ namespace FOCA.Database.Entities
                 }
 
                 sbIp.Append(sBloque);
-                if (bloque < ip.Split(new char[] { ':' }).Count() - 1)
+                if (bloque < ip.Split(new char[] { ':' }).Length - 1)
                     sbIp.Append(":");
             }
 
             var nBloquesReales = 8;
-            var nBloquesPadding = nBloquesReales - ip.Split(new char[] { ':' }).Count();
+            var nBloquesPadding = nBloquesReales - ip.Split(new char[] { ':' }).Length;
 
             if (nBloquesPadding >= 0)
             {
@@ -435,7 +435,7 @@ namespace FOCA.Database.Entities
                 sbIp.Replace("[PADDING]", sbPadding.ToString());
             }
 
-            if (sbIp.ToString().Split(new char[] { ':' }).Count() == 8 && sbIp.ToString().Length == 39)
+            if (sbIp.ToString().Split(new char[] { ':' }).Length == 8 && sbIp.ToString().Length == 39)
                 return sbIp.ToString();
             return null;
         }
@@ -497,7 +497,7 @@ namespace FOCA.Database.Entities
                                         if (Program.data.Project.AlternativeDomains.Select(S => host.Contains(S.ToString())).Count() == 0)
                                         {
                                             string[] arrDom = host.Split(new char[] { '.' });
-                                            if (arrDom.Count() > 1)
+                                            if (arrDom.Length > 1)
                                             {
                                                 string auxFinalDom = arrDom[arrDom.Length - 2] + "." + arrDom[arrDom.Length - 1];
                                                 Program.data.Project.AlternativeDomains.Add(auxFinalDom);
@@ -655,10 +655,7 @@ namespace FOCA.Database.Entities
         public void SetIPInformation(string ip, ExtendedIPInformation info)
         {
             var i = GetIp(ip);
-            if (i != null)
-            {
-                i.Information = info;
-            }
+            i?.Information = info;
         }
 
         public ExtendedIPInformation GetIPInformation(string ip)
@@ -760,7 +757,7 @@ namespace FOCA.Database.Entities
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public void GetServersFromIPs()
         {
@@ -823,7 +820,7 @@ namespace FOCA.Database.Entities
                             if (!computerDomains.Items.Any(C => C.Computer.name == ci.name && C.Domain.Domain == di.Domain))
                                 computerDomains.Items.Add(new ComputerDomainsItem(ci, di, di.Source));
 
-                            for (var fpI = 0; fpI < di.fingerPrinting.Count(); fpI++)
+                            for (var fpI = 0; fpI < di.fingerPrinting.Count; fpI++)
                             {
                                 var fp = di.fingerPrinting[fpI];
 

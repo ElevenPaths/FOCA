@@ -161,9 +161,9 @@ namespace com.drew.metadata.exif
 				case 0 :
 					return BUNDLE["NORMAL"];
 				case 1 :
-					return BUNDLE["SOFT"];;
+                    return BUNDLE["SOFT"];
 				case 2 :
-					return BUNDLE["HARD"];;
+                    return BUNDLE["HARD"];
 				default :
 					return BUNDLE["UNKNOWN", lcVal.ToString()];
 			}
@@ -355,33 +355,6 @@ namespace com.drew.metadata.exif
 			}
 		}
 
-		/// <summary>
-		/// Returns the Focussing Mode Description. 
-		/// </summary>
-		/// <returns>the Focussing Mode Description.</returns>
-		private string GetFocussingModeDescription() 
-		{
-            if (!base.directory
-                .ContainsTag(CasioType1Directory.TAG_CASIO_FOCUSING_MODE))
-            {
-                return null;
-            }
-			int lcVal =
-				base.directory.GetInt(CasioType1Directory.TAG_CASIO_FOCUSING_MODE);
-			switch (lcVal) 
-			{
-				case 2 :
-					return BUNDLE["MACRO"];
-				case 3 :
-					return BUNDLE["AUTO_FOCUS"];
-				case 4 :
-					return BUNDLE["MANUAL_FOCUS"];
-				case 5 :
-					return BUNDLE["INFINITY"];
-				default :
-					return BUNDLE["UNKNOWN", lcVal.ToString()];
-			}
-		}
 
 		/// <summary>
 		/// Returns the Recording Mode Description. 

@@ -75,7 +75,7 @@ namespace FOCA
                     }
                 }
             }
-            catch {}
+            catch { }
             finally
             {
                 r.DnsServers = lastNSServers.ToArray();
@@ -185,20 +185,17 @@ namespace FOCA
                     //No es autoritativa, volver a preguntar
                     if (!response.header.AA)
                     {
-                        if (response.RecordsNS.Length > 0)
+                        foreach (RecordNS rNS in response.RecordsNS)
                         {
-                            foreach (RecordNS rNS in response.RecordsNS)
+                            if (NSServer != rNS.NSDNAME)
                             {
-                                if (NSServer != rNS.NSDNAME)
-                                {
-                                    foreach (string ns in GetNSServer(r, domain, rNS.NSDNAME))
-                                        if (!lst.Contains(ns, StringComparer.OrdinalIgnoreCase))
-                                            lst.Add(ns);
-                                }
-                                else
-                                {
-                                    lst.Add(NSServer);
-                                }
+                                foreach (string ns in GetNSServer(r, domain, rNS.NSDNAME))
+                                    if (!lst.Contains(ns, StringComparer.OrdinalIgnoreCase))
+                                        lst.Add(ns);
+                            }
+                            else
+                            {
+                                lst.Add(NSServer);
                             }
                         }
                     }
@@ -228,9 +225,9 @@ namespace FOCA
                     try
                     {
                         //Se devuelve el servidor DNS autoritativo
-                        if (((RR)response.Authorities[0]).RECORD is RecordSOA)
+                        if (response.Authorities[0].RECORD is RecordSOA recordSOA)
                         {
-                            string dns = RemoveLastPoint(((RecordSOA)((RR)response.Authorities[0]).RECORD).MNAME);
+                            string dns = RemoveLastPoint(recordSOA.MNAME);
                             if (TestDNS(dns))
                             {
                                 List<string> lst = new List<string>();
@@ -238,9 +235,9 @@ namespace FOCA
                                 return lst;
                             }
                         }
-                        if (((RR)response.Authorities[0]).RECORD is RecordNS)
+                        if (response.Authorities[0].RECORD is RecordNS recordNS)
                         {
-                            string dns = RemoveLastPoint(((RecordNS)((RR)response.Authorities[0]).RECORD).NSDNAME);
+                            string dns = RemoveLastPoint(recordNS.NSDNAME);
                             if (TestDNS(dns))
                             {
                                 List<string> lst = new List<string>();
@@ -307,15 +304,15 @@ namespace FOCA
                     try
                     {
                         //Se devuelve el servidor DNS autoritativo
-                        if (((RR)response.Authorities[0]).RECORD is RecordSOA)
+                        if ((response.Authorities[0]).RECORD is RecordSOA recordSOA)
                         {
-                            string dns = RemoveLastPoint(((RecordSOA)((RR)response.Authorities[0]).RECORD).MNAME);
+                            string dns = RemoveLastPoint(recordSOA.MNAME);
                             if (TestDNS(dns))
                                 return dns;
                         }
-                        if (((RR)response.Authorities[0]).RECORD is RecordNS)
+                        if ((response.Authorities[0]).RECORD is RecordNS recordNS)
                         {
-                            string dns = RemoveLastPoint(((RecordNS)((RR)response.Authorities[0]).RECORD).NSDNAME);
+                            string dns = RemoveLastPoint(recordNS.NSDNAME);
                             if (TestDNS(dns))
                                 return dns;
                         }

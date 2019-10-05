@@ -23,9 +23,8 @@ namespace FOCA.Analysis.FingerPrinting
         static public void data_NewWebDomain(object sender, EventArgs e)
         {
             // Nuevo dominio web extraido
-            if (sender is DomainsItem)
+            if (sender is DomainsItem domain)
             {
-                DomainsItem domain = (DomainsItem)sender;
                 //Solo se hace fingerPrinting a los dominios principales y alternativos
                 List<string> mainDomains = new List<string>();
 
@@ -35,7 +34,7 @@ namespace FOCA.Analysis.FingerPrinting
                     return;
 
                 bool existeFP = false;
-                for (int fpI = 0; fpI < domain.fingerPrinting.Count(); fpI++)
+                for (int fpI = 0; fpI < domain.fingerPrinting.Count; fpI++)
                 {
                     FingerPrinting fp = domain.fingerPrinting[fpI];
 
@@ -101,9 +100,8 @@ namespace FOCA.Analysis.FingerPrinting
         static public void data_NewMXDomain(object sender, EventArgs e)
         {
             // Nuevo dominio MX extraido
-            if (sender is DomainsItem)
+            if (sender is DomainsItem domain)
             {
-                DomainsItem domain = (DomainsItem)sender;
                 //Solo se hace fingerPrinting a los dominios principales y alternativos
                 List<string> mainDomains = new List<string>();
                 if (string.IsNullOrEmpty(Program.data.Project.Domain))
@@ -115,7 +113,7 @@ namespace FOCA.Analysis.FingerPrinting
                     return;
 
                 bool existeFP = false;
-                for (int fpI = 0; fpI < domain.fingerPrinting.Count(); fpI++)
+                for (int fpI = 0; fpI < domain.fingerPrinting.Count; fpI++)
                 {
                     FingerPrinting fp = domain.fingerPrinting[fpI];
 
@@ -143,9 +141,8 @@ namespace FOCA.Analysis.FingerPrinting
         static public void data_NewFTPDomain(object sender, EventArgs e)
         {
             // Nuevo dominio FTP extraido
-            if (sender is DomainsItem)
+            if (sender is DomainsItem domain)
             {
-                DomainsItem domain = (DomainsItem)sender;
                 //Solo se hace fingerPrinting a los dominios principales y alternativos
                 List<string> mainDomains = new List<string>();
                 if (string.IsNullOrEmpty(Program.data.Project.Domain))
@@ -156,7 +153,7 @@ namespace FOCA.Analysis.FingerPrinting
                     return;
 
                 bool existeFP = false;
-                for (int fpI = 0; fpI < domain.fingerPrinting.Count(); fpI++)
+                for (int fpI = 0; fpI < domain.fingerPrinting.Count; fpI++)
                 {
                     FingerPrinting fp = domain.fingerPrinting[fpI];
 
@@ -184,16 +181,15 @@ namespace FOCA.Analysis.FingerPrinting
         static public void data_NewDNSDomain(object sender, EventArgs e)
         {
             // Nuevo dominio DNS extraido
-            if (sender is DomainsItem)
+            if (sender is DomainsItem domain)
             {
-                DomainsItem domain = (DomainsItem)sender;
                 //Solo se hace fingerPrinting a los dominios principales y alternativos
                 List<string> mainDomains = new List<string>();
                 if (string.IsNullOrEmpty(Program.data.Project.Domain))
                     return;
 
                 bool existeFP = false;
-                for (int fpI = 0; fpI < domain.fingerPrinting.Count(); fpI++)
+                for (int fpI = 0; fpI < domain.fingerPrinting.Count; fpI++)
                 {
                     FingerPrinting fp = domain.fingerPrinting[fpI];
 
@@ -223,10 +219,8 @@ namespace FOCA.Analysis.FingerPrinting
             if (sender == null)
                 return;
             DomainsItem domain = null;
-            if (sender is HTTP)
+            if (sender is HTTP http)
             {
-                HTTP http = (HTTP)sender;
-
                 domain = Program.data.GetDomain(http.Host);
                 if (domain != null)
                     domain.fingerPrinting.Add(http);
@@ -242,28 +236,22 @@ namespace FOCA.Analysis.FingerPrinting
                     }
                 }
             }
-            else if (sender is SMTP)
+            else if (sender is SMTP smtp)
             {
-                SMTP smtp = (SMTP)sender;
-
                 domain = Program.data.GetDomain(smtp.Host);
                 {
                     domain.fingerPrinting.Add(smtp);
                 }
             }
-            else if (sender is FTP)
+            else if (sender is FTP ftp)
             {
-                FTP ftp = (FTP)sender;
-
                 domain = Program.data.GetDomain(ftp.Host);
                 {
                     domain.fingerPrinting.Add(ftp);
                 }
             }
-            else if (sender is DNS)
+            else if (sender is DNS dns)
             {
-                DNS dns = (DNS)sender;
-
                 domain = Program.data.GetDomain(dns.Host);
                 {
                     domain.fingerPrinting.Add(dns);
@@ -286,7 +274,7 @@ namespace FOCA.Analysis.FingerPrinting
                 i++;
                 {
                     //Se usa el fingerPrint del dominio para asignar un SO al servidor
-                    for (int fpI = 0; fpI < di.fingerPrinting.Count(); fpI++)
+                    for (int fpI = 0; fpI < di.fingerPrinting.Count; fpI++)
                     {
                         Analysis.FingerPrinting.FingerPrinting fp = di.fingerPrinting[fpI];
                         //Nos fiamos mas del so obtenido mediante fingerprinting que el que pueda haber sido obtenido en Shodan

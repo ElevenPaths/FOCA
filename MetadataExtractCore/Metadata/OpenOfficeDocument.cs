@@ -300,7 +300,7 @@ namespace MetadataExtractCore.Extractors
                                 this.foundMetadata.Add(new Printer(Functions.FilterPrinter(xn.FirstChild.Value)));
                             else if (xn.Attributes.GetNamedItem("config:name").Value == "CurrentDatabaseDataSource")
                             {
-                                if (xn.HasChildNodes)
+                                if (xn.HasChildNodes)   // TODO - always false
                                     this.foundMetadata.DataBase = xn.FirstChild.Value;
                             }
                             /* else if (xn.Attributes.GetNamedItem("config:name").Value == "PrintFaxName")
@@ -323,37 +323,37 @@ namespace MetadataExtractCore.Extractors
                             //Solo aparecen en ficheros ODP y ODG file:///
                             else if (xn.Attributes.GetNamedItem("config:name").Value == "ColorTableURL")
                             {
-                                if (xn.HasChildNodes)
+                                if (xn.HasChildNodes)   // TODO - always false
                                     if (PathAnalysis.CleanPath(xn.FirstChild.Value) != "$(user)/config/")
                                         this.foundMetadata.Add(new Diagrams.Path(PathAnalysis.CleanPath(xn.FirstChild.Value), true));
                             }
                             else if (xn.Attributes.GetNamedItem("config:name").Value == "BitmapTableURL")
                             {
-                                if (xn.HasChildNodes)
+                                if (xn.HasChildNodes)   // TODO - always false
                                     if (PathAnalysis.CleanPath(xn.FirstChild.Value) != "$(user)/config/")
                                         this.foundMetadata.Add(new Diagrams.Path(PathAnalysis.CleanPath(xn.FirstChild.Value), true));
                             }
                             else if (xn.Attributes.GetNamedItem("config:name").Value == "DashTableURL")
                             {
-                                if (xn.HasChildNodes)
+                                if (xn.HasChildNodes)   // TODO - always false
                                     if (PathAnalysis.CleanPath(xn.FirstChild.Value) != "$(user)/config/")
                                         this.foundMetadata.Add(new Diagrams.Path(PathAnalysis.CleanPath(xn.FirstChild.Value), true));
                             }
                             else if (xn.Attributes.GetNamedItem("config:name").Value == "GradientTableURL")
                             {
-                                if (xn.HasChildNodes)
+                                if (xn.HasChildNodes)   // TODO - always false
                                     if (PathAnalysis.CleanPath(xn.FirstChild.Value) != "$(user)/config/")
                                         this.foundMetadata.Add(new Diagrams.Path(PathAnalysis.CleanPath(xn.FirstChild.Value), true));
                             }
                             else if (xn.Attributes.GetNamedItem("config:name").Value == "HatchTableURL")
                             {
-                                if (xn.HasChildNodes)
+                                if (xn.HasChildNodes)   // TODO - always false
                                     if (PathAnalysis.CleanPath(xn.FirstChild.Value) != "$(user)/config/")
                                         this.foundMetadata.Add(new Diagrams.Path(PathAnalysis.CleanPath(xn.FirstChild.Value), true));
                             }
                             else if (xn.Attributes.GetNamedItem("config:name").Value == "LineEndTableURL")
                             {
-                                if (xn.HasChildNodes)
+                                if (xn.HasChildNodes)   // TODO - always false
                                     if (PathAnalysis.CleanPath(xn.FirstChild.Value) != "$(user)/config/")
                                         this.foundMetadata.Add(new Diagrams.Path(PathAnalysis.CleanPath(xn.FirstChild.Value), true));
                             }
