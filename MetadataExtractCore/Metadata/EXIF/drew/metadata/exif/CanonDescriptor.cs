@@ -301,7 +301,7 @@ namespace com.drew.metadata.exif
             int lcVal = base.directory.GetInt(CanonDirectory.TAG_CANON_CUSTOM_FUNCTION_TV_AV_AND_EXPOSURE_LEVEL);
             switch (lcVal)
             {
-                case 0: return BUNDLE["1_2_STOP"];
+                case 0:
                 case 1: return BUNDLE["1_2_STOP"];
                 default: return BUNDLE["UNKNOWN", lcVal.ToString()];
             }
@@ -514,7 +514,7 @@ namespace com.drew.metadata.exif
 			} 
 			else if ((lcVal & 0x7) == 1) 
 			{
-				return BUNDLE["CENTER"];;
+                return BUNDLE["CENTER"];
 			} 
 			else if ((lcVal & 0x7) == 2) 
 			{

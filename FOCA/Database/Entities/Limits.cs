@@ -54,7 +54,7 @@ namespace FOCA.Database.Entities
                                                  ip.Split(new char[] { '.' })[2] + "." +
                                                  (lastOct - 1).ToString();
 
-                        int count = Program.data.GetRelationsOfIP(ipLimitInferior).Count();
+                        int count = Program.data.GetRelationsOfIP(ipLimitInferior).Count;
                         if (count == 0)
                             this.Lower--;
                     }
@@ -66,7 +66,7 @@ namespace FOCA.Database.Entities
                                                  ip.Split(new char[] { '.' })[2] + "." +
                                                  (lastOct + 1).ToString();
 
-                        int count = Program.data.GetRelationsOfIP(ipLimitSuperior).Count();
+                        int count = Program.data.GetRelationsOfIP(ipLimitSuperior).Count;
                         if (count == 0)
                             this.Higher++;
                     }

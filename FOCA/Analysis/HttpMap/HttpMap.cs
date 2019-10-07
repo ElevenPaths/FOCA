@@ -1,4 +1,4 @@
-using FOCA.Analysis.FingerPrinting;
+﻿using FOCA.Analysis.FingerPrinting;
 using FOCA.Analysis.Technology;
 using FOCA.Database.Entities;
 using FOCA.ModifiedComponents;
@@ -147,7 +147,7 @@ namespace FOCA.Analysis.HttpMap
                     string line;
                     while ((line = sr.ReadLine()) != null)
                     {
-                        if (line.Split(' ').Count() <= 1)
+                        if (line.Split(' ').Length <= 1)
                             continue;
                         var path = line.Split(' ')[1];
                         if (path.Contains("*"))
@@ -434,7 +434,7 @@ namespace FOCA.Analysis.HttpMap
 
             foreach (var newFile in (from newExt in backupExt.Concat(oldVersions)
                                      let aux = path.Split(new[] { "/" }, StringSplitOptions.None)
-                                     let realPath = string.Join("/", aux.Take(aux.Count() - 1)) + "/"
+                                     let realPath = string.Join("/", aux.Take(aux.Length - 1)) + "/"
                                      select (string.Equals(newExt, "~"))
                                          ? realPath + fileName + "." + fileExtension + newExt
                                          : realPath + fileName + "." + fileExtension + "." + newExt).Where(

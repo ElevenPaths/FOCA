@@ -491,7 +491,7 @@ namespace FOCA
             if (newProject)
             {
                 Program.FormMainInstance.Reset();
-                Program.data.Project = new Project(); //Intialize object 
+                Program.data.Project = new Project(); //Initialize object
                 panelProject.ClearFields();
             }
             else
@@ -1606,10 +1606,8 @@ namespace FOCA
             for (var i = nodes.Count; i > 0; i--)
             {
                 var tn = nodes[i - 1];
-                if (tn.Tag is ComputersItem)
+                if (tn.Tag is ComputersItem ci)
                 {
-                    var ci = (ComputersItem)tn.Tag;
-
                     if (Program.data.computers.Items.All(c => c.name != ci.name) ||
                         tn.Text != ci.name)
                         Program.FormMainInstance.TreeView.Invoke(new MethodInvoker(delegate
@@ -1645,10 +1643,9 @@ namespace FOCA
 
         private void treeViewNetwork_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            if (e.Node.Tag is ComputersItem)
+            if (e.Node.Tag is ComputersItem ci)
             {
                 LoadInformationGui();
-                var ci = (ComputersItem)e.Node.Tag;
 
                 if (_lastComputerShown != ci)
                 {
@@ -1755,12 +1752,12 @@ namespace FOCA
                     var lstDomains = new List<ComputerDomainsItem>(Program.data.computerDomains.Items.Where(c => c.Computer.name == ci.name));
                     foreach (var cdi in lstDomains)
                     {
-                        for (var fpI = 0; fpI < cdi.Domain.fingerPrinting.Count(); fpI++)
+                        for (var fpI = 0; fpI < cdi.Domain.fingerPrinting.Count; fpI++)
                         {
                             var fp = cdi.Domain.fingerPrinting[fpI];
                             var lvi = new ListViewItem();
 
-                            if (fp is HTTP)
+                            if (fp is HTTP http)
                             {
                                 var ipMostradaFix = false;
                                 foreach (var item in panelInformation.lvwInformation.Groups["FingerPrintingHTTP"].Items.Cast<ListViewItem>().Where(item => item.Text == fp.Host + ":" + fp.Port))
@@ -1770,27 +1767,25 @@ namespace FOCA
                                     continue;
 
                                 panelInformation.lvwInformation.Groups.Add("FingerPrintingHTTP", "FingerPrinting - HTTP");
-                                lvi = panelInformation.lvwInformation.Items.Add(((HTTP)fp).Host + ":" + ((HTTP)fp).Port);
+                                lvi = panelInformation.lvwInformation.Items.Add(http.Host + ":" + http.Port);
                                 lvi.Group = panelInformation.lvwInformation.Groups["FingerPrintingHTTP"];
 
-                                lvi.SubItems.Add(((HTTP)fp).Version);
-                                lvi.Tag = ((HTTP)fp).Version;
+                                lvi.SubItems.Add(http.Version);
+                                lvi.Tag = http.Version;
 
                                 if (string.IsNullOrEmpty(((HTTP)fp).Title)) continue;
 
                                 panelInformation.lvwInformation.Groups.Add("Http Title", "HTML Title");
 
-                                lvi = panelInformation.lvwInformation.Items.Add(((HTTP)fp).Host + ":" + ((HTTP)fp).Port);
+                                lvi = panelInformation.lvwInformation.Items.Add(http.Host + ":" + http.Port);
                                 lvi.Group = panelInformation.lvwInformation.Groups["Http Title"];
 
-                                lvi.SubItems.Add(((HTTP)fp).Title);
-                                lvi.Tag = ((HTTP)fp).Title;
+                                lvi.SubItems.Add(http.Title);
+                                lvi.Tag = http.Title;
                             }
                             else
                             {
-                                var smtp = fp as SMTP;
-
-                                if (smtp != null)
+                                if (fp is SMTP smtp)
                                 {
                                     var ipMostradaFix = false;
                                     foreach (ListViewItem item in panelInformation.lvwInformation.Groups["FingerPrintingSMTP"].Items.Cast<ListViewItem>().Where(item => item.Text == smtp.Host + ":" + smtp.Port))
@@ -1806,37 +1801,37 @@ namespace FOCA
                                     lvi.SubItems.Add(smtp.Version);
                                     lvi.Tag = smtp.Version;
                                 }
-                                else if (fp is FTP)
+                                else if (fp is FTP ftp)
                                 {
                                     var ipMostradaFix = false;
-                                    foreach (var item in panelInformation.lvwInformation.Groups["FingerPrintingFTP"].Items.Cast<ListViewItem>().Where(item => item.Text == fp.Host + ":" + fp.Port))
+                                    foreach (var item in panelInformation.lvwInformation.Groups["FingerPrintingFTP"].Items.Cast<ListViewItem>().Where(item => item.Text == ftp.Host + ":" + ftp.Port))
                                         ipMostradaFix = true;
 
                                     if (ipMostradaFix)
                                         continue;
 
                                     panelInformation.lvwInformation.Groups.Add("FingerPrintingFTP", "FingerPrinting - FTP");
-                                    lvi = panelInformation.lvwInformation.Items.Add(fp.Host + ":" + fp.Port);
+                                    lvi = panelInformation.lvwInformation.Items.Add(ftp.Host + ":" + ftp.Port);
                                     lvi.Group = panelInformation.lvwInformation.Groups["FingerPrintingFTP"];
 
-                                    lvi.SubItems.Add(((FTP)fp).Version);
-                                    lvi.Tag = ((FTP)fp).Version;
+                                    lvi.SubItems.Add(ftp.Version);
+                                    lvi.Tag = ftp.Version;
                                 }
-                                else if (fp is DNS)
+                                else if (fp is DNS dns)
                                 {
                                     var ipMostradaFix = false;
-                                    foreach (var item in panelInformation.lvwInformation.Groups["FingerPrintingDNS"].Items.Cast<ListViewItem>().Where(item => item.Text == fp.Host + ":" + fp.Port))
+                                    foreach (var item in panelInformation.lvwInformation.Groups["FingerPrintingDNS"].Items.Cast<ListViewItem>().Where(item => item.Text == dns.Host + ":" + dns.Port))
                                         ipMostradaFix = true;
 
                                     if (ipMostradaFix)
                                         continue;
 
                                     panelInformation.lvwInformation.Groups.Add("FingerPrintingDNS", "FingerPrinting - DNS");
-                                    lvi = panelInformation.lvwInformation.Items.Add(fp.Host + ":" + fp.Port);
+                                    lvi = panelInformation.lvwInformation.Items.Add(dns.Host + ":" + dns.Port);
                                     lvi.Group = panelInformation.lvwInformation.Groups["FingerPrintingDNS"];
 
-                                    lvi.SubItems.Add(((DNS)fp).Version);
-                                    lvi.Tag = ((DNS)fp).Version;
+                                    lvi.SubItems.Add(dns.Version);
+                                    lvi.Tag = dns.Version;
                                 }
                             }
                         }
@@ -2023,7 +2018,7 @@ namespace FOCA
                         lvi.Group = panelInformation.lvwInformation.Groups["Users with access"];
                     }
                 }
-                else if (e.Node.Parent != null && e.Node.Parent.Tag is ComputersItem && e.Node.Text == "Passwords")
+                else if (e.Node.Parent?.Tag is ComputersItem && e.Node.Text == "Passwords")
                 {
                     InitializeInformationPanel();
 
@@ -2038,7 +2033,7 @@ namespace FOCA
                         lvi.Group = panelInformation.lvwInformation.Groups["Passwords"];
                     }
                 }
-                else if (e.Node.Parent != null && e.Node.Parent.Tag is ComputersItem && e.Node.Text == "Folders" && e.Node.Parent.Parent != null && e.Node.Parent.Parent.Name == "Clients")
+                else if (e.Node.Parent != null && e.Node.Parent.Tag is ComputersItem && e.Node.Text == "Folders" && e.Node.Parent.Parent?.Name == "Clients")
                 {
                     InitializeInformationPanel();
 
@@ -2047,7 +2042,7 @@ namespace FOCA
                     foreach (ListViewItem lvi in r.Items.Select(ri => panelInformation.lvwInformation.Items.Add(ri.Path)))
                         lvi.Group = panelInformation.lvwInformation.Groups["Folders"];
                 }
-                else if (e.Node.Parent?.Parent.Tag is ComputersItem && e.Node.Text == "Folders")
+                else if (e.Node.Parent?.Parent?.Tag is ComputersItem && e.Node.Text == "Folders")
                 {
                     InitializeInformationPanel();
 
@@ -2074,7 +2069,7 @@ namespace FOCA
                         }
                     }
                 }
-                else if (e.Node.Parent?.Parent.Tag is ComputersItem && e.Node.Text == "Remote Folders")
+                else if (e.Node.Parent?.Parent?.Tag is ComputersItem && e.Node.Text == "Remote Folders")
                 {
                     InitializeInformationPanel();
 
@@ -2086,7 +2081,7 @@ namespace FOCA
                         lvi.Group = panelInformation.lvwInformation.Groups["Remote Folders"];
                     }
                 }
-                else if (e.Node.Parent?.Parent.Tag is ComputersItem && e.Node.Text == "Printers")
+                else if (e.Node.Parent?.Parent?.Tag is ComputersItem && e.Node.Text == "Printers")
                 {
                     InitializeInformationPanel();
 
@@ -2115,7 +2110,7 @@ namespace FOCA
                         }
                     }
                 }
-                else if (e.Node.Parent?.Parent.Tag is ComputersItem && e.Node.Text == "Remote Printers")
+                else if (e.Node.Parent?.Parent?.Tag is ComputersItem && e.Node.Text == "Remote Printers")
                 {
                     InitializeInformationPanel();
 
@@ -2590,58 +2585,58 @@ namespace FOCA
                 panelInformation.lvwInformation.Groups.Add("FingerPrintingFTP", "FingerPrinting - FTP");
                 panelInformation.lvwInformation.Groups.Add("FingerPrintingDNS", "FingerPrinting - DNS");
 
-                for (var fpI = 0; fpI < d.fingerPrinting.Count(); fpI++)
+                for (var fpI = 0; fpI < d.fingerPrinting.Count; fpI++)
                 {
                     var fp = d.fingerPrinting[fpI];
 
-                    if (fp is HTTP)
+                    if (fp is HTTP http)
                     {
                         var ipMostradaFix = false;
-                        foreach (ListViewItem item in panelInformation.lvwInformation.Groups["FingerPrintingHTTP"].Items.Cast<ListViewItem>().Where(item => item.Text == fp.Host + ":" + fp.Port))
+                        foreach (ListViewItem item in panelInformation.lvwInformation.Groups["FingerPrintingHTTP"].Items.Cast<ListViewItem>().Where(item => item.Text == http.Host + ":" + http.Port))
                         {
                             ipMostradaFix = true;
                         }
                         if (ipMostradaFix)
                             continue;
 
-                        lvi = panelInformation.lvwInformation.Items.Add(((HTTP)fp).Host + ":" + ((HTTP)fp).Port);
+                        lvi = panelInformation.lvwInformation.Items.Add(http.Host + ":" + http.Port);
                         lvi.Group = panelInformation.lvwInformation.Groups["FingerPrintingHTTP"];
 
-                        lvi.SubItems.Add(((HTTP)fp).Version);
-                        lvi.Tag = ((HTTP)fp).Version;
+                        lvi.SubItems.Add(http.Version);
+                        lvi.Tag = http.Version;
 
-                        if (string.IsNullOrEmpty(((HTTP)fp).Title)) continue;
+                        if (string.IsNullOrEmpty(http.Title)) continue;
 
                         panelInformation.lvwInformation.Groups.Add("Http Title", "HTML Title");
-                        lvi = panelInformation.lvwInformation.Items.Add(((HTTP)fp).Host + ":" + ((HTTP)fp).Port);
+                        lvi = panelInformation.lvwInformation.Items.Add(http.Host + ":" + http.Port);
                         lvi.Group = panelInformation.lvwInformation.Groups["Http Title"];
 
-                        lvi.SubItems.Add(((HTTP)fp).Title);
-                        lvi.Tag = ((HTTP)fp).Title;
+                        lvi.SubItems.Add(http.Title);
+                        lvi.Tag = http.Title;
                     }
-                    else if (fp is SMTP)
+                    else if (fp is SMTP smtp)
                     {
-                        lvi = panelInformation.lvwInformation.Items.Add(((SMTP)fp).Host);
+                        lvi = panelInformation.lvwInformation.Items.Add(smtp.Host);
                         lvi.Group = panelInformation.lvwInformation.Groups["FingerPrintingSMTP"];
 
-                        lvi.SubItems.Add(((SMTP)fp).Version);
-                        lvi.Tag = ((SMTP)fp).Version;
+                        lvi.SubItems.Add(smtp.Version);
+                        lvi.Tag = smtp.Version;
                     }
-                    else if (fp is FTP)
+                    else if (fp is FTP ftp)
                     {
-                        lvi = panelInformation.lvwInformation.Items.Add(((FTP)fp).Host);
+                        lvi = panelInformation.lvwInformation.Items.Add(ftp.Host);
                         lvi.Group = panelInformation.lvwInformation.Groups["FingerPrintingFTP"];
 
-                        lvi.SubItems.Add(((FTP)fp).Version);
-                        lvi.Tag = ((FTP)fp).Version;
+                        lvi.SubItems.Add(ftp.Version);
+                        lvi.Tag = ftp.Version;
                     }
-                    else if (fp is DNS)
+                    else if (fp is DNS dns)
                     {
-                        lvi = panelInformation.lvwInformation.Items.Add(((DNS)fp).Host);
+                        lvi = panelInformation.lvwInformation.Items.Add(dns.Host);
                         lvi.Group = panelInformation.lvwInformation.Groups["FingerPrintingDNS"];
 
-                        lvi.SubItems.Add(((DNS)fp).Version);
-                        lvi.Tag = ((DNS)fp).Version;
+                        lvi.SubItems.Add(dns.Version);
+                        lvi.Tag = dns.Version;
                     }
                 }
             }
@@ -2688,7 +2683,7 @@ namespace FOCA
         }
 
         /// <summary>
-        /// Update borrom panel, 
+        /// Update borrom panel,
         /// </summary>
         /// <param name="domain"></param>
         public void UpdateBottomPanel(DomainsItem domain)
@@ -2712,10 +2707,10 @@ namespace FOCA
             if (ExistsTab("Files"))
             {
                 var tab = panelInformation.tabMap.TabPages["Files"];
-                tab.Text = "Files (" + domain.map.Files.Count() + " found)";
+                tab.Text = "Files (" + domain.map.Files.Count + " found)";
 
                 var list = (PanelUrlsList)tab.Controls[0];
-                for (var i = list.lstView.Items.Count; i < domain.map.Files.Count(); i++)
+                for (var i = list.lstView.Items.Count; i < domain.map.Files.Count; i++)
                 {
                     list.lstView.Items.Add(domain.map.Files[i]).SubItems.Add(System.IO.Path.GetExtension(domain.map.Files[i]));
                 }
@@ -2724,10 +2719,10 @@ namespace FOCA
             if (ExistsTab("Folders"))
             {
                 var tab = panelInformation.tabMap.TabPages["Folders"];
-                tab.Text = "Folders (" + domain.map.Folders.Count() + " found)";
+                tab.Text = "Folders (" + domain.map.Folders.Count + " found)";
 
                 var list = (PanelUrlsList)tab.Controls[0];
-                for (var i = list.lstView.Items.Count; i < domain.map.Folders.Count(); i++)
+                for (var i = list.lstView.Items.Count; i < domain.map.Folders.Count; i++)
                 {
                     list.lstView.Items.Add(domain.map.Folders[i]);
                 }
@@ -2736,10 +2731,10 @@ namespace FOCA
             if (ExistsTab("Documents published"))
             {
                 var tab = panelInformation.tabMap.TabPages["Documents published"];
-                tab.Text = "Documents published (" + domain.map.Documents.Count() + " found)";
+                tab.Text = "Documents published (" + domain.map.Documents.Count + " found)";
 
                 var list = (PanelUrlsList)tab.Controls[0];
-                for (int i = list.lstView.Items.Count; i < domain.map.Documents.Count(); i++)
+                for (int i = list.lstView.Items.Count; i < domain.map.Documents.Count; i++)
                 {
                     list.lstView.Items.Add(domain.map.Documents[i]);
                 }
@@ -2748,10 +2743,10 @@ namespace FOCA
             if (ExistsTab("Parameterized"))
             {
                 var tab = panelInformation.tabMap.TabPages["Parameterized"];
-                tab.Text = "Parameterized (" + domain.map.Parametrized.Count() + " found)";
+                tab.Text = "Parameterized (" + domain.map.Parametrized.Count + " found)";
 
                 var list = (PanelUrlsList)tab.Controls[0];
-                for (var i = list.lstView.Items.Count; i < domain.map.Parametrized.Count(); i++)
+                for (var i = list.lstView.Items.Count; i < domain.map.Parametrized.Count; i++)
                 {
                     list.lstView.Items.Add(domain.map.Parametrized[i]);
                 }
@@ -2968,10 +2963,8 @@ namespace FOCA
                 }
                 if (tnCat.Parent.Name == UpdateGUI.TreeViewKeys.KPCServers.ToString())
                 {
-                    if (tn.Tag is ComputerDomainsItem)
+                    if (tn.Tag is ComputerDomainsItem cdi)
                     {
-                        var cdi = (ComputerDomainsItem)tn.Tag;
-
                         var tnNew = new TreeNode();
                         tnNew.Tag = cdi.Domain;
                         tnNew.Text = tn.Text;
@@ -3066,19 +3059,19 @@ namespace FOCA
                             Contextual.ShowNetworkUnlocatedMenu(tn, sourceControl);
                             break;
                         default:
-                            if (tn?.Tag.ToString() == "iprange")
+                            if (tn.Tag.ToString() == "iprange")
                                 Contextual.ShowNetworkIpRangeMenu(tn, sourceControl);
 
-                            else if ((tn?.Tag is ComputersItem) && (tn.Parent.Name == "Clients"))
+                            else if ((tn.Tag is ComputersItem) && (tn.Parent.Name == "Clients"))
                                 Contextual.ShowNetworkClientsItemMenu(tn, sourceControl);
 
-                            else if ((tn?.Tag is ComputersItem) && (tn.Parent.Name != "Unknown Servers") && ((tn.Parent.Parent.Parent.Name == "Servers") || (tn.Parent.Parent.Name == "Servers") || (tn.Parent.Parent.Parent.Parent.Name == "Servers")))
+                            else if ((tn.Tag is ComputersItem) && (tn.Parent.Name != "Unknown Servers") && ((tn.Parent.Parent.Parent.Name == "Servers") || (tn.Parent.Parent.Name == "Servers") || (tn.Parent.Parent.Parent.Parent.Name == "Servers")))
                                 Contextual.ShowNetworkServersItemMenu(tn, sourceControl);
 
-                            else if ((tn?.Tag is ComputersItem) && (tn.Parent.Name == "Unknown Servers"))
+                            else if ((tn.Tag is ComputersItem) && (tn.Parent.Name == "Unknown Servers"))
                                 Contextual.ShowNetworkUnlocatedItemMenu(tn, sourceControl);
 
-                            else if ((tn?.Tag is ComputerDomainsItem) && (tn.Parent.Tag is ComputersItem))
+                            else if ((tn.Tag is ComputerDomainsItem) && (tn.Parent.Tag is ComputersItem))
                             {
                                 var newTn = new TreeNode
                                 {

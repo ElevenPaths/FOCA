@@ -667,7 +667,7 @@ namespace FOCA
             }
             else if (previousTask.IsFaulted)
             {
-                logMessage = $"An error has ocurred on {engineName}: {String.Join(Environment.NewLine, (previousTask.Exception as AggregateException)?.InnerException.Message)}.";
+                logMessage = $"An error has ocurred on {engineName}: {String.Join(Environment.NewLine, (previousTask.Exception)?.InnerException.Message)}.";
                 logType = Log.LogType.error;
             }
             else if (previousTask.IsCompleted)

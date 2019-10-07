@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
@@ -228,7 +228,7 @@ namespace com.utils.xml
                 {
                     // check if value contains strange char and replace them if needed
                     IEnumerator lcEnumChar = FORBIDEN_CHAR.GetEnumerator();
-                    while(lcEnumChar.MoveNext())
+                    while (lcEnumChar.MoveNext())
                     {
                         KeyValuePair<string, string> lcPair = (KeyValuePair<string, string>)lcEnumChar.Current;
                         aValue = aValue.Replace(lcPair.Key, lcPair.Value);
@@ -331,7 +331,7 @@ namespace com.utils.xml
                 string lcName = aTag.GetTagName();
                 string lcHexName = aTag.GetTagTypeHex();
 
-                if (!this.DoUnknown && (lcName.ToLower().StartsWith("unknown") || lcDescription.ToLower().StartsWith("unknown")))
+                if (!this.DoUnknown && lcDescription != null && (lcName.ToLower().StartsWith("unknown") || lcDescription.ToLower().StartsWith("unknown")))
                 {
                     // No unKnown and is unKnown so do nothing
                     return;
@@ -342,7 +342,7 @@ namespace com.utils.xml
                 Normalize(aBuff, lcName, false);
                 Close(aBuff, "tagLabel", false);
 
-                if (lcDescription != null && lcDescription.Length > 0)
+                if (!string.IsNullOrEmpty(lcDescription))
                 {
                     Open(aBuff, "tagDescription", false);
                     Normalize(aBuff, lcDescription, false);
@@ -410,10 +410,10 @@ namespace com.utils.xml
         public virtual string AsText()
         {
             StringBuilder lcBuff = new StringBuilder();
-			IEnumerator<AbstractDirectory> lcDirectoryEnum = this.Metadata.GetDirectoryIterator();
-			while (lcDirectoryEnum.MoveNext())
-			{
-				AbstractDirectory lcDirectory = lcDirectoryEnum.Current;
+            IEnumerator<AbstractDirectory> lcDirectoryEnum = this.Metadata.GetDirectoryIterator();
+            while (lcDirectoryEnum.MoveNext())
+            {
+                AbstractDirectory lcDirectory = lcDirectoryEnum.Current;
                 CreateDirectory(lcBuff, lcDirectory);
                 lcDirectory = null;
             }
