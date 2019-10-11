@@ -1203,6 +1203,7 @@ namespace FOCA
                     string latitude = ed.GPS.Latitude.ToString("0.000000", CultureInfo.InvariantCulture);
                     NewItemListView("Longitude", longitude, "GPS location");
                     NewItemListView("Latitude", latitude, "GPS location");
+                    NewItemListView("Altitude", ed.GPS.Altitude, "GPS location");
                     NewItemListView("Google maps url", $"https://www.google.com/maps/search/?api=1&query={latitude},{longitude}", "GPS location");
                 }
             }

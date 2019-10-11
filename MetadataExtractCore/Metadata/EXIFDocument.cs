@@ -33,6 +33,7 @@ namespace MetadataExtractCore.Extractors
                             uint offset = (uint)currentDir.GetObject(MetadataExtractor.Formats.Exif.ExifThumbnailDirectory.TagThumbnailOffset) + (uint)MetadataExtractor.Formats.Exif.ExifReader.JpegSegmentPreamble.Length;
                             uint length = (uint)currentDir.GetObject(MetadataExtractor.Formats.Exif.ExifThumbnailDirectory.TagThumbnailLength);
 
+                            long currentPosition = this.fileStream.Position;
                             this.fileStream.Seek(0, SeekOrigin.Begin);
                             JpegSegment app1Segment = JpegSegmentReader.ReadSegments(new MetadataExtractor.IO.SequentialStreamReader(this.fileStream), new[] { JpegSegmentType.App1 }).FirstOrDefault();
                             if (app1Segment != null)
@@ -41,6 +42,7 @@ namespace MetadataExtractCore.Extractors
                                 Array.Copy(app1Segment.Bytes, offset, thumb, 0, length);
                                 this.foundMetadata.Thumbnail = thumb;
                             }
+                            this.fileStream.Seek(currentPosition, SeekOrigin.Begin);
                         }
                         catch (Exception)
                         {
@@ -54,6 +56,10 @@ namespace MetadataExtractCore.Extractors
                             if (gpsLocation != null)
                             {
                                 this.foundMetadata.GPS = new GeoLocation(gpsLocation.ToDmsString(), gpsLocation.Longitude, gpsLocation.Latitude);
+                                if (gps.ContainsTag(MetadataExtractor.Formats.Exif.GpsDirectory.TagAltitude))
+                                {
+                                    this.foundMetadata.GPS.Altitude = $"{gps.GetDescription(MetadataExtractor.Formats.Exif.GpsDirectory.TagAltitude)} ({gps.GetDescription(MetadataExtractor.Formats.Exif.GpsDirectory.TagAltitudeRef)})"; ;
+                                }
                             }
                         }
                     }
