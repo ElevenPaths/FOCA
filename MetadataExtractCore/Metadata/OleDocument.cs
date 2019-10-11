@@ -120,100 +120,92 @@ namespace MetadataExtractCore.Extractors
                 this.ofh.NumberOfSectorsMSAT != 0 &&
                 this.ofh.FirstSecIDMSAT >= 0)
             {
-                using (BinaryReader br = new BinaryReader(this.stmDocument))
+                //Must not use using clausule because it closes the main stream
+                BinaryReader br = new BinaryReader(this.stmDocument);
+                int nextSecID = this.ofh.FirstSecIDMSAT;
+                int j = 109;
+                while (nextSecID != (int)SecIDType.EOFSecID && j < this.ofh.NumberOfSectorsSAT)
                 {
-                    int nextSecID = this.ofh.FirstSecIDMSAT;
-                    int j = 109;
-                    while (nextSecID != (int)SecIDType.EOFSecID && j < this.ofh.NumberOfSectorsSAT)
+                    this.stmDocument.Seek(SectorOffset(nextSecID), SeekOrigin.Begin);
+                    for (int i = 0; i < ((this.ofh.SizeOfSector - 4) / 4) && j < this.ofh.NumberOfSectorsSAT; i++, j++)
                     {
-                        this.stmDocument.Seek(SectorOffset(nextSecID), SeekOrigin.Begin);
-                        for (int i = 0; i < ((this.ofh.SizeOfSector - 4) / 4) && j < this.ofh.NumberOfSectorsSAT; i++, j++)
-                        {
-                            this.MSAT[j] = br.ReadInt32();
-                        }
-                        nextSecID = br.ReadInt32();
+                        this.MSAT[j] = br.ReadInt32();
                     }
+                    nextSecID = br.ReadInt32();
                 }
             }
         }
 
         public void readSAT()
         {
-            using (BinaryReader br = new BinaryReader(this.stmDocument))
+            BinaryReader br = new BinaryReader(this.stmDocument);
+            this.SAT = new Int32[this.ofh.NumberOfSectorsSAT * this.ofh.SizeOfSector];
+            int p = 0;
+            for (int i = 0; i < this.ofh.NumberOfSectorsSAT; i++)
             {
-                this.SAT = new Int32[this.ofh.NumberOfSectorsSAT * this.ofh.SizeOfSector];
-                int p = 0;
-                for (int i = 0; i < this.ofh.NumberOfSectorsSAT; i++)
+                this.stmDocument.Seek(SectorOffset(MSAT[i]), SeekOrigin.Begin);
+                for (int j = 0; j < this.ofh.SizeOfSector / 4; j++, p++)
                 {
-                    this.stmDocument.Seek(SectorOffset(MSAT[i]), SeekOrigin.Begin);
-                    for (int j = 0; j < this.ofh.SizeOfSector / 4; j++, p++)
-                    {
-                        this.SAT[p] = br.ReadInt32();
-                    }
+                    this.SAT[p] = br.ReadInt32();
                 }
             }
         }
 
         public void readSSAT()
         {
-            using (BinaryReader br = new BinaryReader(this.stmDocument))
+            BinaryReader br = new BinaryReader(this.stmDocument);
+            this.SSAT = new Int32[this.ofh.NumberOfSectorsSSAT * this.ofh.SizeOfSector];
+
+            int p = 0;
+            int nextSecID = this.ofh.FirstSecIDSSAT;
+            for (int i = 0; i < this.ofh.NumberOfSectorsSSAT; i++)
             {
-
-                this.SSAT = new Int32[this.ofh.NumberOfSectorsSSAT * this.ofh.SizeOfSector];
-
-                int p = 0;
-                int NextSecID = this.ofh.FirstSecIDSSAT;
-                for (int i = 0; i < this.ofh.NumberOfSectorsSSAT; i++)
+                if (nextSecID < 0)
                 {
-                    if (NextSecID < 0)
-                    {
-                        throw new Exception("Error leyendo secuencia SSAT");
-                    }
-                    this.stmDocument.Seek(SectorOffset(NextSecID), SeekOrigin.Begin);
-                    for (int j = 0; j < this.ofh.SizeOfSector / 4; j++, p++)
-                    {
-                        this.SSAT[p] = br.ReadInt32();
-                    }
-                    NextSecID = SAT[NextSecID];
+                    throw new Exception("Error leyendo secuencia SSAT");
                 }
+                this.stmDocument.Seek(SectorOffset(nextSecID), SeekOrigin.Begin);
+                for (int j = 0; j < this.ofh.SizeOfSector / 4; j++, p++)
+                {
+                    this.SSAT[p] = br.ReadInt32();
+                }
+                nextSecID = SAT[nextSecID];
             }
         }
 
         public void readDir()
         {
-            using (BinaryReader br = new BinaryReader(this.stmDocument))
+            BinaryReader br = new BinaryReader(this.stmDocument);
+            this.DirEntries = new List<DirEntry>();
+            Int32 NextSecID = this.ofh.FirstSecIDDirectory;
+            while (NextSecID >= 0)
             {
-                this.DirEntries = new List<DirEntry>();
-                Int32 NextSecID = this.ofh.FirstSecIDDirectory;
-                while (NextSecID >= 0)
+                this.stmDocument.Seek(SectorOffset(NextSecID), SeekOrigin.Begin);
+
+                for (int i = 0; i < (this.ofh.SizeOfSector / 128); i++)
                 {
-                    this.stmDocument.Seek(SectorOffset(NextSecID), SeekOrigin.Begin);
+                    DirEntry Directorio = new DirEntry();
 
-                    for (int i = 0; i < (this.ofh.SizeOfSector / 128); i++)
-                    {
-                        DirEntry Directorio = new DirEntry();
-
-                        Directorio.EntryName = br.ReadBytes(64);
-                        Directorio.EntryNameLength = br.ReadUInt16();
-                        Directorio.EntryType = br.ReadByte();
-                        Directorio.NodeColourEntry = br.ReadByte();
-                        Directorio.DirIDLeftChild = br.ReadInt32();
-                        Directorio.DirIDRigthChild = br.ReadInt32();
-                        Directorio.DirIDRootNodeEntry = br.ReadInt32();
-                        Directorio.UID = br.ReadBytes(16);
-                        Directorio.flags = br.ReadInt32();
-                        Directorio.CreationTime = br.ReadBytes(8);
-                        Directorio.ModificationTime = br.ReadBytes(8);
-                        Directorio.FirstSecIDStream = br.ReadInt32();
-                        Directorio.LengthStream = br.ReadInt32();
-                        Directorio.Reserved = br.ReadInt32();
-                        this.DirEntries.Add(Directorio);
-                    }
-
-                    if (NextSecID == this.SAT[NextSecID])
-                        return;
-                    NextSecID = this.SAT[NextSecID];
+                    Directorio.EntryName = br.ReadBytes(64);
+                    Directorio.EntryNameLength = br.ReadUInt16();
+                    Directorio.EntryType = br.ReadByte();
+                    Directorio.NodeColourEntry = br.ReadByte();
+                    Directorio.DirIDLeftChild = br.ReadInt32();
+                    Directorio.DirIDRigthChild = br.ReadInt32();
+                    Directorio.DirIDRootNodeEntry = br.ReadInt32();
+                    Directorio.UID = br.ReadBytes(16);
+                    Directorio.flags = br.ReadInt32();
+                    Directorio.CreationTime = br.ReadBytes(8);
+                    Directorio.ModificationTime = br.ReadBytes(8);
+                    Directorio.FirstSecIDStream = br.ReadInt32();
+                    Directorio.LengthStream = br.ReadInt32();
+                    Directorio.Reserved = br.ReadInt32();
+                    this.DirEntries.Add(Directorio);
                 }
+
+                if (NextSecID == this.SAT[NextSecID])
+                    return;
+                NextSecID = this.SAT[NextSecID];
             }
         }
 

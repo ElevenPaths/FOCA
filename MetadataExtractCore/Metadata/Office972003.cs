@@ -120,11 +120,14 @@ namespace MetadataExtractCore.Extractors
                 if (tam > 0)
                 {
                     Stream table = doc.OpenStream((tipo & 2) == 2 ? "1Table" : "0Table");
-                    Byte[] DriverImpresora = new Byte[tam];
-                    table.Seek(dir, SeekOrigin.Begin);
-                    table.Read(DriverImpresora, 0, (int)tam);
-                    this.foundMetadata.Add(new Printer(Functions.FilterPrinter(Encoding.Default.GetString(DriverImpresora).Replace("\0", ""))));
-                    table.Close();
+                    if (table != null)
+                    {
+                        Byte[] DriverImpresora = new Byte[tam];
+                        table.Seek(dir, SeekOrigin.Begin);
+                        table.Read(DriverImpresora, 0, (int)tam);
+                        this.foundMetadata.Add(new Printer(Functions.FilterPrinter(Encoding.Default.GetString(DriverImpresora).Replace("\0", ""))));
+                        table.Close();
+                    }
                 }
             }
         }
@@ -438,7 +441,7 @@ namespace MetadataExtractCore.Extractors
                                     {
                                         using (MemoryStream msJPG = new MemoryStream(bufferPIC, lstJPEG[0], bufferPIC.Length - lstJPEG[0]))
                                         {
-                                            using (EXIFDocument eDoc = new EXIFDocument(msJPG, ".jpg"))
+                                            using (EXIFDocument eDoc = new EXIFDocument(msJPG))
                                             {
                                                 FileMetadata exifMetadata = eDoc.AnalyzeFile();
                                                 foundMetadata.EmbeddedImages.Add(strImageName, exifMetadata);
@@ -476,7 +479,7 @@ namespace MetadataExtractCore.Extractors
                     using (MemoryStream msJPG = new MemoryStream(bufferPIC, 0x11, bufferPIC.Length - 0x11))
                     {
                         FileMetadata exifMetadata = null;
-                        using (EXIFDocument eDoc = new EXIFDocument(msJPG, ".jpg"))
+                        using (EXIFDocument eDoc = new EXIFDocument(msJPG))
                         {
                             exifMetadata = eDoc.AnalyzeFile();
                         }

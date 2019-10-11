@@ -1174,6 +1174,15 @@ namespace FOCA
                         }
                     }));
                 }
+
+                if (originalMetadata.GPS != null)
+                {
+                    methodsToInvoke.Add(new Action(() =>
+                    {
+                        TreeNode gps = trnParentNode.Nodes.Add("GPS", "GPS", 122, 122);
+                        gps.Tag = originalMetadata;
+                    }));
+                }
             }
 
             Program.FormMainInstance.TreeView.Invoke(new MethodInvoker(() =>

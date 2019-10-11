@@ -55,6 +55,8 @@ namespace MetadataExtractCore.Diagrams
 
         public string Model { get; set; }
 
+        public GeoLocation GPS { get; set; }
+
         public FileMetadata()
         {
             this.Applications = new HashSet<Application>();
@@ -81,6 +83,7 @@ namespace MetadataExtractCore.Diagrams
                    this.History.Count > 0 ||
                    this.Printers.Count > 0 ||
                    this.Passwords.Count > 0 ||
+                   this.Makernotes.Count > 0 ||
                    !String.IsNullOrWhiteSpace(this.Category) ||
                    !String.IsNullOrWhiteSpace(this.Codification) ||
                    !String.IsNullOrWhiteSpace(this.Comments) ||
@@ -96,6 +99,7 @@ namespace MetadataExtractCore.Diagrams
                    !String.IsNullOrWhiteSpace(this.Template) ||
                    !String.IsNullOrWhiteSpace(this.Title) ||
                    !String.IsNullOrWhiteSpace(this.UserInfo) ||
+                   this.GPS != null ||
                    this.VersionNumber > 0 ||
                    this.EditTime > 0 ||
                    this.Dates.CreationDate.HasValue ||

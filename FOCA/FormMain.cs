@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -733,6 +734,7 @@ namespace FOCA
                 case ".crw":
                 case ".jpg":
                 case ".jpeg":
+                case ".png":
                     return 32;
                 case ".svg":
                 case ".svgz":
@@ -980,6 +982,12 @@ namespace FOCA
                         NewItemListView("Modified date", f.ModificationDate.ToString(), "Dates");
 
                 }
+                if (e.Node.Nodes["GPS"] != null && e.Node.Nodes["GPS"].Tag is FileMetadata fmd && fmd != null)
+                {
+                    panelInformation.lvwInformation.Groups.Add("GPS location", "GPS location");
+
+                    NewItemListView("Location", fmd.GPS.Value, "GPS");
+                }
 
                 SetOtherMetaParentNode(e);
 
@@ -1139,7 +1147,7 @@ namespace FOCA
             {
                 InitializePanelInformation();
 
-                var ed = e.Node.Tag as FileMetadata;
+                FileMetadata ed = e.Node.Tag as FileMetadata;
                 if (ed != null)
                 {
                     var dicExif = ed.Makernotes;
@@ -1156,7 +1164,7 @@ namespace FOCA
 
                     try
                     {
-                        var pc = new PictureBox();
+                        PictureBox pc = new PictureBox();
                         using (var ms = new MemoryStream(ed.Thumbnail))
                         {
                             pc.Image = new Bitmap(ms);
@@ -1180,6 +1188,22 @@ namespace FOCA
                     {
 
                     }
+                }
+            }
+            else if (e.Node.Text == "GPS" && IsDocumentNode(e.Node.Parent))
+            {
+                InitializePanelInformation();
+
+                FileMetadata ed = e.Node.Tag as FileMetadata;
+                if (ed != null)
+                {
+                    panelInformation.lvwInformation.Groups.Add("GPS location", "GPS location");
+                    NewItemListView("DMS", ed.GPS.Value, "GPS location");
+                    string longitude = ed.GPS.Longitude.ToString("0.000000", CultureInfo.InvariantCulture);
+                    string latitude = ed.GPS.Latitude.ToString("0.000000", CultureInfo.InvariantCulture);
+                    NewItemListView("Longitude", longitude, "GPS location");
+                    NewItemListView("Latitude", latitude, "GPS location");
+                    NewItemListView("Google maps url", $"https://www.google.com/maps/search/?api=1&query={latitude},{longitude}", "GPS location");
                 }
             }
             else if (e.Node == TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Users"])

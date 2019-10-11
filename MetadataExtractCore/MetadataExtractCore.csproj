@@ -80,6 +80,7 @@
     <Compile Include="Diagrams\Application.cs" />
     <Compile Include="Diagrams\Email.cs" />
     <Compile Include="Diagrams\Dates.cs" />
+    <Compile Include="Diagrams\GeoLocation.cs" />
     <Compile Include="Diagrams\History.cs" />
     <Compile Include="Diagrams\MetadataValue.cs" />
     <Compile Include="Diagrams\OldVersion.cs" />
@@ -89,6 +90,7 @@
     <Compile Include="Diagrams\Path.cs" />
     <Compile Include="Diagrams\Server.cs" />
     <Compile Include="Diagrams\User.cs" />
+    <Compile Include="Metadata\DocumentExtractor.cs" />
     <Compile Include="Metadata\EXIFDocument.cs" />
     <Compile Include="Metadata\ICADocument.cs" />
     <Compile Include="Metadata\InDDDocument.cs" />
@@ -96,88 +98,12 @@
     <Compile Include="Metadata\OfficeOpenXML.cs" />
     <Compile Include="Metadata\OleDocument.cs" />
     <Compile Include="Metadata\OpenOfficeDocument.cs" />
+    <Compile Include="Metadata\PDFDocument.cs" />
     <Compile Include="Metadata\RDPDocument.cs" />
     <Compile Include="Metadata\SVGDocument.cs" />
     <Compile Include="Metadata\WPDDocument.cs" />
     <Compile Include="Metadata\XMPExtractor.cs" />
     <Compile Include="Utilities\Functions.cs" />
-    <Compile Include="Metadata\EXIF\codec\jpeg\JPEGDecodeParam.cs" />
-    <Compile Include="Metadata\EXIF\codec\jpeg\JPEGHuffmanTable.cs" />
-    <Compile Include="Metadata\EXIF\codec\jpeg\JPEGQTable.cs" />
-    <Compile Include="Metadata\EXIF\drew\imaging\jpg\JpegMetadataReader.cs" />
-    <Compile Include="Metadata\EXIF\drew\imaging\jpg\JpegProcessingException.cs" />
-    <Compile Include="Metadata\EXIF\drew\imaging\jpg\JpegSegmentData.cs" />
-    <Compile Include="Metadata\EXIF\drew\imaging\jpg\JpegSegmentReader.cs" />
-    <Compile Include="Metadata\EXIF\drew\imaging\tiff\TiffMetadataReader.cs" />
-    <Compile Include="Metadata\EXIF\drew\imaging\tiff\TiffProcessingException.cs" />
-    <Compile Include="Metadata\EXIF\drew\lang\CompoundException.cs" />
-    <Compile Include="Metadata\EXIF\drew\lang\Rational.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\AbstractDirectory.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\AbstractMetadataReader.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\AbstractTagDescriptor.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\exif\AbstractCasioTypeDirectory.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\exif\AbstractNikonTypeDirectory.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\exif\CanonDescriptor.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\exif\CanonDirectory.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\exif\CasioType1Descriptor.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\exif\CasioType1Directory.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\exif\CasioType2Descriptor.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\exif\CasioType2Directory.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\exif\ExifDescriptor.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\exif\ExifDirectory.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\exif\ExifInteropDescriptor.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\exif\ExifInteropDirectory.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\exif\ExifProcessingException.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\exif\ExifReader.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\exif\FujifilmDescriptor.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\exif\FujifilmDirectory.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\exif\GpsDescriptor.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\exif\GpsDirectory.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\exif\KodakDescriptor.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\exif\KodakDirectory.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\exif\KyoceraDescriptor.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\exif\KyoceraDirectory.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\exif\NikonType1Descriptor.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\exif\NikonType1Directory.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\exif\NikonType2Descriptor.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\exif\NikonType2Directory.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\exif\OlympusDescriptor.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\exif\OlympusDirectory.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\exif\PanasonicDescriptor.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\exif\PanasonicDirectory.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\exif\PentaxDescriptor.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\exif\PentaxDirectory.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\exif\SonyDescriptor.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\exif\SonyDirectory.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\IMetadataReader.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\iptc\IptcDescriptor.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\iptc\IptcDirectory.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\iptc\IptcProcessingException.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\iptc\IptcReader.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\jpeg\JpegCommentDescriptor.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\jpeg\JpegCommentDirectory.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\jpeg\JpegCommentReader.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\jpeg\JpegComponent.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\jpeg\JpegDescriptor.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\jpeg\JpegDirectory.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\jpeg\JpegReader.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\Metadata.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\MetadataException.cs" />
-    <Compile Include="Metadata\EXIF\drew\metadata\Tag.cs" />
-    <Compile Include="Metadata\EXIF\utils\bundle\AbstractResourceBundle.cs" />
-    <Compile Include="Metadata\EXIF\utils\bundle\IResourceBundle.cs" />
-    <Compile Include="Metadata\EXIF\utils\bundle\MissingResourceException.cs" />
-    <Compile Include="Metadata\EXIF\utils\bundle\ResourceBundle.cs" />
-    <Compile Include="Metadata\EXIF\utils\bundle\ResourceBundleFactory.cs" />
-    <Compile Include="Metadata\EXIF\utils\bundle\ResourceBundleWithManager.cs" />
-    <Compile Include="Metadata\EXIF\utils\bundle\SpecialResourceWriter.cs" />
-    <Compile Include="Metadata\EXIF\utils\Utils.cs" />
-    <Compile Include="Metadata\EXIF\utils\xml\IOutPutTextStreamHandler.cs" />
-    <Compile Include="Metadata\EXIF\utils\xml\TxtOutPutStreamHandler.cs" />
-    <Compile Include="Metadata\EXIF\utils\xml\XmlNewOutPutStreamHandler.cs" />
-    <Compile Include="Metadata\EXIF\utils\xml\XmlOutPutStreamHandler.cs" />
-    <Compile Include="Metadata\DocumentExtractor.cs" />
-    <Compile Include="Metadata\PDFDocument.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -236,6 +162,9 @@
   <ItemGroup>
     <PackageReference Include="HtmlAgilityPack">
       <Version>1.11.16</Version>
+    </PackageReference>
+    <PackageReference Include="MetadataExtractor">
+      <Version>2.1.0</Version>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
       <Version>12.0.2</Version>

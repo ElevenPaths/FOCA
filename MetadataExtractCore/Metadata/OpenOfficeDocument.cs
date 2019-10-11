@@ -80,13 +80,13 @@ namespace MetadataExtractCore.Extractors
                         string strFileNameLo = strFileName.ToLower();
                         //Filtro que obtiene las imagenes *.jpg, *.jpeg dentro de la carpeta "Pictures/"
                         if (strFileNameLo.StartsWith("pictures/") &&
-                            (strFileNameLo.EndsWith(".jpg") || strFileNameLo.EndsWith(".jpeg")))
+                            (strFileNameLo.EndsWith(".jpg") || strFileNameLo.EndsWith(".jpeg") || strFileNameLo.EndsWith(".png")))
                         {
                             using (Stream stmXML = new MemoryStream())
                             {
                                 zip.Extract(strFileName, stmXML);
                                 stmXML.Seek(0, SeekOrigin.Begin);
-                                using (EXIFDocument eDoc = new EXIFDocument(stmXML, System.IO.Path.GetExtension(strFileNameLo)))
+                                using (EXIFDocument eDoc = new EXIFDocument(stmXML))
                                 {
                                     FileMetadata exifMetadata = eDoc.AnalyzeFile();
                                     //Añadimos al diccionario la imagen encontrada junto con la información EXIF de la misma
@@ -295,69 +295,64 @@ namespace MetadataExtractCore.Extractors
                 {
                     foreach (XmlNode xn in xnl)
                     {
-                        if (xn.Attributes.GetNamedItem("config:name").Value == "PrinterName")
-                            if (xn.HasChildNodes)
-                                this.foundMetadata.Add(new Printer(Functions.FilterPrinter(xn.FirstChild.Value)));
-                            else if (xn.Attributes.GetNamedItem("config:name").Value == "CurrentDatabaseDataSource")
-                            {
-                                if (xn.HasChildNodes)   // TODO - always false
-                                    this.foundMetadata.DataBase = xn.FirstChild.Value;
-                            }
-                            /* else if (xn.Attributes.GetNamedItem("config:name").Value == "PrintFaxName")
-                             {
+                        if (xn.Attributes.GetNamedItem("config:name").Value == "PrinterName" && xn.HasChildNodes)
+                        {
+                            this.foundMetadata.Add(new Printer(Functions.FilterPrinter(xn.FirstChild.Value)));
+                        }
+                        else if (xn.Attributes.GetNamedItem("config:name").Value == "CurrentDatabaseDataSource" && xn.HasChildNodes)
+                        {
+                            this.foundMetadata.DataBase = xn.FirstChild.Value;
+                        }
+                        /* else if (xn.Attributes.GetNamedItem("config:name").Value == "PrintFaxName")
+                         {
+                             if (xn.HasChildNodes)
+                                 escritor("Fax: " + xn.FirstChild.Value, objeto);
+                         }
+                         else if (xn.Attributes.GetNamedItem("config:name").Value == "CurrentDatabaseCommandType")
+                         {
+                             if (!resumen)
+                                 if (xn.HasChildNodes && xn.FirstChild.Value != "0")
+                                     escritor("Current Database Command Type: " + xn.FirstChild.Value, objeto);
+                         }
+                         else if (xn.Attributes.GetNamedItem("config:name").Value == "CurrentDatabaseCommand")
+                         {
+                             if (!resumen)
                                  if (xn.HasChildNodes)
-                                     escritor("Fax: " + xn.FirstChild.Value, objeto);
-                             }
-                             else if (xn.Attributes.GetNamedItem("config:name").Value == "CurrentDatabaseCommandType")
-                             {
-                                 if (!resumen)
-                                     if (xn.HasChildNodes && xn.FirstChild.Value != "0")
-                                         escritor("Current Database Command Type: " + xn.FirstChild.Value, objeto);
-                             }
-                             else if (xn.Attributes.GetNamedItem("config:name").Value == "CurrentDatabaseCommand")
-                             {
-                                 if (!resumen)
-                                     if (xn.HasChildNodes)
-                                         escritor("Current Database Command: " + xn.FirstChild.Value, objeto);
-                             }*/
-                            //Solo aparecen en ficheros ODP y ODG file:///
-                            else if (xn.Attributes.GetNamedItem("config:name").Value == "ColorTableURL")
-                            {
-                                if (xn.HasChildNodes)   // TODO - always false
-                                    if (PathAnalysis.CleanPath(xn.FirstChild.Value) != "$(user)/config/")
-                                        this.foundMetadata.Add(new Diagrams.Path(PathAnalysis.CleanPath(xn.FirstChild.Value), true));
-                            }
-                            else if (xn.Attributes.GetNamedItem("config:name").Value == "BitmapTableURL")
-                            {
-                                if (xn.HasChildNodes)   // TODO - always false
-                                    if (PathAnalysis.CleanPath(xn.FirstChild.Value) != "$(user)/config/")
-                                        this.foundMetadata.Add(new Diagrams.Path(PathAnalysis.CleanPath(xn.FirstChild.Value), true));
-                            }
-                            else if (xn.Attributes.GetNamedItem("config:name").Value == "DashTableURL")
-                            {
-                                if (xn.HasChildNodes)   // TODO - always false
-                                    if (PathAnalysis.CleanPath(xn.FirstChild.Value) != "$(user)/config/")
-                                        this.foundMetadata.Add(new Diagrams.Path(PathAnalysis.CleanPath(xn.FirstChild.Value), true));
-                            }
-                            else if (xn.Attributes.GetNamedItem("config:name").Value == "GradientTableURL")
-                            {
-                                if (xn.HasChildNodes)   // TODO - always false
-                                    if (PathAnalysis.CleanPath(xn.FirstChild.Value) != "$(user)/config/")
-                                        this.foundMetadata.Add(new Diagrams.Path(PathAnalysis.CleanPath(xn.FirstChild.Value), true));
-                            }
-                            else if (xn.Attributes.GetNamedItem("config:name").Value == "HatchTableURL")
-                            {
-                                if (xn.HasChildNodes)   // TODO - always false
-                                    if (PathAnalysis.CleanPath(xn.FirstChild.Value) != "$(user)/config/")
-                                        this.foundMetadata.Add(new Diagrams.Path(PathAnalysis.CleanPath(xn.FirstChild.Value), true));
-                            }
-                            else if (xn.Attributes.GetNamedItem("config:name").Value == "LineEndTableURL")
-                            {
-                                if (xn.HasChildNodes)   // TODO - always false
-                                    if (PathAnalysis.CleanPath(xn.FirstChild.Value) != "$(user)/config/")
-                                        this.foundMetadata.Add(new Diagrams.Path(PathAnalysis.CleanPath(xn.FirstChild.Value), true));
-                            }
+                                     escritor("Current Database Command: " + xn.FirstChild.Value, objeto);
+                         }*/
+                        //Solo aparecen en ficheros ODP y ODG file:///
+                        else if (xn.Attributes.GetNamedItem("config:name").Value == "ColorTableURL" && xn.HasChildNodes)
+                        {
+                            if (PathAnalysis.CleanPath(xn.FirstChild.Value) != "$(user)/config/")
+                                this.foundMetadata.Add(new Diagrams.Path(PathAnalysis.CleanPath(xn.FirstChild.Value), true));
+                        }
+                        else if (xn.Attributes.GetNamedItem("config:name").Value == "BitmapTableURL" && xn.HasChildNodes)
+                        {
+                            if (PathAnalysis.CleanPath(xn.FirstChild.Value) != "$(user)/config/")
+                                this.foundMetadata.Add(new Diagrams.Path(PathAnalysis.CleanPath(xn.FirstChild.Value), true));
+                        }
+                        else if (xn.Attributes.GetNamedItem("config:name").Value == "DashTableURL" && xn.HasChildNodes)
+                        {
+                            if (PathAnalysis.CleanPath(xn.FirstChild.Value) != "$(user)/config/")
+                                this.foundMetadata.Add(new Diagrams.Path(PathAnalysis.CleanPath(xn.FirstChild.Value), true));
+                        }
+                        else if (xn.Attributes.GetNamedItem("config:name").Value == "GradientTableURL" && xn.HasChildNodes)
+                        {
+                            if (PathAnalysis.CleanPath(xn.FirstChild.Value) != "$(user)/config/")
+                                this.foundMetadata.Add(new Diagrams.Path(PathAnalysis.CleanPath(xn.FirstChild.Value), true));
+                        }
+                        else if (xn.Attributes.GetNamedItem("config:name").Value == "HatchTableURL" && xn.HasChildNodes)
+                        {
+                            if (PathAnalysis.CleanPath(xn.FirstChild.Value) != "$(user)/config/")
+                                this.foundMetadata.Add(new Diagrams.Path(PathAnalysis.CleanPath(xn.FirstChild.Value), true));
+                        }
+                        else if (xn.Attributes.GetNamedItem("config:name").Value == "LineEndTableURL" && xn.HasChildNodes)
+                        {
+                            if (PathAnalysis.CleanPath(xn.FirstChild.Value) != "$(user)/config/")
+                                this.foundMetadata.Add(new Diagrams.Path(PathAnalysis.CleanPath(xn.FirstChild.Value), true));
+                        }
                     }
+
                 }
             }
             catch (Exception e)
