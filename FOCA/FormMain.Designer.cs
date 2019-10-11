@@ -219,6 +219,7 @@ namespace FOCA
             this.imgIcons.Images.SetKeyName(119, "Software.png");
             this.imgIcons.Images.SetKeyName(120, "Emails.png");
             this.imgIcons.Images.SetKeyName(121, "Passwords.png");
+            this.imgIcons.Images.SetKeyName(122, "iconfinder_advantage_nearby_1034361.png");
             // 
             // menuStripMain
             // 

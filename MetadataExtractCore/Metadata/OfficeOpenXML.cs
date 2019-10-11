@@ -26,6 +26,32 @@ namespace MetadataExtractCore.Extractors
                 this.foundMetadata = new FileMetadata();
                 using (Package pZip = Package.Open(this.fileStream))
                 {
+                    if (pZip.PackageProperties != null)
+                    {
+                        this.foundMetadata.Add(new User(pZip.PackageProperties.Creator, false));
+                        this.foundMetadata.Add(new User(pZip.PackageProperties.LastModifiedBy, false));
+                        if (pZip.PackageProperties.Created.HasValue)
+                        {
+                            this.foundMetadata.Dates.CreationDate = pZip.PackageProperties.Created.Value;
+                        }
+                        if (pZip.PackageProperties.Modified.HasValue)
+                        {
+                            this.foundMetadata.Dates.ModificationDate = pZip.PackageProperties.Modified.Value;
+                        }
+                        if (pZip.PackageProperties.LastPrinted.HasValue)
+                        {
+                            this.foundMetadata.Dates.PrintingDate = pZip.PackageProperties.LastPrinted.Value;
+                        }
+                        if (!String.IsNullOrWhiteSpace(pZip.PackageProperties.Title))
+                        {
+                            this.foundMetadata.Title = pZip.PackageProperties.Title;
+                        }
+                        if (!String.IsNullOrWhiteSpace(pZip.PackageProperties.Keywords))
+                        {
+                            this.foundMetadata.Keywords = pZip.PackageProperties.Keywords;
+                        }
+                    }
+
                     Uri uriFile = new Uri("/docProps/core.xml", UriKind.Relative);
                     if (pZip.PartExists(uriFile))
                     {
@@ -44,6 +70,7 @@ namespace MetadataExtractCore.Extractors
                             AnalizeFileApp(stmDoc);
                         }
                     }
+
                     //Control de versiones
                     if (strExtlo == ".docx")
                     {
@@ -134,9 +161,10 @@ namespace MetadataExtractCore.Extractors
                              strFileNameLo.StartsWith("/ppt/media/") ||
                              strFileNameLo.StartsWith("/xl/media/")) &&
                             (strFileNameLo.EndsWith(".jpg") ||
-                             strFileNameLo.EndsWith(".jpeg")))
+                             strFileNameLo.EndsWith(".jpeg") ||
+                             strFileNameLo.EndsWith(".png")))
                         {
-                            using (EXIFDocument eDoc = new EXIFDocument(pp.GetStream(FileMode.Open, FileAccess.Read), System.IO.Path.GetExtension(strFileNameLo)))
+                            using (EXIFDocument eDoc = new EXIFDocument(pp.GetStream(FileMode.Open, FileAccess.Read)))
                             {
                                 FileMetadata exifMetadata = eDoc.AnalyzeFile();
                                 foundMetadata.EmbeddedImages.Add(System.IO.Path.GetFileName(strFileName), exifMetadata);

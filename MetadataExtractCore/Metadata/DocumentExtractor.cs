@@ -8,7 +8,7 @@ namespace MetadataExtractCore.Extractors
 {
     public abstract class DocumentExtractor : IDisposable
     {
-        public static readonly string[] SupportedExtensions = new string[] { ".sxw", ".odt", ".ods", ".odg", ".odp", ".docx", ".xlsx", ".pptx", ".ppsx", ".doc", ".xls", ".ppt", ".pps", ".pdf", ".wpd", ".raw", ".cr2", ".crw", ".jpg", ".jpeg", ".svg", ".svgz", ".indd", ".rdp", ".ica" };
+        public static readonly string[] SupportedExtensions = new string[] { ".sxw", ".odt", ".ods", ".odg", ".odp", ".docx", ".xlsx", ".pptx", ".ppsx", ".doc", ".xls", ".ppt", ".pps", ".pdf", ".wpd", ".raw", ".cr2", ".crw", ".jpg", ".jpeg", ".png", ".svg", ".svgz", ".indd", ".rdp", ".ica" };
 
         protected MemoryStream fileStream;
         protected FileMetadata foundMetadata;
@@ -80,7 +80,8 @@ namespace MetadataExtractCore.Extractors
                     case ".crw":
                     case ".jpg":
                     case ".jpeg":
-                        document = new EXIFDocument(file, extension);
+                    case ".png":
+                        document = new EXIFDocument(file);
                         break;
                     case ".svg":
                     case ".svgz":
