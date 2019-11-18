@@ -115,7 +115,7 @@ namespace MetadataExtractCore.Extractors
                         this.foundMetadata.Add(new Application(strSoftware));
                 }
             }
-            catch (PdfReaderException)
+            catch (PdfReaderException ex)
             { }
             catch (Exception ex)
             {
