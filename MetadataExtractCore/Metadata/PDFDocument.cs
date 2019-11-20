@@ -14,6 +14,9 @@ namespace MetadataExtractCore.Extractors
 {
     public class PDFDocument : XMPExtractor
     {
+        private static Regex pathRegex = new Regex(@"([a-z]:|\\\\)\\\\(([a-z0-9\s\-_\$&()ñÇ/n/r]+)\\\\)*[a-z0-9\s,;.\-_\$%&()=ñ{}Ç/n/r+@]+", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static Regex emailsAndLinksRegex = new Regex(@"\((?<value>(mailto|https?):.*?)\)", RegexOptions.Singleline | RegexOptions.Compiled);
+
         public PDFDocument(Stream stm) : base(stm)
         {
         }
@@ -96,18 +99,16 @@ namespace MetadataExtractCore.Extractors
                     }
                 }
 
-                //Busca path y links binariamente
-                this.foundMetadata.AddRange(BinarySearchPaths(this.fileStream).ToArray());
-                this.foundMetadata.AddRange(BinarySearchLinks(this.fileStream).ToArray());
+                SearchPathsLinksAndEmails(this.fileStream);
 
-                foreach (Diagrams.Path ri in this.foundMetadata.Paths)
+                //Find users in paths
+                foreach (Diagrams.Path path in this.foundMetadata.Paths)
                 {
-                    //Busca usuarios dentro de la ruta
-                    string strUser = PathAnalysis.ExtractUserFromPath(ri.Value);
-                    this.foundMetadata.Add(new User(strUser, ri.IsComputerFolder));
+                    string strUser = PathAnalysis.ExtractUserFromPath(path.Value);
+                    this.foundMetadata.Add(new User(strUser, path.IsComputerFolder));
                 }
 
-                //También busca el software en el título solo en los pdf, solo lo añade si es software conocido
+                //Also search software in the title (only pdf). It is added only if the software is known.
                 if (!String.IsNullOrEmpty(foundMetadata.Title))
                 {
                     string strSoftware = ApplicationAnalysis.GetApplicationsFromString(foundMetadata.Title);
@@ -115,7 +116,7 @@ namespace MetadataExtractCore.Extractors
                         this.foundMetadata.Add(new Application(strSoftware));
                 }
             }
-            catch (PdfReaderException)
+            catch (PdfReaderException ex)
             { }
             catch (Exception ex)
             {
@@ -125,6 +126,11 @@ namespace MetadataExtractCore.Extractors
             {
                 if (foundMetadata == null)
                     this.foundMetadata = new FileMetadata();
+
+                if (fileStream != null)
+                {
+                    this.fileStream.Dispose();
+                }
             }
             return this.foundMetadata;
         }
@@ -146,7 +152,7 @@ namespace MetadataExtractCore.Extractors
                     string xmp = pDic.Stream.ToString();
                     if (xmp != string.Empty)
                     {
-                        System.Xml.XmlDocument xDoc = new XmlDocument();
+                        XmlDocument xDoc = new XmlDocument();
                         xDoc.XmlResolver = null;
                         xDoc.LoadXml(xmp);
                         this.ExtractFromXMP(xDoc);
@@ -155,12 +161,28 @@ namespace MetadataExtractCore.Extractors
             }
         }
 
-        private IEnumerable<Diagrams.Path> BinarySearchPaths(Stream stm)
+        private void SearchPathsLinksAndEmails(Stream stm)
         {
-            stm.Seek(0, SeekOrigin.Begin);
-            StreamReader sr = new StreamReader(stm);
-            String sRead = sr.ReadToEnd();
-            foreach (Match m in Regex.Matches(sRead, @"([a-z]:|\\\\)\\\\(([a-z0-9\s\-_\$&()ñÇ/n/r]+)\\\\)*[a-z0-9\s,;.\-_\$%&()=ñ{}Ç/n/r+@]+", RegexOptions.IgnoreCase))
+            try
+            {
+                stm.Seek(0, SeekOrigin.Begin);
+                StreamReader sr = new StreamReader(stm);
+
+                String fileInBytes = sr.ReadToEnd();
+
+                this.foundMetadata.AddRange(SearchForPaths(fileInBytes).ToArray());
+                SearchForLinksAndEmails(fileInBytes);
+
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Problem in {nameof(SearchPathsLinksAndEmails)}" + ex.ToString());
+            }
+        }
+
+        private IEnumerable<Diagrams.Path> SearchForPaths(String fileInString)
+        {
+            foreach (Match m in pathRegex.Matches(fileInString))
             {
                 String path = m.Value.Trim();
                 if (path.Contains(")"))
@@ -172,31 +194,29 @@ namespace MetadataExtractCore.Extractors
             }
         }
 
-        private IEnumerable<Diagrams.Path> BinarySearchLinks(Stream stm)
+        private void SearchForLinksAndEmails(string fileInString)
         {
-            stm.Seek(0, SeekOrigin.Begin);
-            StreamReader sr = new StreamReader(stm);
-            String sRead = sr.ReadToEnd();
-            List<string> links = new List<string>();
-            foreach (Match m in Regex.Matches(sRead, @"http://[^)]*", RegexOptions.IgnoreCase))
+            foreach (Match match in emailsAndLinksRegex.Matches(fileInString))
             {
-                String href = m.Value.Trim();
-                if (IsInterestingLink(href))
+                String valueFound = match.Groups["value"].Value;
+
+                if (valueFound.Contains("mailto"))
                 {
-                    if (!links.Contains(href))
-                        links.Add(href);
+                    string email = valueFound.Remove(0, "mailto:".Length);
+
+                    if (!this.foundMetadata.Emails.Any(x => x.Value == email))
+                    {
+                        this.foundMetadata.Emails.Add(new Email(email));
+                    }
                 }
-            }
-            foreach (Match m in Regex.Matches(sRead, @"file:///[^)]*", RegexOptions.IgnoreCase))
-            {
-                if (!links.Contains(m.Value))
-                    links.Add(m.Value);
-            }
-            if (links.Count != 0)
-            {
-                foreach (String link in links)
+                else
                 {
-                    yield return new Diagrams.Path(PathAnalysis.CleanPath(link), true);
+                    string link = PathAnalysis.CleanPath(valueFound);
+
+                    if (!this.foundMetadata.Paths.Any(x => x.Value == link))
+                    {
+                        this.foundMetadata.Paths.Add(new Diagrams.Path(link, false));
+                    }
                 }
             }
         }

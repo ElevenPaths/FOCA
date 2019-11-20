@@ -136,6 +136,10 @@ namespace MetadataExtractCore.Extractors
                 {
                     return true;
                 }
+                else if (href.StartsWith("file:"))
+                {
+                    return true;
+                }
                 else
                 {
                     Uri url;
