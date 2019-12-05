@@ -13,6 +13,9 @@ namespace SearcherCore.Searcher.GoogleAPI
     /// </summary>
     public class SearchGoogleApi
     {
+        private const int ResultsPerPage = 10;
+        private const int MaxPages = 10;
+
         public string CX { get; }
 
         public string ApiKey { get; }
@@ -38,6 +41,7 @@ namespace SearcherCore.Searcher.GoogleAPI
             listRequest.Cx = CX;
             listRequest.Safe = 0;
             listRequest.Hq = searchString;
+            listRequest.Num = ResultsPerPage;
 
             return listRequest;
         }
@@ -45,12 +49,12 @@ namespace SearcherCore.Searcher.GoogleAPI
         public ICollection<Uri> RunService(string searchString, CancellationToken cancelToken)
         {
             CseResource.ListRequest listRequest = BuildRequest(searchString);
-            IList<Result> paging = new List<Result>();
+            IList<Result> paging;
             HashSet<Uri> urls = new HashSet<Uri>();
-            var count = 0;
-            while (paging != null)
+            int pageNumber = 0;
+            do
             {
-                listRequest.Start = count * 10 + 1;
+                listRequest.Start = pageNumber * ResultsPerPage + 1;
                 try
                 {
                     paging = listRequest.Execute().Items;
@@ -65,7 +69,7 @@ namespace SearcherCore.Searcher.GoogleAPI
                             cancelToken.ThrowIfCancellationRequested();
                         }
                     }
-                    count++;
+                    pageNumber++;
                 }
                 catch (Google.GoogleApiException e)
                 {
@@ -91,7 +95,7 @@ namespace SearcherCore.Searcher.GoogleAPI
                     paging = null;
                 }
                 cancelToken.ThrowIfCancellationRequested();
-            }
+            } while (paging != null && pageNumber < MaxPages);
             return urls;
         }
     }
