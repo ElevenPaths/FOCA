@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace MetadataExtractCore.Analysis
@@ -27,9 +26,9 @@ namespace MetadataExtractCore.Analysis
         {
             if (applicationValue == null) return string.Empty;
 
-            var strApplication = applicationValue.ToLower();
+            string strApplication = applicationValue.ToLower();
 
-            var strVersion = ExtractVersion(strApplication);
+            string strVersion = ExtractVersion(strApplication);
 
             if (strApplication.Contains("iexplore"))
                 return "Internet Explorer";
@@ -39,7 +38,7 @@ namespace MetadataExtractCore.Analysis
 
             if (strApplication.Contains("acrobat") && strApplication.Contains("paper") && strApplication.Contains("capture"))
                 return "Adobe Acrobat" + (strVersion != string.Empty ? " " + strVersion : string.Empty) + " Paper Capture Plug-in";
-            
+
             if (strApplication.Contains("adobe") && strApplication.Contains("acrobat"))
                 return "Adobe Acrobat" + (strVersion != string.Empty ? " " + strVersion : string.Empty);
 
@@ -54,7 +53,7 @@ namespace MetadataExtractCore.Analysis
             }
             if (strApplication.Contains("openoffice") || strApplication.Contains("broffice") || strApplication.Contains("neooffice") || strApplication.Contains("staroffice"))
             {
-                var strRealApplication = string.Empty;
+                string strRealApplication = string.Empty;
                 if (strApplication.Contains("broffice"))
                     strRealApplication = "BrOffice";
                 else if (strApplication.Contains("neooffice"))
@@ -63,8 +62,8 @@ namespace MetadataExtractCore.Analysis
                     strRealApplication = "StarOffice";
                 else if (strApplication.Contains("openoffice"))
                     strRealApplication = "OpenOffice";
-                var strSoftware = strRealApplication + (strVersion != string.Empty && strVersion != "680" && strVersion != "300"? " " + strVersion : string.Empty);
-                
+                string strSoftware = strRealApplication + (strVersion != string.Empty && strVersion != "680" && strVersion != "300" ? " " + strVersion : string.Empty);
+
                 if (strApplication.Contains("680m"))
                     strSoftware += " " + strApplication.Substring(strApplication.IndexOf("680m") + 3, 2);
 
@@ -73,7 +72,7 @@ namespace MetadataExtractCore.Analysis
 
                 if (!strApplication.Contains("build-")) return strSoftware;
 
-                var intBuildStart = strApplication.IndexOf("build-") + 6;
+                int intBuildStart = strApplication.IndexOf("build-") + 6;
                 if (intBuildStart + 4 <= strApplication.Length)
                     strSoftware += " Build " + strApplication.Substring(strApplication.IndexOf("build-") + 6, 4);
 
@@ -120,12 +119,24 @@ namespace MetadataExtractCore.Analysis
             }
             if (strApplication.Contains("adobe") && strApplication.Contains("pdf") && strApplication.Contains("library"))
                 return "Adobe PDF Library" + (strVersion != string.Empty ? " " + strVersion : string.Empty);
+
             if (strApplication.Contains("photoshop"))
             {
                 if (strApplication.Contains("cs"))
                     strVersion = "CS" + strVersion;
                 return "Adobe Photoshop" + (strVersion != string.Empty ? " " + strVersion : string.Empty);
             }
+
+            if (strApplication.Contains("adobe") && strApplication.Contains("imageready"))
+            {
+                return "Adobe ImageReady";
+            }
+
+            if (strApplication.Contains("windows") && strApplication.Contains("photo") && strApplication.Contains("editor"))
+            {
+                return "Windows Photo Editor" + (!String.IsNullOrWhiteSpace(strVersion) ? " " + strVersion : String.Empty);
+            }
+
             if (strApplication.Contains("amyuni pdf converter"))
                 return "Amyuni PDF Converter" + (strVersion != string.Empty ? " " + strVersion : string.Empty);
 
@@ -137,12 +148,12 @@ namespace MetadataExtractCore.Analysis
                 (!strApplication.Contains("microsoft") || !strApplication.Contains("office")))
                 return string.Empty;
 
-            var intVersionStart = strApplication.IndexOf('-');
-            var strExactVersion = intVersionStart > 0 ? ExtractVersion(strApplication.Remove(intVersionStart)) : ExtractVersion(strApplication);
-                
+            int intVersionStart = strApplication.IndexOf('-');
+            string strExactVersion = intVersionStart > 0 ? ExtractVersion(strApplication.Remove(intVersionStart)) : ExtractVersion(strApplication);
+
             if (strVersion.Contains("12.") && !strVersion.Contains("12.0000") && strExactVersion != "12.0")
                 return "Microsoft Office 2008 for Mac";
-                
+
             if (strVersion.Contains("11.") && strExactVersion != "11.0")
                 return "Microsoft Office 2004 for Mac";
 
@@ -161,19 +172,19 @@ namespace MetadataExtractCore.Analysis
 
             if (strVersion.ToLower().Contains("12") || strVersion.ToLower().Contains("2007"))
                 return "Microsoft Office 2007";
-                
+
             if (strVersion.ToLower().Contains("11") || strVersion.ToLower().Contains("2003"))
                 return "Microsoft Office 2003";
-                
+
             if (strVersion.ToLower().Contains("10") || strVersion.ToLower().Contains("xp"))
                 return "Microsoft Office XP";
-                
+
             if (strVersion.ToLower().Contains("9") || strVersion.ToLower().Contains("2000"))
                 return "Microsoft Office 2000";
-                
+
             if (strVersion.ToLower().Contains("8") || strVersion.ToLower().Contains("97"))
                 return "Microsoft Office 97";
-                
+
             if (strVersion.ToLower().Contains("7") || strVersion.ToLower().Contains("95"))
                 return "Microsoft Office 95";
 
