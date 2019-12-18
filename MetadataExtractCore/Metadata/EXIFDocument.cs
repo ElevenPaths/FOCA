@@ -11,7 +11,7 @@ namespace MetadataExtractCore.Extractors
 {
     public class EXIFDocument : DocumentExtractor
     {
-        private static readonly string[] IgnoredExifDirectories = new[] { "JPEG", "JFIF", "XMP", "File Type", "Interoperability", "ICC Profile", "IPTC", "PrintIM" };
+        private static readonly string[] IgnoredExifDirectories = new[] { "JPEG", "JFIF", "XMP", "File Type", "Interoperability", "ICC Profile", "IPTC", "PrintIM", "Huffman" };
 
         public EXIFDocument(Stream stm) : base(stm)
         {

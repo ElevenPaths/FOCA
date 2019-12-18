@@ -31,6 +31,33 @@ namespace MetadataExtractCore.Extractors
                 this.foundMetadata = new FileMetadata();
                 using (PdfDocument doc = PdfReader.Open(this.fileStream, PdfDocumentOpenMode.InformationOnly))
                 {
+                    int imageNumber = 0;
+                    //Read embedded images
+                    foreach (PdfDictionary item in doc.Internals.GetAllObjects().Where(p => p is PdfDictionary d && d.Stream != null && "/Image".Equals(d.Elements["/Subtype"]?.ToString())))
+                    {
+                        try
+                        {
+                            using (MemoryStream msJPG = new MemoryStream(item.Stream.Value))
+                            {
+                                using (EXIFDocument eDoc = new EXIFDocument(msJPG))
+                                {
+                                    FileMetadata exifMetadata = eDoc.AnalyzeFile();
+                                    //Ignore images which only contain 'Adobe JPEG' makernotes 
+                                    if (exifMetadata != null && exifMetadata.HasMetadata() && !exifMetadata.Makernotes.All(p => p.Key == "Adobe JPEG"))
+                                    {
+                                        foundMetadata.EmbeddedImages.Add(imageNumber.ToString(), exifMetadata);
+                                        imageNumber++;
+                                        this.foundMetadata.AddRange(exifMetadata.Users.ToArray());
+                                        this.foundMetadata.AddRange(exifMetadata.Applications.ToArray());
+                                    }
+                                }
+                            }
+                        }
+                        catch (Exception)
+                        {
+                        }
+                    }
+
                     ReadXMPMetadata(doc);
                     if (doc.Info.Title != string.Empty)
                     {
@@ -116,7 +143,7 @@ namespace MetadataExtractCore.Extractors
                         this.foundMetadata.Add(new Application(strSoftware));
                 }
             }
-            catch (PdfReaderException ex)
+            catch (PdfReaderException)
             { }
             catch (Exception ex)
             {
