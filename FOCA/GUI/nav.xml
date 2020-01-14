@@ -1,0 +1,22 @@
+﻿<Project>
+  <Network>
+    <Servers>
+      <Unknown/>
+    </Servers>
+    <Clients/>
+  </Network>
+  <Domains/>
+  <DocumentAnalysis>
+    <Files/>
+    <MetadataSummary>
+      <Users/>
+      <Folders/>
+      <Printers/>
+      <Software/>
+      <Emails/>
+      <OperatingSystems/>
+      <Passwords/>
+      <Servers/>
+    </MetadataSummary>
+  </DocumentAnalysis>
+</Project>

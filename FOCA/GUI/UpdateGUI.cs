@@ -1,7 +1,7 @@
 ﻿using FOCA.Database.Entities;
 using FOCA.ModifiedComponents;
-using MetadataExtractCore.Diagrams;
 using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,14 +14,6 @@ namespace FOCA.GUI
     {
         private static readonly string[] DoubleDomains = new[] { "gov", "gob", "edu", "mil", "com", "org", "net", "tv", "co" };
         private static TreeViewNoFlickering treeView = Program.FormMainInstance.TreeView;
-
-        public enum TreeViewKeys
-        {
-            KProject = 0,
-            KPCServers = 1,
-            KDomains = 2,
-            KMetadata = 3
-        }
 
         public static void Initialize()
         {
@@ -65,9 +57,9 @@ namespace FOCA.GUI
                         {
                             try
                             {
-                                if (treeView.Nodes[TreeViewKeys.KProject.ToString()] != null)
+                                if (treeView.GetNode(Navigation.Project.ToNavigationPath()) != null)
                                 {
-                                    TreeNode domainNode = treeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KDomains.ToString()];
+                                    TreeNode domainNode = treeView.GetNode(Navigation.Project.Domains.ToNavigationPath());
                                     if (domainNode != null && (domainNode.IsExpanded || (domainNode.Nodes.Count == 0 && Program.data.domains.Items.Count > 0)))
                                     {
                                         NodeDomainsProcess(Program.data.GetDomains(), domainNode, cancelToken);
@@ -140,7 +132,7 @@ namespace FOCA.GUI
         {
             if (Program.data == null) return;
 
-            TreeNode tnPCServers = Program.FormMainInstance.TreeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KPCServers.ToString()];
+            TreeNode tnPCServers = Program.FormMainInstance.TreeView.GetNode(Navigation.Project.Network.ToNavigationPath());
             int nServers = 0;
             if (tnPCServers != null)
             {
@@ -154,11 +146,11 @@ namespace FOCA.GUI
                     {
                         case ComputersItem.Tipo.ClientPC:
                             {
-                                tn = tnPCServers.Nodes["Clients"].Nodes[computer.name];
+                                tn = tnPCServers.Nodes[Navigation.Project.Network.Clients.Key].Nodes[computer.name];
                                 if (tn == null)
                                 {
-                                    int insertAtIndex = Program.FormMainInstance.SearchTextInNodes(tnPCServers.Nodes["Clients"].Nodes, computer.name);
-                                    tn = tnPCServers.Nodes["Clients"].Nodes.Insert(insertAtIndex, computer.name, computer.name);
+                                    int insertAtIndex = Program.FormMainInstance.SearchTextInNodes(tnPCServers.Nodes[Navigation.Project.Network.Clients.Key].Nodes, computer.name);
+                                    tn = tnPCServers.Nodes[Navigation.Project.Network.Clients.Key].Nodes.Insert(insertAtIndex, computer.name, computer.name);
                                     tn.ContextMenuStrip = Program.FormMainInstance.contextMenu;
                                 }
                                 else
@@ -172,12 +164,15 @@ namespace FOCA.GUI
                                 //Si no tiene una IP asociada añadir al nodo de servidores desconocidos
                                 if (!Program.data.computerIPs.Items.Any(C => C.Computer.name == computer.name))
                                 {
-                                    if (tnPCServers.Nodes["Servers"].Nodes["Unknown Servers"].Nodes[computer.name] != null)
-                                        tn = tnPCServers.Nodes["Servers"].Nodes["Unknown Servers"].Nodes[computer.name];
+                                    TreeNode unknownServers = tnPCServers.Nodes[Navigation.Project.Network.Servers.Key].Nodes[Navigation.Project.Network.Servers.Unknown.Key];
+                                    if (unknownServers.Nodes[computer.name] != null)
+                                    {
+                                        tn = unknownServers.Nodes[computer.name];
+                                    }
                                     else
                                     {
-                                        int insertAtIndex = Program.FormMainInstance.SearchTextInNodes(tnPCServers.Nodes["Servers"].Nodes["Unknown Servers"].Nodes, computer.name);
-                                        tn = tnPCServers.Nodes["Servers"].Nodes["Unknown Servers"].Nodes.Insert(insertAtIndex, computer.name, computer.name);
+                                        int insertAtIndex = Program.FormMainInstance.SearchTextInNodes(unknownServers.Nodes, computer.name);
+                                        tn = unknownServers.Nodes.Insert(insertAtIndex, computer.name, computer.name);
                                         tn.ContextMenuStrip = Program.FormMainInstance.contextMenu;
                                     }
                                 }
@@ -240,7 +235,7 @@ namespace FOCA.GUI
                                         {
                                             return;
                                         }
-                                        tn = GenerateIPRangesNodes(IPBytes, tnPCServers.Nodes["Servers"], indexFirstSegment);
+                                        tn = GenerateIPRangesNodes(IPBytes, tnPCServers.Nodes[Navigation.Project.Network.Servers.Key], indexFirstSegment);
                                         nServers++;
                                     }
                                     else
@@ -558,30 +553,23 @@ namespace FOCA.GUI
         /// </summary>
         private static void NodeMetadataProcess()
         {
-            var users = (ConcurrentBag<UserItem>)Program.FormMainInstance.TreeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Users"].Tag;
+            TreeNode summaryNode = Program.FormMainInstance.TreeView.GetNode(Navigation.Project.DocumentAnalysis.MetadataSummary.ToNavigationPath());
 
-            var printers = (ConcurrentBag<PrintersItem>)Program.FormMainInstance.TreeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Printers"].Tag;
+            foreach (TreeNode itemNode in summaryNode.Nodes)
+            {
+                int separatorIndex = itemNode.Text.Trim().LastIndexOf(' ');
+                string itemText;
+                if (separatorIndex > 0)
+                {
+                    itemText = itemNode.Text.Substring(0, separatorIndex);
+                }
+                else
+                {
+                    itemText = itemNode.Text;
+                }
 
-            var folders = (ConcurrentBag<PathsItem>)Program.FormMainInstance.TreeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Folders"].Tag;
-
-            var software = (ConcurrentBag<ApplicationsItem>)Program.FormMainInstance.TreeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Software"].Tag;
-
-            var emails = (ConcurrentBag<EmailsItem>)Program.FormMainInstance.TreeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Emails"].Tag;
-
-            var operatingsystems = (ConcurrentBag<string>)Program.FormMainInstance.TreeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Operating Systems"].Tag;
-
-            var passwords = (ConcurrentBag<PasswordsItem>)Program.FormMainInstance.TreeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Passwords"].Tag;
-
-            var servers = (ConcurrentBag<ServersItem>)Program.FormMainInstance.TreeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Servers"].Tag;
-
-            Program.FormMainInstance.TreeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Users"].Text = string.Format("Users ({0})", users.Count);
-            Program.FormMainInstance.TreeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Printers"].Text = string.Format("Printers ({0})", printers.Count);
-            Program.FormMainInstance.TreeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Folders"].Text = string.Format("Folders ({0})", folders.Count);
-            Program.FormMainInstance.TreeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Software"].Text = string.Format("Software ({0})", software.Count);
-            Program.FormMainInstance.TreeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Emails"].Text = string.Format("Emails ({0})", emails.Count);
-            Program.FormMainInstance.TreeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Operating Systems"].Text = string.Format("Operating Systems ({0})", operatingsystems.Count);
-            Program.FormMainInstance.TreeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Passwords"].Text = string.Format("Passwords ({0})", passwords.Count);
-            Program.FormMainInstance.TreeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Servers"].Text = string.Format("Servers ({0})", servers.Count);
+                itemNode.Text = String.Format("{0} ({1})", itemText, ((ICollection)itemNode.Tag).Count);
+            }
         }
 
         /// <summary>
@@ -589,60 +577,60 @@ namespace FOCA.GUI
         /// </summary>
         private static void CreateMetadataNodes()
         {
-            if (treeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KMetadata.ToString()].Nodes.Count == 0)
+            if (treeView.GetNode(Navigation.Project.DocumentAnalysis.ToNavigationPath()).Nodes.Count == 0)
             {
-                TreeNode treeViewMetadata = treeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KMetadata.ToString()];
+                TreeNode treeViewMetadata = treeView.GetNode(Navigation.Project.DocumentAnalysis.ToNavigationPath());
                 treeViewMetadata.Nodes.Clear();
-                TreeNode tn_documents = treeViewMetadata.Nodes.Add("Documents", "Documents (0/0)");
+                TreeNode tn_documents = treeViewMetadata.Nodes.Add(Navigation.Project.DocumentAnalysis.Files.Key, "Files (0/0)");
                 tn_documents.ImageIndex =
                 tn_documents.SelectedImageIndex = 114;
-                TreeNode tn_data = treeViewMetadata.Nodes.Add("Metadata Summary", "Metadata Summary");
+                TreeNode tn_data = treeViewMetadata.Nodes.Add(Navigation.Project.DocumentAnalysis.MetadataSummary.Key, "Metadata Summary");
                 tn_data.ImageIndex =
                 tn_data.SelectedImageIndex = 115;
 
-                TreeNode tn_users = tn_data.Nodes.Add("Users", "Users");
+                TreeNode tn_users = tn_data.Nodes.Add(Navigation.Project.DocumentAnalysis.MetadataSummary.Users.Key, "Users (0)");
                 tn_users.ImageIndex =
                 tn_users.SelectedImageIndex = 116;
                 ConcurrentBag<UserItem> users = new ConcurrentBag<UserItem>();
                 tn_users.Tag = users;
 
-                TreeNode tn_folders = tn_data.Nodes.Add("Folders", "Folders");
+                TreeNode tn_folders = tn_data.Nodes.Add(Navigation.Project.DocumentAnalysis.MetadataSummary.Folders.Key, "Folders (0)");
                 tn_folders.ImageIndex =
                 tn_folders.SelectedImageIndex = 117;
                 var folders = new ConcurrentBag<PathsItem>();
                 tn_folders.Tag = folders;
 
-                TreeNode tn_printers = tn_data.Nodes.Add("Printers", "Printers");
+                TreeNode tn_printers = tn_data.Nodes.Add(Navigation.Project.DocumentAnalysis.MetadataSummary.Printers.Key, "Printers (0)");
                 tn_printers.ImageIndex =
                 tn_printers.SelectedImageIndex = 118;
                 var printers = new ConcurrentBag<PrintersItem>();
                 tn_printers.Tag = printers;
 
-                TreeNode tn_software = tn_data.Nodes.Add("Software", "Software");
+                TreeNode tn_software = tn_data.Nodes.Add(Navigation.Project.DocumentAnalysis.MetadataSummary.Software.Key, "Software (0)");
                 tn_software.ImageIndex =
                 tn_software.SelectedImageIndex = 119;
                 var software = new ConcurrentBag<ApplicationsItem>();
                 tn_software.Tag = software;
 
-                TreeNode tn_emails = tn_data.Nodes.Add("Emails", "Emails");
+                TreeNode tn_emails = tn_data.Nodes.Add(Navigation.Project.DocumentAnalysis.MetadataSummary.Emails.Key, "Emails (0)");
                 tn_emails.ImageIndex =
                 tn_emails.SelectedImageIndex = 120;
                 var emails = new ConcurrentBag<EmailsItem>();
                 tn_emails.Tag = emails;
 
-                TreeNode tn_operatingsystems = tn_data.Nodes.Add("Operating Systems", "Operating Systems");
+                TreeNode tn_operatingsystems = tn_data.Nodes.Add(Navigation.Project.DocumentAnalysis.MetadataSummary.OperatingSystems.Key, "Operating Systems (0)");
                 tn_operatingsystems.ImageIndex =
                 tn_operatingsystems.SelectedImageIndex = 20;
                 var operatingsystems = new ConcurrentBag<string>();
                 tn_operatingsystems.Tag = operatingsystems;
 
-                TreeNode tn_passwords = tn_data.Nodes.Add("Passwords", "Passwords");
+                TreeNode tn_passwords = tn_data.Nodes.Add(Navigation.Project.DocumentAnalysis.MetadataSummary.Passwords.Key, "Passwords (0)");
                 tn_passwords.ImageIndex =
                 tn_passwords.SelectedImageIndex = 121;
                 var passwords = new ConcurrentBag<PasswordsItem>();
                 tn_passwords.Tag = passwords;
 
-                TreeNode tn_servers = tn_data.Nodes.Add("Servers", "Servers");
+                TreeNode tn_servers = tn_data.Nodes.Add(Navigation.Project.DocumentAnalysis.MetadataSummary.Servers.Key, "Servers (0)");
                 tn_servers.ImageIndex =
                 tn_servers.SelectedImageIndex = 112;
                 var servers = new ConcurrentBag<ServersItem>();
@@ -655,12 +643,15 @@ namespace FOCA.GUI
         /// </summary>
         static private void CreatePcServersNodes()
         {
-            TreeNode tn;
-            tn = treeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KPCServers.ToString()].Nodes.Add("Clients", "Clients");
+            TreeNode networkNode = treeView.GetNode(Navigation.Project.Network.ToNavigationPath());
+
+            TreeNode tn = networkNode.Nodes.Add(Navigation.Project.Network.Clients.Key, "Clients");
             tn.ImageIndex = tn.SelectedImageIndex = 111;
-            tn = treeView.Nodes[TreeViewKeys.KProject.ToString()].Nodes[TreeViewKeys.KPCServers.ToString()].Nodes.Add("Servers", "Servers");
+
+            tn = networkNode.Nodes.Add(Navigation.Project.Network.Servers.Key, "Servers");
             tn.ImageIndex = tn.SelectedImageIndex = 112;
-            tn = tn.Nodes.Add("Unknown Servers", "Unknown Servers");
+
+            tn = tn.Nodes.Add(Navigation.Project.Network.Servers.Unknown.Key, "Unknown Servers");
             tn.ImageIndex = tn.SelectedImageIndex = 113;
         }
 
@@ -670,25 +661,24 @@ namespace FOCA.GUI
         private static void CreateMainNodes()
         {
             TreeNode tnProject, tn;
-
-            if (!treeView.Nodes.ContainsKey(TreeViewKeys.KProject.ToString()))
+            if (!treeView.Nodes.ContainsKey(Navigation.Project.Key))
             {
-                tnProject = treeView.Nodes.Add(TreeViewKeys.KProject.ToString(), Program.data.Project.ProjectName);
+                tnProject = treeView.Nodes.Add(Navigation.Project.Key, Program.data.Project.ProjectName);
                 tnProject.ImageIndex = tnProject.SelectedImageIndex = 107;
                 tnProject.Tag = Program.data.Project.ProjectName;
 
-                tn = tnProject.Nodes.Add(TreeViewKeys.KPCServers.ToString(), "Network");
+                tn = tnProject.Nodes.Add(Navigation.Project.Network.Key, "Network");
                 tn.ImageIndex = tn.SelectedImageIndex = 110;
                 CreatePcServersNodes();
 
-                tn = tnProject.Nodes.Add(TreeViewKeys.KDomains.ToString(), "Domains");
+                tn = tnProject.Nodes.Add(Navigation.Project.Domains.Key, "Domains");
                 tn.ImageIndex = tn.SelectedImageIndex = 108;
 
-                tn = tnProject.Nodes.Add(TreeViewKeys.KMetadata.ToString(), "Metadata");
+                tn = tnProject.Nodes.Add(Navigation.Project.DocumentAnalysis.Key, "Document Analysis");
                 tn.ImageIndex = tn.SelectedImageIndex = 109;
                 CreateMetadataNodes();
 
-                Program.FormMainInstance.TreeView.Nodes[TreeViewKeys.KProject.ToString()].Expand();
+                Program.FormMainInstance.TreeView.Nodes[Navigation.Project.Key].Expand();
             }
         }
 
