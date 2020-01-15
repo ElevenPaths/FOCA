@@ -33,7 +33,8 @@ namespace MetadataExtractCore.Extractors
                 {
                     int imageNumber = 0;
                     //Read embedded images
-                    foreach (PdfDictionary item in doc.Internals.GetAllObjects().Where(p => p is PdfDictionary d && d.Stream != null && "/Image".Equals(d.Elements["/Subtype"]?.ToString())))
+                    foreach (PdfDictionary item in doc.Internals.GetAllObjects()
+                        .Where(p => p is PdfDictionary d && d.Stream != null && "/Image".Equals(d.Elements["/Subtype"]?.ToString()) && "/DCTDecode".Equals(d.Elements["/Filter"]?.ToString())))
                     {
                         try
                         {
