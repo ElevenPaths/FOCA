@@ -669,17 +669,17 @@ namespace FOCA
 
             if (tnSearched != null) return tnSearched;
 
-            string ext = file.Ext;
+            string extension = file.Ext;
 
-            if (ext.Length == 0 || !DocumentExtractor.IsSupportedExtension(ext))
-                ext = "Unknown";
+            if (extension.Length == 0 || !DocumentExtractor.IsSupportedExtension(extension))
+                extension = "Unknown";
 
             TreeNode documentsNode = TreeView.GetNode(GUI.Navigation.Project.DocumentAnalysis.Files.ToNavigationPath());
-            TreeNode extNode = documentsNode.Nodes[ext];
+            TreeNode extNode = documentsNode.Nodes[extension];
             if (extNode == null)
             {
-                extNode = documentsNode.Nodes.Insert(SearchTextInNodes(documentsNode.Nodes, ext), ext, ext);
-                extNode.ImageIndex = extNode.SelectedImageIndex = GetImageToExtension(ext);
+                extNode = documentsNode.Nodes.Insert(SearchTextInNodes(documentsNode.Nodes, extension), extension, extension);
+                extNode.ImageIndex = extNode.SelectedImageIndex = GetImageToExtension(extension);
                 documentsNode.Expand();
             }
 
@@ -739,9 +739,9 @@ namespace FOCA
         }
 
         /// <summary>
-        /// Return all documents por metadata.
+        /// Return all metadata documents
         /// </summary>
-        /// <returns>List<TreeNode></returns>
+        /// <returns>IEnumerable<TreeNode></returns>
         public IEnumerable<TreeNode> TreeViewMetadataReturnAllDocuments()
         {
             try
