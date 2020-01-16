@@ -1,5 +1,4 @@
 using FOCA.Database.Entities;
-using FOCA.GUI;
 using FOCA.Properties;
 using FOCA.Search;
 using FOCA.Searcher;
@@ -308,8 +307,10 @@ namespace FOCA
         /// <param name="fi"></param>
         private void RemoveFileFromTreeNode(FilesItem fi)
         {
-            if (fi != null && fi.Processed && Program.FormMainInstance.TreeViewMetadataSearchDocument(fi.Path) != null)
-                Program.FormMainInstance.TreeViewMetadataSearchDocument(fi.Path).Remove();
+            if (fi != null && fi.Processed)
+            {
+                Program.FormMainInstance.TreeViewMetadataSearchDocument(fi.Path)?.Remove();
+            }
         }
 
 
@@ -716,30 +717,28 @@ namespace FOCA
         /// <param name="o">List which contains the documents from which the tool is going to extract metadata information</param>
         private void ExtractMetadata(object filesItemList)
         {
-            TreeNode itemsTree =
-                Program.FormMainInstance.TreeView.Nodes[GUI.UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
-                    GUI.UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"];
+            TreeNode itemsTree = Program.FormMainInstance.TreeView.GetNode(GUI.Navigation.Project.DocumentAnalysis.MetadataSummary.ToNavigationPath());
 
             if (Program.data.Project.Id == 0)
             {
-                itemsTree.Nodes["Users"].Tag = new ConcurrentBag<UserItem>();
-                itemsTree.Nodes["Printers"].Tag = new ConcurrentBag<PrintersItem>();
-                itemsTree.Nodes["Folders"].Tag = new ConcurrentBag<PathsItem>();
-                itemsTree.Nodes["Software"].Tag = new ConcurrentBag<ApplicationsItem>();
-                itemsTree.Nodes["Emails"].Tag = new ConcurrentBag<EmailsItem>();
-                itemsTree.Nodes["Operating Systems"].Tag = new ConcurrentBag<string>();
-                itemsTree.Nodes["Passwords"].Tag = new ConcurrentBag<PasswordsItem>();
-                itemsTree.Nodes["Servers"].Tag = new ConcurrentBag<ServersItem>();
+                itemsTree.Nodes[GUI.Navigation.Project.DocumentAnalysis.MetadataSummary.Users.Key].Tag = new ConcurrentBag<UserItem>();
+                itemsTree.Nodes[GUI.Navigation.Project.DocumentAnalysis.MetadataSummary.Printers.Key].Tag = new ConcurrentBag<PrintersItem>();
+                itemsTree.Nodes[GUI.Navigation.Project.DocumentAnalysis.MetadataSummary.Folders.Key].Tag = new ConcurrentBag<PathsItem>();
+                itemsTree.Nodes[GUI.Navigation.Project.DocumentAnalysis.MetadataSummary.Software.Key].Tag = new ConcurrentBag<ApplicationsItem>();
+                itemsTree.Nodes[GUI.Navigation.Project.DocumentAnalysis.MetadataSummary.Emails.Key].Tag = new ConcurrentBag<EmailsItem>();
+                itemsTree.Nodes[GUI.Navigation.Project.DocumentAnalysis.MetadataSummary.OperatingSystems.Key].Tag = new ConcurrentBag<string>();
+                itemsTree.Nodes[GUI.Navigation.Project.DocumentAnalysis.MetadataSummary.Passwords.Key].Tag = new ConcurrentBag<PasswordsItem>();
+                itemsTree.Nodes[GUI.Navigation.Project.DocumentAnalysis.MetadataSummary.Servers.Key].Tag = new ConcurrentBag<ServersItem>();
             }
 
-            var users = (ConcurrentBag<UserItem>)itemsTree.Nodes["Users"].Tag;
-            var printers = (ConcurrentBag<PrintersItem>)itemsTree.Nodes["Printers"].Tag;
-            var folders = (ConcurrentBag<PathsItem>)itemsTree.Nodes["Folders"].Tag;
-            var software = (ConcurrentBag<ApplicationsItem>)itemsTree.Nodes["Software"].Tag;
-            var emails = (ConcurrentBag<EmailsItem>)itemsTree.Nodes["Emails"].Tag;
-            var operatingsystems = (ConcurrentBag<string>)itemsTree.Nodes["Operating Systems"].Tag;
-            var passwords = (ConcurrentBag<PasswordsItem>)itemsTree.Nodes["Passwords"].Tag;
-            var servers = (ConcurrentBag<ServersItem>)itemsTree.Nodes["Servers"].Tag;
+            var users = (ConcurrentBag<UserItem>)itemsTree.Nodes[GUI.Navigation.Project.DocumentAnalysis.MetadataSummary.Users.Key].Tag;
+            var printers = (ConcurrentBag<PrintersItem>)itemsTree.Nodes[GUI.Navigation.Project.DocumentAnalysis.MetadataSummary.Printers.Key].Tag;
+            var folders = (ConcurrentBag<PathsItem>)itemsTree.Nodes[GUI.Navigation.Project.DocumentAnalysis.MetadataSummary.Folders.Key].Tag;
+            var software = (ConcurrentBag<ApplicationsItem>)itemsTree.Nodes[GUI.Navigation.Project.DocumentAnalysis.MetadataSummary.Software.Key].Tag;
+            var emails = (ConcurrentBag<EmailsItem>)itemsTree.Nodes[GUI.Navigation.Project.DocumentAnalysis.MetadataSummary.Emails.Key].Tag;
+            var operatingsystems = (ConcurrentBag<string>)itemsTree.Nodes[GUI.Navigation.Project.DocumentAnalysis.MetadataSummary.OperatingSystems.Key].Tag;
+            var passwords = (ConcurrentBag<PasswordsItem>)itemsTree.Nodes[GUI.Navigation.Project.DocumentAnalysis.MetadataSummary.Passwords.Key].Tag;
+            var servers = (ConcurrentBag<ServersItem>)itemsTree.Nodes[GUI.Navigation.Project.DocumentAnalysis.MetadataSummary.Servers.Key].Tag;
 
             try
             {
@@ -860,10 +859,8 @@ namespace FOCA
                             Program.LogThis(new Log(Log.ModuleType.MetadataSearch, strMessage, Log.LogType.debug));
                             Program.FormMainInstance.ChangeStatus(strMessage);
 
-                            Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
-                                UpdateGUI.TreeViewKeys.KMetadata.ToString()].Expand();
-                            Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
-                                UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Expand();
+                            Program.FormMainInstance.TreeView.GetNode(GUI.Navigation.Project.DocumentAnalysis.ToNavigationPath()).Expand();
+                            Program.FormMainInstance.TreeView.GetNode(GUI.Navigation.Project.DocumentAnalysis.MetadataSummary.ToNavigationPath()).Expand();
                         }));
                     }
                     else
@@ -895,23 +892,6 @@ namespace FOCA
                     Program.FormMainInstance.toolStripProgressBarDownload.Value = 0;
                     Program.FormMainInstance.toolStripDropDownButtonStop.Enabled = false;
 
-                    // update text from nodes which show metadata summary with the total values found number
-                    Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
-                        UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Users"].Text =
-                        $"Users ({users.Count})";
-                    Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
-                        UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Printers"].Text =
-                        $"Printers ({printers.Count})";
-                    Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
-                        UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Folders"].Text =
-                        $"Folders ({folders.Count})";
-                    Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
-                        UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Software"].Text =
-                        $"Software ({software.Count})";
-                    Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
-                        UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Emails"].Text =
-                        $"Emails ({emails.Count})";
-
                     if (emails.Count != 0)
                     {
                         List<string> emailsValue = emails.Select(x => x.Mail).ToList();
@@ -920,16 +900,6 @@ namespace FOCA
                     else
                         PluginsAPI.SharedValues.FocaEmails = new List<string>();
 
-
-                    Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
-                        UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Operating Systems"
-                        ].Text = $"Operating Systems ({operatingsystems.Count})";
-                    Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
-                        UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Passwords"].Text =
-                        $"Passwords ({passwords.Count})";
-                    Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
-                        UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Servers"].Text =
-                        $"Servers ({servers.Count})";
                     // enable interface elements which were disabled previously
                     btnSearchAll.Enabled = Program.data.Project.ProjectState != Project.ProjectStates.Uninitialized;
                     btnSearch.Enabled = true;
@@ -1203,9 +1173,7 @@ namespace FOCA
         /// </summary>
         public void AnalyzeMetadata()
         {
-            if (
-                Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
-                    UpdateGUI.TreeViewKeys.KPCServers.ToString()] == null)
+            if (Program.FormMainInstance.TreeView.GetNode(GUI.Navigation.Project.Network.ToNavigationPath()) == null)
             {
                 MessageBox.Show(@"You need a project before analyzing metadata", "", MessageBoxButtons.OK);
                 return;
@@ -1241,15 +1209,10 @@ namespace FOCA
                 Invoke(new MethodInvoker(() =>
                 {
                     Program.FormMainInstance.toolStripDropDownButtonStop.Enabled = false;
-                    Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
-                        UpdateGUI.TreeViewKeys.KPCServers.ToString()].Expand();
-                    Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
-                        UpdateGUI.TreeViewKeys.KPCServers.ToString()].Nodes["Clients"].Expand();
-                    Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
-                        UpdateGUI.TreeViewKeys.KPCServers.ToString()].Nodes["Servers"].Expand();
-                    Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
-                        UpdateGUI.TreeViewKeys.KPCServers.ToString()].Nodes["Servers"].Nodes["Unknown Servers"].Expand
-                        ();
+                    Program.FormMainInstance.TreeView.GetNode(GUI.Navigation.Project.Network.ToNavigationPath()).Expand();
+                    Program.FormMainInstance.TreeView.GetNode(GUI.Navigation.Project.Network.Clients.ToNavigationPath()).Expand();
+                    Program.FormMainInstance.TreeView.GetNode(GUI.Navigation.Project.Network.Servers.ToNavigationPath()).Expand();
+                    Program.FormMainInstance.TreeView.GetNode(GUI.Navigation.Project.Network.Servers.Unknown.ToNavigationPath()).Expand();
                     Analysis = null;
                 }));
             }

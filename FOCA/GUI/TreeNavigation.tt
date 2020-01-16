@@ -1,0 +1,54 @@
+﻿<#@ template debug="false" hostspecific="true" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ assembly name="System.Xml" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.IO" #>
+<#@ import namespace="System.Xml" #>
+<#@ output extension=".cs" #>
+namespace FOCA.GUI.Navigation
+{
+<#
+XmlDocument nav = new XmlDocument();
+nav.Load(this.Host.ResolvePath("nav.xml"));
+CreateClass(nav.ChildNodes, 0);
+
+void CreateClass(XmlNodeList nodes, int depth, string parentClass="")
+{
+	PushIndent("    ");
+    foreach (XmlNode item in nodes)
+    {
+		string key;
+		if(item.Attributes["key"] !=null )
+		{
+			key= item.Attributes["key"].Value;
+		}
+		else
+		{
+            key= item.Name;
+		}
+#>
+public static class <#= item.Name #>
+{
+    public static string Key
+    {
+        get
+        {
+            return "<#= key #>";
+        }
+    }
+
+    public static string ToNavigationPath()
+    {
+        return <#= String.IsNullOrEmpty(parentClass) ? "\"/\" + Key;" : parentClass + ".ToNavigationPath() + \"/\" + Key;" #>
+    }
+
+<# CreateClass(item.ChildNodes, depth + 1, item.Name); #>
+}
+<#
+    }
+    PopIndent();
+}
+#>
+}

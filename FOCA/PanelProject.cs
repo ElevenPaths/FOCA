@@ -1,7 +1,7 @@
-using FOCA.Database.Controllers;
 using FOCA.Core;
+using FOCA.Database.Controllers;
+using FOCA.Database.Entities;
 using FOCA.GUI;
-using MetadataExtractCore.Diagrams;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -10,7 +10,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
-using FOCA.Database.Entities;
 
 namespace FOCA
 {
@@ -157,16 +156,12 @@ namespace FOCA
             Program.data.Project.Domain = DomainWebsite;
             var aDomains = AlternativeDomains.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
             // check if there're new alternative domains
-            var bNewAlternativeDomains = Program.data.Project.AlternativeDomains.Intersect(aDomains).Count() !=
-                                         aDomains.Length;
+            var bNewAlternativeDomains = Program.data.Project.AlternativeDomains.Intersect(aDomains).Count() != aDomains.Length;
 
-            var bAnyServer =
-                Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
-                    UpdateGUI.TreeViewKeys.KPCServers.ToString()] != null &&
-                Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
-                    UpdateGUI.TreeViewKeys.KPCServers.ToString()].Nodes["Servers"] != null &&
-                Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
-                    UpdateGUI.TreeViewKeys.KPCServers.ToString()].Nodes["Servers"].Nodes.Count != 0;
+            bool bAnyServer =
+                Program.FormMainInstance.TreeView.GetNode(GUI.Navigation.Project.Network.ToNavigationPath()) != null &&
+                Program.FormMainInstance.TreeView.GetNode(GUI.Navigation.Project.Network.Servers.ToNavigationPath()) != null &&
+                Program.FormMainInstance.TreeView.GetNode(GUI.Navigation.Project.Network.Servers.ToNavigationPath()).Nodes.Count != 0;
 
             Program.data.Project.AlternativeDomains.Clear();
             Program.data.Project.AlternativeDomains.AddRange(aDomains);
@@ -306,7 +301,6 @@ namespace FOCA
 
             return result;
         }
-
 
         private void cmbProject_SelectionChangeCommitted(object sender, EventArgs e)
         {

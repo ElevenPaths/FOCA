@@ -188,6 +188,11 @@
     <Compile Include="Database\Migrations\201908230648106_RemoveUnusedBackupSupport.Designer.cs">
       <DependentUpon>201908230648106_RemoveUnusedBackupSupport.cs</DependentUpon>
     </Compile>
+    <Compile Include="GUI\TreeNavigation.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>TreeNavigation.tt</DependentUpon>
+    </Compile>
     <Compile Include="Utilities\Log.cs" />
     <Compile Include="Utilities\NetRange.cs" />
     <Compile Include="Utilities\OperatingSystem.cs" />
@@ -502,6 +507,11 @@
       <SubType>Designer</SubType>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <Content Include="GUI\nav.xml" />
+    <Content Include="GUI\TreeNavigation.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>TreeNavigation.cs</LastGenOutput>
+    </Content>
     <Content Include="Icons\bing.png" />
     <Content Include="Icons\chart_organisation.png" />
     <Content Include="Icons\Logo_interfaz.ico" />

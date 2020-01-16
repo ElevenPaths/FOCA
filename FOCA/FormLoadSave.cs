@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -40,7 +41,7 @@ namespace FOCA
                 progressBar1.PerformStep();
 
             lblLinksValue.Text = Program.FormMainInstance.panelMetadataSearch.listViewDocuments.Items.Count.ToString();
-            lblDocumentsValue.Text = Program.FormMainInstance.TreeViewMetadataReturnAllDocuments().Count.ToString();
+            lblDocumentsValue.Text = Program.FormMainInstance.TreeViewMetadataReturnAllDocuments().Count().ToString();
 
             var lstDominios = Program.data.GetDomains();
             ulong numberMutexFiles = 0;

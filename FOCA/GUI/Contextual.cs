@@ -19,6 +19,8 @@ namespace FOCA.GUI
 {
     internal static class Contextual
     {
+        internal const string JsonFileFilter = "JSON files (*.json)|*.json";
+
         private static string GetNodeText(TreeNode tn)
         {
             var sb = new StringBuilder();
@@ -144,22 +146,28 @@ namespace FOCA.GUI
 
             tsiOptions.Click += delegate
             {
-                var sfd = new SaveFileDialog { Filter = "JSON files (*.json)|*.json" };
+                using (SaveFileDialog sfd = new SaveFileDialog { Filter = JsonFileFilter })
+                {
 
-                if (sfd.ShowDialog() != DialogResult.OK) return;
-                var contents = "";
-                foreach (var tnr2 in
-                        from TreeNode tnr1 in
-                            Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()]
-                                .Nodes[UpdateGUI.TreeViewKeys.KPCServers.ToString()].Nodes["Servers"].Nodes
-                        from TreeNode tnr2 in tnr1.Nodes
-                        select tnr2)
-                {
-                    contents += JsonConvert.SerializeObject(tnr2, Formatting.Indented, settings);
-                }
-                using (var sw = File.CreateText(sfd.FileName))
-                {
-                    sw.WriteLine(contents);
+                    if (sfd.ShowDialog() != DialogResult.OK)
+                    {
+                        return;
+                    }
+
+                    StringBuilder exportContent = new StringBuilder();
+                    foreach (TreeNode node in
+                            from TreeNode serverNode in
+                                Program.FormMainInstance.TreeView.GetNode(Navigation.Project.Network.Servers.ToNavigationPath()).Nodes
+                            from TreeNode childNode in serverNode.Nodes
+                            select childNode)
+                    {
+                        exportContent.Append(JsonConvert.SerializeObject(node, Formatting.Indented, settings));
+                    }
+
+                    using (var sw = File.CreateText(sfd.FileName))
+                    {
+                        sw.WriteLine(exportContent.ToString());
+                    }
                 }
             };
 
@@ -184,7 +192,7 @@ namespace FOCA.GUI
 
             tsiExportClients.Click += delegate
             {
-                var sfd = new SaveFileDialog { Filter = "JSON files (*.json)|*.json" };
+                var sfd = new SaveFileDialog { Filter = JsonFileFilter };
 
                 if (sfd.ShowDialog() != DialogResult.OK) return;
                 var sb = new StringBuilder();
@@ -192,8 +200,7 @@ namespace FOCA.GUI
                 sb.Append("{\"Clients\": [");
                 foreach (
                     TreeNode tnn in
-                        Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()]
-                            .Nodes[UpdateGUI.TreeViewKeys.KPCServers.ToString()].Nodes["Clients"].Nodes)
+                        Program.FormMainInstance.TreeView.GetNode(Navigation.Project.Network.Clients.ToNavigationPath()).Nodes)
                     sb.Append("\"" + tnn.Text + "\",");
                 sb.Remove(sb.Length - 1, 1);
                 sb.Append("]}");
@@ -244,7 +251,7 @@ namespace FOCA.GUI
 
             tsiExportClient.Click += delegate
             {
-                var sfd = new SaveFileDialog { Filter = "JSON files (*.json)|*.json" };
+                var sfd = new SaveFileDialog { Filter = JsonFileFilter };
 
                 if (sfd.ShowDialog() != DialogResult.OK) return;
                 var sb = new StringBuilder();
@@ -305,14 +312,13 @@ namespace FOCA.GUI
 
             tsiExport.Click += delegate
             {
-                var sfd = new SaveFileDialog { Filter = "JSON files (*.json)|*.json" };
+                var sfd = new SaveFileDialog { Filter = JsonFileFilter };
                 if (sfd.ShowDialog() != DialogResult.OK) return;
                 var sb = new StringBuilder();
                 sb.Append("{\"Servers\": [");
                 foreach (
                     var node in
-                        Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
-                            UpdateGUI.TreeViewKeys.KPCServers.ToString()].Nodes["Servers"].Nodes)
+                        Program.FormMainInstance.TreeView.GetNode(Navigation.Project.Network.Servers.ToNavigationPath()).Nodes)
                 {
                     sb.Append(GetNodeText((TreeNode)node) + ",");
                 }
@@ -385,7 +391,7 @@ namespace FOCA.GUI
 
             tsiExport.Click += delegate
             {
-                var sfd = new SaveFileDialog { Filter = "JSON files (*.json)|*.json" };
+                var sfd = new SaveFileDialog { Filter = JsonFileFilter };
                 if (sfd.ShowDialog() != DialogResult.OK) return;
                 using (var sw = File.CreateText(sfd.FileName))
                 {
@@ -566,7 +572,7 @@ namespace FOCA.GUI
 
             tsiExport.Click += delegate
             {
-                var sfd = new SaveFileDialog { Filter = "JSON files (*.json)|*.json" };
+                var sfd = new SaveFileDialog { Filter = JsonFileFilter };
 
                 if (sfd.ShowDialog() != DialogResult.OK) return;
                 var tnToExport = tn;
@@ -666,22 +672,21 @@ namespace FOCA.GUI
 
             tsiExport.Click += delegate
             {
-                var sfd = new SaveFileDialog { Filter = "JSON files (*.json)|*.json" };
-                if (sfd.ShowDialog() != DialogResult.OK) return;
-
-                var sb = new StringBuilder();
-                sb.Append("{\"Unknown servers\": [");
-                foreach (
-                    TreeNode tnn in
-                        Program.FormMainInstance.TreeView.Nodes[UpdateGUI.TreeViewKeys.KProject.ToString()]
-                            .Nodes[UpdateGUI.TreeViewKeys.KPCServers.ToString()].Nodes["Servers"].Nodes[
-                                "Unknown servers"].Nodes)
-                    sb.Append(JsonConvert.SerializeObject(tnn.Text, Formatting.Indented, settings) + ",");
-                sb.Remove(sb.Length - 1, 1);
-                sb.Append("]}");
-                using (var sw = File.CreateText(sfd.FileName))
+                using (var sfd = new SaveFileDialog { Filter = JsonFileFilter })
                 {
-                    sw.WriteLine(sb.ToString());
+                    if (sfd.ShowDialog() != DialogResult.OK) return;
+
+                    StringBuilder sb = new StringBuilder();
+                    sb.Append("{\"Unknown servers\": [");
+                    foreach (TreeNode serverNode in
+                            Program.FormMainInstance.TreeView.GetNode(Navigation.Project.Network.Servers.Unknown.ToNavigationPath()).Nodes)
+                        sb.Append(JsonConvert.SerializeObject(serverNode.Text, Formatting.Indented, settings) + ",");
+                    sb.Remove(sb.Length - 1, 1);
+                    sb.Append("]}");
+                    using (var sw = File.CreateText(sfd.FileName))
+                    {
+                        sw.WriteLine(sb.ToString());
+                    }
                 }
             };
 
@@ -737,7 +742,7 @@ namespace FOCA.GUI
 
             tsiExport.Click += delegate
             {
-                var sfd = new SaveFileDialog { Filter = "JSON files (*.json)|*.json" };
+                var sfd = new SaveFileDialog { Filter = JsonFileFilter };
                 if (sfd.ShowDialog() != DialogResult.OK) return;
                 var sb = new StringBuilder();
                 sb.Append("{\"Name\": " + JsonConvert.SerializeObject(tn.Text, Formatting.Indented, settings) + "}");
@@ -802,7 +807,7 @@ namespace FOCA.GUI
 
             tsiExport.Click += delegate
             {
-                var sfd = new SaveFileDialog { Filter = "JSON files (*.json)|*.json" };
+                var sfd = new SaveFileDialog { Filter = JsonFileFilter };
 
                 if (sfd.ShowDialog() != DialogResult.OK) return;
                 var contents = "";
@@ -871,7 +876,7 @@ namespace FOCA.GUI
 
             tsiExport.Click += delegate
             {
-                var sfd = new SaveFileDialog { Filter = "JSON files (*.json)|*.json" };
+                var sfd = new SaveFileDialog { Filter = JsonFileFilter };
 
                 if (sfd.ShowDialog() != DialogResult.OK) return;
                 var contents = "";
@@ -1007,7 +1012,7 @@ namespace FOCA.GUI
 
             tsiExport.Click += delegate
             {
-                var sfd = new SaveFileDialog { Filter = "JSON files (*.json)|*.json" };
+                var sfd = new SaveFileDialog { Filter = JsonFileFilter };
 
                 if (sfd.ShowDialog() != DialogResult.OK) return;
                 var contents = "";
@@ -1158,7 +1163,7 @@ namespace FOCA.GUI
 
             tsiExport.Click += delegate
             {
-                var sfd = new SaveFileDialog { Filter = "JSON files (*.json)|*.json" };
+                var sfd = new SaveFileDialog { Filter = JsonFileFilter };
 
                 if (sfd.ShowDialog() != DialogResult.OK) return;
                 var contents = "";

@@ -1,10 +1,8 @@
 using FOCA.Database.Controllers;
 using FOCA.Database.Entities;
 using FOCA.Threads;
-using MetadataExtractCore.Diagrams;
 using System;
 using System.Collections.Concurrent;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
@@ -171,55 +169,35 @@ namespace FOCA.Core
 
             var usersValue = (from item in listMetadata where item.FoundUsers.Items.Count != 0 select item.FoundUsers.Items);
             ConcurrentBag<UserItem> listParamUser = new ConcurrentBag<UserItem>(usersValue.SelectMany(item => item));
-            mainForm.TreeView.Nodes[GUI.UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[
-            GUI.UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Users"].Tag = listParamUser;
+            mainForm.TreeView.GetNode(GUI.Navigation.Project.DocumentAnalysis.MetadataSummary.Users.ToNavigationPath()).Tag = listParamUser;
 
             var printerValue = (from item in listMetadata where item.FoundPrinters.Items.Count != 0 select item.FoundPrinters.Items);
             ConcurrentBag<PrintersItem> listParamPrinter = new ConcurrentBag<PrintersItem>(printerValue.SelectMany(item => item));
-            mainForm.TreeView.Nodes[GUI.UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[GUI.UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Printers"].Tag = listParamPrinter;
+            mainForm.TreeView.GetNode(GUI.Navigation.Project.DocumentAnalysis.MetadataSummary.Printers.ToNavigationPath()).Tag = listParamPrinter;
 
             var pathsValue = (from item in listMetadata where item.FoundPaths.Items.Count != 0 select item.FoundPaths.Items);
             ConcurrentBag<PathsItem> listParamPaths = new ConcurrentBag<PathsItem>(pathsValue.SelectMany(item => item));
-            mainForm.TreeView.Nodes[GUI.UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[GUI.UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Folders"].Tag = listParamPaths;
+            mainForm.TreeView.GetNode(GUI.Navigation.Project.DocumentAnalysis.MetadataSummary.Folders.ToNavigationPath()).Tag = listParamPaths;
 
             var emailsValue = (from item in listMetadata where item.FoundEmails.Items.Count != 0 select item.FoundEmails.Items);
             ConcurrentBag<EmailsItem> listParamEmails = new ConcurrentBag<EmailsItem>(emailsValue.SelectMany(item => item));
-            mainForm.TreeView.Nodes[GUI.UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[GUI.UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Emails"].Tag = listParamEmails;
+            mainForm.TreeView.GetNode(GUI.Navigation.Project.DocumentAnalysis.MetadataSummary.Emails.ToNavigationPath()).Tag = listParamEmails;
 
             var serversValue = (from item in listMetadata where item.FoundServers.Items.Count != 0 select item.FoundServers.Items);
             ConcurrentBag<ServersItem> listParamServers = new ConcurrentBag<ServersItem>(serversValue.SelectMany(item => item));
-            mainForm.TreeView.Nodes[GUI.UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[GUI.UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Servers"].Tag = listParamServers;
+            mainForm.TreeView.GetNode(GUI.Navigation.Project.DocumentAnalysis.MetadataSummary.Servers.ToNavigationPath()).Tag = listParamServers;
 
             var softValue = (from item in listMetadata where item.FoundMetaData.Applications.Items.Count != 0 select item.FoundMetaData.Applications.Items);
             ConcurrentBag<ApplicationsItem> listParamsoft = new ConcurrentBag<ApplicationsItem>(softValue.SelectMany(item => item));
-            mainForm.TreeView.Nodes[GUI.UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[GUI.UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Software"].Tag = listParamsoft;
+            mainForm.TreeView.GetNode(GUI.Navigation.Project.DocumentAnalysis.MetadataSummary.Software.ToNavigationPath()).Tag = listParamsoft;
 
 
             var passValue = (from item in listMetadata where item.FoundPasswords.Items.Count != 0 select item.FoundPasswords.Items);
             ConcurrentBag<PasswordsItem> listParamPass = new ConcurrentBag<PasswordsItem>(passValue.SelectMany(item => item));
-            mainForm.TreeView.Nodes[GUI.UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[GUI.UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Passwords"].Tag = listParamPass;
+            mainForm.TreeView.GetNode(GUI.Navigation.Project.DocumentAnalysis.MetadataSummary.Passwords.ToNavigationPath()).Tag = listParamPass;
 
             var listOs = new ConcurrentBag<string>(from item in listMetadata where item.FoundMetaData.OperativeSystem != null select item.FoundMetaData.OperativeSystem);
-            mainForm.TreeView.Nodes[GUI.UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[GUI.UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Operating Systems"].Tag = listOs;
-
-            mainForm.TreeView.Invoke(new MethodInvoker(delegate
-            {
-                mainForm.TreeView.Nodes[GUI.UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[GUI.UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Users"].Text = string.Format("Users ({0})", listParamUser.Count);
-
-                mainForm.TreeView.Nodes[GUI.UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[GUI.UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Printers"].Text = string.Format("Printers ({0})", listParamPrinter.Count);
-
-                mainForm.TreeView.Nodes[GUI.UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[GUI.UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Folders"].Text = string.Format("Folders ({0})", listParamPaths.Count);
-
-                mainForm.TreeView.Nodes[GUI.UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[GUI.UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Software"].Text = string.Format("Software ({0})", listParamsoft.Count);
-
-                mainForm.TreeView.Nodes[GUI.UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[GUI.UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Emails"].Text = string.Format("Emails ({0})", listParamEmails.Count);
-
-                mainForm.TreeView.Nodes[GUI.UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[GUI.UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Operating Systems"].Text = string.Format("Operating Systems ({0})", listOs.Count);
-
-                mainForm.TreeView.Nodes[GUI.UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[GUI.UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Passwords"].Text = string.Format("Passwords ({0})", listParamPass.Count);
-
-                mainForm.TreeView.Nodes[GUI.UpdateGUI.TreeViewKeys.KProject.ToString()].Nodes[GUI.UpdateGUI.TreeViewKeys.KMetadata.ToString()].Nodes["Metadata Summary"].Nodes["Servers"].Text = string.Format("Servers ({0})", listParamServers.Count);
-            }));
+            mainForm.TreeView.GetNode(GUI.Navigation.Project.DocumentAnalysis.MetadataSummary.OperatingSystems.ToNavigationPath()).Tag = listOs;
         }
 
         #endregion
