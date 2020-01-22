@@ -220,6 +220,7 @@ namespace FOCA
             this.imgIcons.Images.SetKeyName(120, "Emails.png");
             this.imgIcons.Images.SetKeyName(121, "Passwords.png");
             this.imgIcons.Images.SetKeyName(122, "iconfinder_advantage_nearby_1034361.png");
+            this.imgIcons.Images.SetKeyName(123, "diario_logo_25.png");
             // 
             // menuStripMain
             // 
@@ -332,7 +333,6 @@ namespace FOCA
             this.toolStripMenuItemViewDocumentsUsedFor});
             this.contextMenuStripNetwork.Name = "contextMenuStripSearch";
             resources.ApplyResources(this.contextMenuStripNetwork, "contextMenuStripNetwork");
-            this.contextMenuStripNetwork.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStripNetwork_Opening);
             // 
             // toolStripMenuItemViewDocumentsUsedFor
             // 
