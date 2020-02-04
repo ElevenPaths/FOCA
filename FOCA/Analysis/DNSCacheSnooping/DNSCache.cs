@@ -1,8 +1,8 @@
 
+using Heijden.DNS;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using static System.Threading.Tasks.Parallel;
 
@@ -19,37 +19,10 @@ namespace FOCA.Analysis.DNSCacheSnooping
         /// </summary>
         /// <param name="domain"></param>
         /// <returns></returns>
-        public static List<string> GetDnsList(string domain)
+        public static IEnumerable<string> GetDnsList(string domain)
         {
-            var r = new Heijden.DNS.Resolver("8.8.8.8");
-            var servers = new List<string>();
-
-            var respuesta = r.Query(domain, Heijden.DNS.QType.NS);
-            int nDnSs = respuesta.Answers.Count;
-            for (var i = 0; i < nDnSs; i++)
-            {
-                servers.Add(r.Query(domain, Heijden.DNS.QType.NS).Answers[i].RECORD.ToString().Trim('.'));
-            }
-
-            return servers;
-        }
-
-        /// <summary>
-        /// Checks if a domain exists in the cache of a DNS server
-        /// </summary>
-        /// <param name="dnsIp">IP of the DNS server</param>
-        /// <param name="query">Domain that FOCA will look for in the cache</param>
-        /// <returns>True if the domain exists in the cache</returns>
-        public bool Exists(string dnsIp, string query)
-        {
-            Start?.Invoke(dnsIp, null);
-
-            var r = ExistsInDnsServerCache(dnsIp, query);
-
-            if (End == null) return r;
-            End(dnsIp, null);
-
-            return r;
+            Resolver r = new Resolver("8.8.8.8");
+            return r.Query(domain, Heijden.DNS.QType.NS).Answers.Select(a => a.RECORD.ToString().Trim('.'));
         }
 
         /// <summary>
@@ -66,7 +39,7 @@ namespace FOCA.Analysis.DNSCacheSnooping
             var po = new ParallelOptions();
             if (Program.cfgCurrent != null && Program.cfgCurrent.ParallelDnsQueries != 0)
                 po.MaxDegreeOfParallelism = Program.cfgCurrent.ParallelDnsQueries;
-            For(0, query.Count, po, delegate(int i)
+            For(0, query.Count, po, delegate (int i)
             {
                 if (ExistsInDnsServerCache(dnsIp, query[i]))
                     domains.Add(query[i]);
@@ -88,7 +61,7 @@ namespace FOCA.Analysis.DNSCacheSnooping
         /// <returns>True if it exists</returns>
         private bool ExistsInDnsServerCache(string dnsIp, string query)
         {
-            var r = new Heijden.DNS.Resolver(dnsIp) {Recursion = false};
+            var r = new Heijden.DNS.Resolver(dnsIp) { Recursion = false };
             if (r.Query(query, Heijden.DNS.QType.A, Heijden.DNS.QClass.IN).Answers.Count > 0)
             {
                 Found?.Invoke(query, null);
