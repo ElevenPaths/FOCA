@@ -82,12 +82,6 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="BaseSDK">
-      <HintPath>..\..\..\11PathsGit\base-sdk-net\bin\Debug\BaseSDK.dll</HintPath>
-    </Reference>
-    <Reference Include="DiarioSDKNet">
-      <HintPath>..\..\diario-sdk-net\DiarioSDKNet\bin\Debug\DiarioSDKNet.dll</HintPath>
-    </Reference>
     <Reference Include="Ionic.Zip">
       <HintPath>..\lib\Ionic.Zip.dll</HintPath>
     </Reference>
@@ -138,6 +132,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Analysis\DiarioAnalyzer.cs" />
+    <Compile Include="Analysis\DiarioFileAnalysis.cs" />
     <Compile Include="Analysis\DNSCacheSnooping\DNSCache.cs" />
     <Compile Include="Analysis\FingerPrinting\BannerAnalisys.cs" />
     <Compile Include="Analysis\FingerPrinting\DNS.cs" />
@@ -864,6 +859,9 @@
   <ItemGroup>
     <PackageReference Include="com.rusanu.dataconnectiondialog">
       <Version>1.0.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="DIARIOSDK">
+      <Version>1.0.1</Version>
     </PackageReference>
     <PackageReference Include="EntityFramework">
       <Version>6.4.0</Version>

@@ -32,6 +32,8 @@ namespace FOCA.Database.Controllers
                     config.SelectedTechExtensions = item.SelectedTechExtensions;
                     config.SPathsPlugins = item.SPathsPlugins;
                     config.ShodanApiKey = item.ShodanApiKey;
+                    config.DiarioAPIKey = item.DiarioAPIKey;
+                    config.DiarioAPISecret = item.DiarioAPISecret;
 
                     context.SaveChanges();
                 }
@@ -78,7 +80,9 @@ namespace FOCA.Database.Controllers
                 SimultaneousDownloads = 15,
                 SPathsPlugins = string.Empty,
                 UseAllDns = true,
-                webSearcherEngine = 2
+                webSearcherEngine = 2,
+                DiarioAPIKey = "LfUxRse6mjsRA3DZNBuq",
+                DiarioAPISecret = "ThyDYxcaGdHHK6TC3YcMqG2kFexF4D8djmdpcMy8"
             };
 
             using (FocaContextDb context = new FocaContextDb())

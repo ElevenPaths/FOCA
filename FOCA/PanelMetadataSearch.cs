@@ -39,7 +39,6 @@ namespace FOCA
         private int downloadedFileCount;
         private CancellationTokenSource downloadTaskToken;
         private CancellationTokenSource downloadDelayToken;
-        private DiarioAnalyzer diarioAnalyzer;
         private CancellationTokenSource malwareAnalysisToken;
 
         // Thread that runs in background and obtains size of files from given URLs
@@ -54,7 +53,6 @@ namespace FOCA
 
             this.downloadTaskToken = new CancellationTokenSource();
             this.downloadDelayToken = new CancellationTokenSource();
-            this.diarioAnalyzer = new DiarioAnalyzer("LfUxRse6mjsRA3DZNBuq", "ThyDYxcaGdHHK6TC3YcMqG2kFexF4D8djmdpcMy8");
 
             Task.Factory.StartNew(() => { ProcessDownloadQueue(); }, TaskCreationOptions.LongRunning);
         }
@@ -2730,73 +2728,81 @@ namespace FOCA
 
         private void AnalyzeFilesWithDiario(IEnumerable<FilesItem> selectedItems)
         {
-            IList<FilesItem> urls = selectedItems.Where(f => f != null && f.Downloaded && !f.DiarioAnalyzed && DiarioAnalyzer.IsSupportedExtension(f.Ext)).ToList();
-
-            if (malwareAnalysisToken == null || malwareAnalysisToken.IsCancellationRequested)
-                malwareAnalysisToken = new CancellationTokenSource();
-
-            malwareAnalysisToken.Token.Register(() =>
+            if (!String.IsNullOrWhiteSpace(Program.cfgCurrent.DiarioAPIKey) && !String.IsNullOrWhiteSpace(Program.cfgCurrent.DiarioAPISecret))
             {
-                this.RestoreProgressBar("Malware analysys was cancelled");
-                Program.FormMainInstance.TreeView.GetNode(GUI.Navigation.Project.DocumentAnalysis.ToNavigationPath()).Expand();
-            });
+                DiarioAnalyzer diarioAnalyzer = new DiarioAnalyzer(Program.cfgCurrent.DiarioAPIKey, Program.cfgCurrent.DiarioAPISecret);
+                IList<FilesItem> urls = selectedItems.Where(f => f != null && f.Downloaded && !f.DiarioAnalyzed && DiarioAnalyzer.IsSupportedExtension(f.Ext)).ToList();
 
-            if (urls.Any())
-            {
-                Invoke(new MethodInvoker(() =>
+                if (malwareAnalysisToken == null || malwareAnalysisToken.IsCancellationRequested)
+                    malwareAnalysisToken = new CancellationTokenSource();
+
+                malwareAnalysisToken.Token.Register(() =>
                 {
-                    // Disable interface elements while analyzing
-                    btnSearch.Enabled = false;
-                    btnSearchAll.Enabled = false;
-                    Program.FormMainInstance.programState = FormMain.ProgramState.ExtractingMetadata;
-                    Program.FormMainInstance.toolStripDropDownButtonStop.Enabled = true;
-                }));
+                    this.RestoreProgressBar("Malware analysys was cancelled");
+                    Program.FormMainInstance.TreeView.GetNode(GUI.Navigation.Project.DocumentAnalysis.ToNavigationPath()).Expand();
+                });
 
-                int analyzedFileCount = 0;
-
-                foreach (FilesItem item in urls)
+                if (urls.Any())
                 {
-                    this.diarioAnalyzer.CheckMalware(item.Path, (fileResult) =>
+                    Invoke(new MethodInvoker(() =>
                     {
-                        if (String.IsNullOrEmpty(fileResult.Error))
+                        // Disable interface elements while analyzing
+                        btnSearch.Enabled = false;
+                        btnSearchAll.Enabled = false;
+                        Program.FormMainInstance.programState = FormMain.ProgramState.ExtractingMetadata;
+                        Program.FormMainInstance.toolStripDropDownButtonStop.Enabled = true;
+                    }));
+
+                    int analyzedFileCount = 0;
+
+                    foreach (FilesItem item in urls)
+                    {
+                        diarioAnalyzer.CheckMalware(item.Path, (fileResult) =>
                         {
-                            Program.LogThis(new Log(Log.ModuleType.MetadataSearch, $"Malware analysis complete: {item.URL}.", Log.LogType.debug));
-                            TreeNode fileNode = Program.FormMainInstance.TreeViewMetadataSearchDocument(fileResult.FilePath);
-                            if (fileNode != null)
+                            if (String.IsNullOrEmpty(fileResult.Error))
                             {
-                                FilesItem file = fileNode.Tag as FilesItem;
-                                file.DiarioPrediction = fileResult.Prediction.ToString();
-                                if (fileResult.Completed)
+                                Program.LogThis(new Log(Log.ModuleType.MetadataSearch, $"Malware analysis complete: {item.URL}.", Log.LogType.debug));
+                                TreeNode fileNode = Program.FormMainInstance.TreeViewMetadataSearchDocument(fileResult.FilePath);
+                                if (fileNode != null)
                                 {
-                                    file.DiarioAnalyzed = true;
-                                    AddMalwareDocumentNodes(fileNode);
+                                    FilesItem file = fileNode.Tag as FilesItem;
+                                    file.DiarioPrediction = fileResult.Prediction.ToString();
+                                    if (fileResult.Completed)
+                                    {
+                                        file.DiarioAnalyzed = true;
+                                        AddMalwareDocumentNodes(fileNode);
+                                    }
+                                    listViewDocuments_Update(file);
                                 }
-                                listViewDocuments_Update(file);
                             }
-                        }
-                        else
-                        {
-                            Program.LogThis(new Log(Log.ModuleType.MetadataSearch, $"Error analyzing malware with Diario. Document: {item.URL}. {fileResult.Error}", Log.LogType.medium));
-                        }
-
-                        Interlocked.Increment(ref analyzedFileCount);
-
-                        Invoke(new MethodInvoker(delegate
-                        {
-                            if (analyzedFileCount >= urls.Count)
+                            else
                             {
-                                this.RestoreProgressBar("All documents were analyzed");
-                                Program.FormMainInstance.TreeView.GetNode(GUI.Navigation.Project.DocumentAnalysis.ToNavigationPath()).Expand();
+                                Program.LogThis(new Log(Log.ModuleType.MetadataSearch, $"Error analyzing malware with Diario. Document: {item.URL}. {fileResult.Error}", Log.LogType.medium));
                             }
-                            else if (!malwareAnalysisToken.IsCancellationRequested)
+
+                            Interlocked.Increment(ref analyzedFileCount);
+
+                            Invoke(new MethodInvoker(delegate
                             {
-                                Program.FormMainInstance.toolStripProgressBarDownload.Value = analyzedFileCount * 100 / urls.Count;
-                                Program.FormMainInstance.toolStripStatusLabelLeft.Text = $"Analyzing malware. Completed {analyzedFileCount} of {urls.Count} total files";
-                                Program.FormMainInstance.ReportProgress(analyzedFileCount, urls.Count);
-                            }
-                        }));
-                    }, malwareAnalysisToken.Token);
+                                if (analyzedFileCount >= urls.Count)
+                                {
+                                    this.RestoreProgressBar("All documents were analyzed");
+                                    Program.FormMainInstance.TreeView.GetNode(GUI.Navigation.Project.DocumentAnalysis.ToNavigationPath()).Expand();
+                                }
+                                else if (!malwareAnalysisToken.IsCancellationRequested)
+                                {
+                                    Program.FormMainInstance.toolStripProgressBarDownload.Value = analyzedFileCount * 100 / urls.Count;
+                                    Program.FormMainInstance.toolStripStatusLabelLeft.Text = $"Analyzing malware. Completed {analyzedFileCount} of {urls.Count} total files";
+                                    Program.FormMainInstance.ReportProgress(analyzedFileCount, urls.Count);
+                                }
+                            }));
+                        }, malwareAnalysisToken.Token);
+                    }
                 }
+            }
+            else
+            {
+                MessageBox.Show("Missing Diario API key or secret");
             }
         }
 

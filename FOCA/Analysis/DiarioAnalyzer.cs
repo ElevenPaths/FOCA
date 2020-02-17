@@ -8,38 +8,6 @@ using System.Threading.Tasks.Schedulers;
 
 namespace FOCA.Analysis
 {
-
-    public class DiarioFileAnalysis
-    {
-        public string FilePath { get; private set; }
-
-        public int Retries { get; set; }
-
-        public Action<DiarioFileAnalysis> Callback { get; set; }
-
-        public DiarioSDKNet.Diario.Prediction Prediction { get; set; }
-
-        public bool Completed { get; set; }
-
-        public string Error { get; set; }
-
-        public CancellationToken CancelToken { get; private set; }
-
-        public DiarioFileAnalysis(string file, Action<DiarioFileAnalysis> callback, CancellationToken token = default(CancellationToken))
-        {
-            if (String.IsNullOrWhiteSpace(file))
-                throw new ArgumentNullException(nameof(file));
-
-            if (callback == null)
-                throw new ArgumentNullException(nameof(callback));
-
-            this.FilePath = file;
-            this.Callback = callback;
-            this.Retries = 0;
-            this.CancelToken = token;
-        }
-    }
-
     public class DiarioAnalyzer
     {
         private const int MaxRetries = 3;
@@ -106,11 +74,17 @@ namespace FOCA.Analysis
                 }
                 else
                 {
+                    string fileHash;
+                    byte[] fileContent;
                     using (SHA256Managed sha256 = new SHA256Managed())
                     {
-                        byte[] fileContent = File.ReadAllBytes(file.FilePath);
-                        string fileHash = BitConverter.ToString(sha256.ComputeHash(fileContent)).Replace("-", "").ToLowerInvariant();
-                        BaseSDK.ApiResponse<dynamic> diarioResponse = this.sdk.Search(fileHash);
+                        fileContent = File.ReadAllBytes(file.FilePath);
+                        fileHash = BitConverter.ToString(sha256.ComputeHash(fileContent)).Replace("-", "").ToLowerInvariant();
+                    }
+
+                    BaseSDK.ApiResponse<dynamic> diarioResponse = this.sdk.Search(fileHash);
+                    if (diarioResponse != null)
+                    {
                         if (diarioResponse.Error != null)
                         {
                             //File not found
@@ -144,6 +118,11 @@ namespace FOCA.Analysis
                             file.Prediction = DiarioSDKNet.Diario.Prediction.Unknown;
                             file.Callback(file);
                         }
+                    }
+                    else
+                    {
+                        file.Completed = false;
+                        file.Callback(file);
                     }
                 }
             }

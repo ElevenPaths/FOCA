@@ -1,7 +1,7 @@
+using FOCA.Database.Controllers;
 using System;
 using System.ComponentModel;
 using System.Windows.Forms;
-using FOCA.Database.Controllers;
 
 namespace FOCA
 {
@@ -17,18 +17,20 @@ namespace FOCA
             var config = Program.cfgCurrent;
 
             updSimultaneousDownloads.Value = config.SimultaneousDownloads;
-            chkHEAD.Checked                = config.UseHead;
-            chkResolveHosts.Checked        = config.ResolveHost;
-            chkUseAllDNS.Checked           = config.UseAllDns;
-            updRecursivity.Value           = config.MaxRecursion;
+            chkHEAD.Checked = config.UseHead;
+            chkResolveHosts.Checked = config.ResolveHost;
+            chkUseAllDNS.Checked = config.UseAllDns;
+            updRecursivity.Value = config.MaxRecursion;
             tbDefaultDNSCacheSnooping.Text = config.DefaultDnsCacheSnooping;
-            updParallelDNS.Value           = config.ParallelDnsQueries;
-            txtGoogleApiKey.Text           = config.GoogleApiKey;
-            txtGoogleApiCx.Text            = config.GoogleApiCx;
-            txtShodanApiKey.Text           = config.ShodanApiKey;
-            txtBingApiKey.Text             = config.BingApiKey;
-            chkNetrange.Checked            = config.ScanNetranges255;
-            updSimultaneousTasks.Value     = config.NumberOfTasks;
+            updParallelDNS.Value = config.ParallelDnsQueries;
+            txtGoogleApiKey.Text = config.GoogleApiKey;
+            txtGoogleApiCx.Text = config.GoogleApiCx;
+            txtShodanApiKey.Text = config.ShodanApiKey;
+            txtBingApiKey.Text = config.BingApiKey;
+            chkNetrange.Checked = config.ScanNetranges255;
+            updSimultaneousTasks.Value = config.NumberOfTasks;
+            txtDiarioApiKey.Text = config.DiarioAPIKey;
+            txtDiarioSecret.Text = config.DiarioAPISecret;
         }
 
         private void buttonSave_Click(object sender, EventArgs e)
@@ -48,7 +50,9 @@ namespace FOCA
             config.BingApiKey = txtBingApiKey.Text;
             config.ScanNetranges255 = chkNetrange.Checked;
             config.NumberOfTasks = int.Parse(updSimultaneousTasks.Value.ToString());
-            
+            config.DiarioAPIKey = txtDiarioApiKey.Text;
+            config.DiarioAPISecret = txtDiarioSecret.Text;
+
             new ConfigurationController().Save(config);
 
             Program.cfgCurrent = config;
