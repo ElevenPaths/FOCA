@@ -184,7 +184,6 @@ namespace FOCA.Analysis.FingerPrinting
             if (sender is DomainsItem domain)
             {
                 //Solo se hace fingerPrinting a los dominios principales y alternativos
-                List<string> mainDomains = new List<string>();
                 if (string.IsNullOrEmpty(Program.data.Project.Domain))
                     return;
 

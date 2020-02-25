@@ -46,7 +46,6 @@ namespace FOCA.Analysis.FingerPrinting
                 return;
             }
 
-            StreamReader sr = new StreamReader(ns);
             StringBuilder sb = new StringBuilder();
 
             int size = 1024;

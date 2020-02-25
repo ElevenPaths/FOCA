@@ -325,7 +325,6 @@ namespace FOCA
             openFileDialogImport.FileName = "";
             if (openFileDialogImport.ShowDialog() == DialogResult.OK && (fileStream = openFileDialogImport.OpenFile()) != null)
             {
-                var fileName = openFileDialogImport.FileName;
                 using (fileStream)
                 {
                     var reader = new StreamReader(fileStream);

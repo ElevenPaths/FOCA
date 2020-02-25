@@ -6,17 +6,6 @@ namespace FOCA.Analysis.Pinger
 {
     static class Pinger
     {
-        public static bool IsIPAlive(string ip)
-        {
-            if (Functions.IsIP(ip))
-            {
-                IPAddress ipa;
-                if (IPAddress.TryParse(ip, out ipa))
-                    return IsIPAlive(ipa);
-            }
-            return false;
-        }
-
         public static bool IsIPAlive(IPAddress ip)
         {
             //Ignora las Ips privadas

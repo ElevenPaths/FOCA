@@ -108,14 +108,7 @@ namespace FOCA.Database.Entities
 
         public void AddLimit(Limits limit)
         {
-            var found = false;
-
-            foreach (var t in lstLimits.Where(t => t.Range == limit.Range))
-            {
-                found = true;
-            }
-
-            if (found == false)
+            if (!lstLimits.Any(t => t.Range == limit.Range))
                 lstLimits.Add(limit);
         }
 

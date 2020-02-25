@@ -41,7 +41,7 @@ namespace FOCA
 
 
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 MessageBox.Show("Error import plugin.");
             }

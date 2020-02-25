@@ -102,18 +102,4 @@ namespace FOCA.Database.Entities
             return Ip;
         }
     }
-
-
-    class DNSThread
-    {
-        public string dnsIp, host;
-        public DnsCache dnsCache;
-
-        public DNSThread(string dnsIp, string host, DnsCache dnsCache)
-        {
-            this.dnsIp = dnsIp;
-            this.host = host;
-            this.dnsCache = dnsCache;
-        }
-    }
 }
