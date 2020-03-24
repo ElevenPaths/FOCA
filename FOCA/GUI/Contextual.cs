@@ -692,16 +692,9 @@ namespace FOCA.GUI
 
             tsiRemoveAll.Click += delegate
             {
-                foreach (
-                    var computer in
-                        Program.data.computers.Items.Where(c => c.type == ComputersItem.Tipo.Server).ToList())
+                foreach (var computer in Program.data.computers.Items.Where(c => c.type == ComputersItem.Tipo.Server).ToList())
                 {
-                    var isRelationshipIP = false;
-                    foreach (var compIp in Program.data.computerIPs.Items.Where(compIp => compIp.Computer == computer))
-                    {
-                        isRelationshipIP = true;
-                    }
-                    if (!isRelationshipIP)
+                    if (!Program.data.computerIPs.Items.Any(compIp => compIp.Computer == computer))
                         Program.data.computers.Items.Remove(computer);
                 }
             };
@@ -1088,73 +1081,6 @@ namespace FOCA.GUI
 #endif
         }
 
-        public static void ShowDomainsDomainRelatedDomainsMenu(TreeNode tn, Control sourceControl)
-        {
-            var tsiExport = new ToolStripMenuItem("&Export") { Image = Resources.exportDomain };
-            var tsiAddAlternative = new ToolStripMenuItem("&Add as alternative domain")
-            {
-                Image = Resources.add1
-            };
-
-            tsiExport.Click += delegate
-            {
-                // ToDo
-            };
-
-            tsiAddAlternative.Click += delegate
-            {
-                Program.data.Project.AlternativeDomains.Add(tn.Text);
-                tn.Remove();
-            };
-
-            Program.FormMainInstance.contextMenu.Items.Add(tsiExport);
-            Program.FormMainInstance.contextMenu.Items.Add(new ToolStripSeparator());
-            Program.FormMainInstance.contextMenu.Items.Add(tsiAddAlternative);
-
-#if PLUGINS
-            if (Program.FormMainInstance.ManagePluginsApi.lstContextShowDomainsDomainRelatedDomainsMenu.Count <= 0)
-                return;
-            foreach (
-                var tsiPlugin in
-                    Program.FormMainInstance.ManagePluginsApi.lstContextShowDomainsDomainRelatedDomainsMenu.Select(
-                        pluginMenu => pluginMenu.item))
-            {
-                tsiPlugin.Tag = tn.Text;
-                Program.FormMainInstance.contextMenu.Items.Add(tsiPlugin);
-            }
-#endif
-        }
-
-        public static void ShowDomainsDomainRelatedDomainsItemMenu(TreeNode tn, Control sourceControl)
-        {
-            var tsiExport = new ToolStripMenuItem("&Export") { Image = Resources.exportDomain };
-
-            tsiExport.Click += delegate
-            {
-                var sfd = new SaveFileDialog();
-                if (sfd.ShowDialog() != DialogResult.OK) return;
-                var tnToExport = tn;
-                using (var sw = File.CreateText(sfd.FileName))
-                {
-                    var sb = new StringBuilder(GetNodeTextToExport(tnToExport));
-                    sw.WriteLine(sb.ToString());
-                }
-            };
-
-            Program.FormMainInstance.contextMenu.Items.Add(tsiExport);
-#if PLUGINS
-            if (Program.FormMainInstance.ManagePluginsApi.lstContextShowDomainsDomainRelatedDomainsItemMenu.Count <= 0)
-                return;
-            foreach (
-                var tsiPlugin in
-                    Program.FormMainInstance.ManagePluginsApi.lstContextShowDomainsDomainRelatedDomainsItemMenu.Select(
-                        pluginMenu => pluginMenu.item))
-            {
-                tsiPlugin.Tag = tn.Text;
-                Program.FormMainInstance.contextMenu.Items.Add(tsiPlugin);
-            }
-#endif
-        }
 
         public static void ShowMetadataMenu(TreeNode tn, Control sourceControl)
         {

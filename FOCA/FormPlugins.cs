@@ -1,8 +1,8 @@
+using FOCA.Plugins;
 using System;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows.Forms;
-using FOCA.Plugins;
 
 namespace FOCA
 {
@@ -41,9 +41,9 @@ namespace FOCA
 
 
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                MessageBox.Show("Error import plugin.");
+                MessageBox.Show("Error importing plugin.");
             }
         }
 

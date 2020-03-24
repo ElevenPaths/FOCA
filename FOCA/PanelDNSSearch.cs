@@ -326,7 +326,6 @@ namespace FOCA
         {
             try
             {
-                LinkSearcher searcher = (LinkSearcher)sender;
                 foreach (var group in e.Data.GroupBy(p => p.Host))
                 {
                     CancelIfSkipRequested();

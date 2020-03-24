@@ -310,10 +310,6 @@ namespace FOCA
             var someFileDownloaded = (from ListViewItem lvi in lv.Items select (FilesItem)lvi.Tag).Any(fi => fi != null && fi.Downloaded);
 
             if (!someFileDownloaded) return;
-
-            foreach (var fi in from ListViewItem lvi in lv.Items select (FilesItem)lvi.Tag into fi where fi != null && fi.Processed select fi)
-                break;
-
         }
 
         #region Menu Projects Events
@@ -817,7 +813,6 @@ namespace FOCA
         /// <returns>bool</returns>
         private bool IsDocumentNode(TreeNode nodeItem)
         {
-            TreeNode currentNode = nodeItem;
             TreeNode documentsNode = TreeView.GetNode(GUI.Navigation.Project.DocumentAnalysis.Files.ToNavigationPath());
             return nodeItem?.Parent?.Parent != null && (nodeItem.Parent.Parent == documentsNode || nodeItem.Parent.Parent.Parent?.Parent != null && nodeItem.Parent.Parent.Parent.Parent == documentsNode);
         }
@@ -1769,11 +1764,7 @@ namespace FOCA
 
                             if (fp is HTTP http)
                             {
-                                var ipMostradaFix = false;
-                                foreach (var item in panelInformation.lvwInformation.Groups["FingerPrintingHTTP"].Items.Cast<ListViewItem>().Where(item => item.Text == fp.Host + ":" + fp.Port))
-                                    ipMostradaFix = true;
-
-                                if (ipMostradaFix)
+                                if (panelInformation.lvwInformation.Groups["FingerPrintingHTTP"].Items.Cast<ListViewItem>().Any(item => item.Text == fp.Host + ":" + fp.Port))
                                     continue;
 
                                 panelInformation.lvwInformation.Groups.Add("FingerPrintingHTTP", "FingerPrinting - HTTP");
@@ -1797,11 +1788,7 @@ namespace FOCA
                             {
                                 if (fp is SMTP smtp)
                                 {
-                                    var ipMostradaFix = false;
-                                    foreach (ListViewItem item in panelInformation.lvwInformation.Groups["FingerPrintingSMTP"].Items.Cast<ListViewItem>().Where(item => item.Text == smtp.Host + ":" + smtp.Port))
-                                        ipMostradaFix = true;
-
-                                    if (ipMostradaFix)
+                                    if (panelInformation.lvwInformation.Groups["FingerPrintingSMTP"].Items.Cast<ListViewItem>().Any(item => item.Text == smtp.Host + ":" + smtp.Port))
                                         continue;
 
                                     panelInformation.lvwInformation.Groups.Add("FingerPrintingSMTP", "FingerPrinting - SMTP");
@@ -1813,11 +1800,7 @@ namespace FOCA
                                 }
                                 else if (fp is FTP ftp)
                                 {
-                                    var ipMostradaFix = false;
-                                    foreach (var item in panelInformation.lvwInformation.Groups["FingerPrintingFTP"].Items.Cast<ListViewItem>().Where(item => item.Text == ftp.Host + ":" + ftp.Port))
-                                        ipMostradaFix = true;
-
-                                    if (ipMostradaFix)
+                                    if (panelInformation.lvwInformation.Groups["FingerPrintingFTP"].Items.Cast<ListViewItem>().Any(item => item.Text == ftp.Host + ":" + ftp.Port))
                                         continue;
 
                                     panelInformation.lvwInformation.Groups.Add("FingerPrintingFTP", "FingerPrinting - FTP");
@@ -1829,11 +1812,7 @@ namespace FOCA
                                 }
                                 else if (fp is DNS dns)
                                 {
-                                    var ipMostradaFix = false;
-                                    foreach (var item in panelInformation.lvwInformation.Groups["FingerPrintingDNS"].Items.Cast<ListViewItem>().Where(item => item.Text == dns.Host + ":" + dns.Port))
-                                        ipMostradaFix = true;
-
-                                    if (ipMostradaFix)
+                                    if (panelInformation.lvwInformation.Groups["FingerPrintingDNS"].Items.Cast<ListViewItem>().Any(item => item.Text == dns.Host + ":" + dns.Port))
                                         continue;
 
                                     panelInformation.lvwInformation.Groups.Add("FingerPrintingDNS", "FingerPrinting - DNS");
@@ -2601,12 +2580,7 @@ namespace FOCA
 
                     if (fp is HTTP http)
                     {
-                        var ipMostradaFix = false;
-                        foreach (ListViewItem item in panelInformation.lvwInformation.Groups["FingerPrintingHTTP"].Items.Cast<ListViewItem>().Where(item => item.Text == http.Host + ":" + http.Port))
-                        {
-                            ipMostradaFix = true;
-                        }
-                        if (ipMostradaFix)
+                        if (panelInformation.lvwInformation.Groups["FingerPrintingHTTP"].Items.Cast<ListViewItem>().Any(item => item.Text == http.Host + ":" + http.Port))
                             continue;
 
                         lvi = panelInformation.lvwInformation.Items.Add(http.Host + ":" + http.Port);

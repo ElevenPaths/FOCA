@@ -110,7 +110,6 @@ namespace MetadataExtractCore.Extractors
                     //Obtiene el nombre de las impresoras y los links de los documentos xlsx
                     else if (strExtlo == ".xlsx")
                     {
-                        List<Uri> lstFiles = new List<Uri>();
                         foreach (PackagePart pp in pZip.GetParts())
                         {
                             if (pp.Uri.ToString().StartsWith("/xl/printerSettings/printerSettings"))
@@ -138,7 +137,6 @@ namespace MetadataExtractCore.Extractors
                     }
                     else if (strExtlo == ".pptx")
                     {
-                        List<Uri> lstFiles = new List<Uri>();
                         foreach (PackagePart pp in pZip.GetParts())
                         {
                             if (pp.Uri.ToString().StartsWith("/ppt/slides/_rels/"))
@@ -474,14 +472,6 @@ namespace MetadataExtractCore.Extractors
                             {
                                 try
                                 {
-                                    Uri u = new Uri(href);
-                                    /*
-                                    if (u.HostNameType != UriHostNameType.Dns)
-                                    {
-                                        if (!links.Contains(href))
-                                            links.Add(href);
-                                    }
-                                    */
                                     if (!links.Contains(href))
                                         links.Add(href);
                                 }
