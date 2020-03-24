@@ -472,13 +472,6 @@ namespace MetadataExtractCore.Extractors
                             {
                                 try
                                 {
-                                    /*
-                                    if (u.HostNameType != UriHostNameType.Dns)
-                                    {
-                                        if (!links.Contains(href))
-                                            links.Add(href);
-                                    }
-                                    */
                                     if (!links.Contains(href))
                                         links.Add(href);
                                 }

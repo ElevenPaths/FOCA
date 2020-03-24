@@ -152,6 +152,7 @@ namespace MetadataExtractCore.Extractors
                     table.Seek(dir, SeekOrigin.Begin);
                     bool unicode = br1.ReadUInt16() == 0xFFFF;
                     int nro_strings = br1.ReadInt16();
+                    int len_extradata = br1.ReadInt32();
 
                     if (nro_strings > 0)
                     {
@@ -247,6 +248,7 @@ namespace MetadataExtractCore.Extractors
                         br = new BinaryReader(table);
                         Boolean unicode = br.ReadUInt16() == 0xFFFF;
                         UInt32 nroCadenas = br.ReadUInt16();
+                        UInt32 extraDataTable = br.ReadUInt16();
                         for (int i = 0; i < nroCadenas; i += 2)
                         {
 
@@ -390,6 +392,7 @@ namespace MetadataExtractCore.Extractors
                         return;
                     WordDocument.Seek(0x18, SeekOrigin.Begin);
                     BinaryReader br = new BinaryReader(WordDocument);
+                    Int32 fcMin = br.ReadInt32();
                     Int32 fcMac = br.ReadInt32();
                     Int32 FKPStart = fcMac % 0x200 == 0 ? fcMac : (fcMac - fcMac % 0x200) + 0x200;
                     WordDocument.Seek(FKPStart, SeekOrigin.Begin);
@@ -409,6 +412,7 @@ namespace MetadataExtractCore.Extractors
                                     stmData.Seek(PICOffset, SeekOrigin.Begin);
                                     BinaryReader brData = new BinaryReader(stmData);
                                     UInt32 PICLength = brData.ReadUInt32();
+                                    long posOri = stmData.Position;
                                     int bufferLen = PICLength < stmData.Length - stmData.Position ? (int)PICLength - 4 : (int)(stmData.Length - stmData.Position);
                                     if (bufferLen <= 0) continue;
                                     byte[] bufferPIC = brData.ReadBytes(bufferLen);
