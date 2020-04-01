@@ -2745,6 +2745,7 @@ namespace FOCA
                         btnSearch.Enabled = false;
                         btnSearchAll.Enabled = false;
                         Program.FormMainInstance.programState = FormMain.ProgramState.ExtractingMetadata;
+                        Program.FormMainInstance.toolStripStatusLabelLeft.Text = $"Starting DIARIO malware analysis";
                         Program.FormMainInstance.toolStripDropDownButtonStop.Enabled = true;
                     }));
 
@@ -2772,7 +2773,7 @@ namespace FOCA
                             }
                             else
                             {
-                                Program.LogThis(new Log(Log.ModuleType.MetadataSearch, $"Error analyzing malware with Diario. Document: {item.URL}. {fileResult.Error}", Log.LogType.medium));
+                                Program.LogThis(new Log(Log.ModuleType.MetadataSearch, $"Error analyzing malware with DIARIO. {fileResult.Error}. Document: {item.URL}", Log.LogType.medium));
                             }
 
                             Interlocked.Increment(ref analyzedFileCount);
@@ -2797,7 +2798,7 @@ namespace FOCA
             }
             else
             {
-                MessageBox.Show("Missing Diario API key or secret");
+                MessageBox.Show("Missing DIARIO API key or secret");
             }
         }
 

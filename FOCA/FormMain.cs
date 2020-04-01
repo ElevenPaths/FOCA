@@ -884,7 +884,7 @@ namespace FOCA
                     lvi.SubItems.Add(Functions.GetFileSizeAsString(currentFile.Size));
                     lvi.Group = panelInformation.lvwInformation.Groups["File Information"];
 
-                    panelInformation.lvwInformation.Groups.Add("MalwareAnalysis", "Malware Analysis (Powered by Diario)");
+                    panelInformation.lvwInformation.Groups.Add("MalwareAnalysis", "Malware Analysis (Powered by DIARIO)");
                     if (currentFile.DiarioAnalyzed)
                     {
                         NewItemListView("Prediction", currentFile.DiarioPrediction, "MalwareAnalysis");
@@ -1159,7 +1159,7 @@ namespace FOCA
 
                     if (currentFile != null)
                     {
-                        panelInformation.lvwInformation.Groups.Add("MalwareAnalysis", "Malware Analysis (Powered by Diario)");
+                        panelInformation.lvwInformation.Groups.Add("MalwareAnalysis", "Malware Analysis (Powered by DIARIO)");
                         NewItemListView("Prediction", currentFile.DiarioPrediction, "MalwareAnalysis");
                     }
                 }

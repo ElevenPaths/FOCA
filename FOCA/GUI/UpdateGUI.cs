@@ -638,7 +638,7 @@ namespace FOCA.GUI
                 var servers = new ConcurrentBag<ServersItem>();
                 tn_servers.Tag = servers;
 
-                tn_data = nodeDocumentAnalysis.Nodes.Add(Navigation.Project.DocumentAnalysis.MalwareSummary.Key, "Malware Summary (Diario)");
+                tn_data = nodeDocumentAnalysis.Nodes.Add(Navigation.Project.DocumentAnalysis.MalwareSummary.Key, "Malware Summary (DIARIO)");
                 tn_data.ImageIndex =
                 tn_data.SelectedImageIndex = 123;
             }

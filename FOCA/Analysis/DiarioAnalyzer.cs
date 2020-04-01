@@ -14,6 +14,7 @@ namespace FOCA.Analysis
         private const int FileNotFoundErrorCode = 406;
         private const string Analyzed = "A";
         private const string Processing = "P";
+        private const string Queued = "Q";
         private const string Failed = "F";
 
         private static readonly TimeSpan DelayBetweenRetries = TimeSpan.FromSeconds(3);
@@ -74,27 +75,30 @@ namespace FOCA.Analysis
             {
                 if (file.Retries > MaxRetries || file.CancelToken.IsCancellationRequested)
                 {
-                    file.Completed = true;
+                    file.Completed = false;
+                    file.Error = file.Retries > MaxRetries ? "Too many retries. Try again later" : "Operation canceled";
                     file.Callback(file);
                 }
                 else
                 {
-                    string fileHash;
-                    byte[] fileContent;
-                    using (SHA256Managed sha256 = new SHA256Managed())
+                    byte[] fileContent = null;
+                    if (String.IsNullOrWhiteSpace(file.Sha256Hash))
                     {
-                        fileContent = File.ReadAllBytes(file.FilePath);
-                        fileHash = BitConverter.ToString(sha256.ComputeHash(fileContent)).Replace("-", "").ToLowerInvariant();
+                        using (SHA256Managed sha256 = new SHA256Managed())
+                        {
+                            fileContent = File.ReadAllBytes(file.FilePath);
+                            file.Sha256Hash = BitConverter.ToString(sha256.ComputeHash(fileContent)).Replace("-", "").ToLowerInvariant();
+                        }
                     }
 
-                    BaseSDK.ApiResponse<dynamic> diarioResponse = this.sdk.Search(fileHash);
+                    BaseSDK.ApiResponse<dynamic> diarioResponse = this.sdk.Search(file.Sha256Hash);
                     if (diarioResponse != null)
                     {
                         if (diarioResponse.Error != null)
                         {
                             if (diarioResponse.Error?.Code == FileNotFoundErrorCode)
                             {
-                                diarioResponse = this.sdk.Upload(fileContent, Path.GetFileName(file.FilePath));
+                                diarioResponse = this.sdk.Upload(fileContent ?? File.ReadAllBytes(file.FilePath), Path.GetFileName(file.FilePath));
                                 file.Retries++;
                                 await Task.Delay(DelayBetweenRetries);
                                 this.CheckMalware(file);
@@ -111,7 +115,7 @@ namespace FOCA.Analysis
                             file.Completed = true;
                             file.Callback(file);
                         }
-                        else if (diarioResponse.Data?["status"] == Processing)
+                        else if (diarioResponse.Data?["status"] == Processing || diarioResponse.Data?["status"] == Queued)
                         {
                             file.Retries++;
                             await Task.Delay(DelayBetweenRetries);
@@ -119,6 +123,13 @@ namespace FOCA.Analysis
                         }
                         else if (diarioResponse.Data?["status"] == Failed)
                         {
+                            file.Error = "The analysis failed";
+                            file.Prediction = DiarioSDKNet.Diario.Prediction.Unknown;
+                            file.Callback(file);
+                        }
+                        else
+                        {
+                            file.Error = "Unknown status";
                             file.Prediction = DiarioSDKNet.Diario.Prediction.Unknown;
                             file.Callback(file);
                         }

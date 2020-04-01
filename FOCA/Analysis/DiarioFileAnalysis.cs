@@ -17,6 +17,8 @@ namespace FOCA.Analysis
 
         public string Error { get; set; }
 
+        public string Sha256Hash { get; set; }
+
         public CancellationToken CancelToken { get; private set; }
 
         public DiarioFileAnalysis(string file, Action<DiarioFileAnalysis> callback, CancellationToken token = default(CancellationToken))
