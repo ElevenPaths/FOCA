@@ -2530,11 +2530,6 @@ namespace FOCA
                 this.RestoreProgressBar("All documents have been downloaded");
                 Program.LogThis(new Log(Log.ModuleType.MetadataSearch, "All documents have been downloaded", Log.LogType.debug));
                 Program.FormMainInstance.TreeView.GetNode(GUI.Navigation.Project.DocumentAnalysis.ToNavigationPath()).Expand();
-
-                //if (this.IsHandleCreated)
-                //{
-                //    Invoke(new MethodInvoker(() => { Program.FormMainInstance.toolStripDropDownButtonStop.Enabled = false; }));
-                //}
             }
             else if (totalFiles > 0)
             {

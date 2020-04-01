@@ -11,6 +11,11 @@ namespace FOCA.Analysis
     public class DiarioAnalyzer
     {
         private const int MaxRetries = 3;
+        private const int FileNotFoundErrorCode = 406;
+        private const string Analyzed = "A";
+        private const string Processing = "P";
+        private const string Failed = "F";
+
         private static readonly TimeSpan DelayBetweenRetries = TimeSpan.FromSeconds(3);
         private DiarioSDKNet.Diario sdk;
 
@@ -87,8 +92,7 @@ namespace FOCA.Analysis
                     {
                         if (diarioResponse.Error != null)
                         {
-                            //File not found
-                            if (diarioResponse.Error?.Code == 406)
+                            if (diarioResponse.Error?.Code == FileNotFoundErrorCode)
                             {
                                 diarioResponse = this.sdk.Upload(fileContent, Path.GetFileName(file.FilePath));
                                 file.Retries++;
@@ -101,19 +105,19 @@ namespace FOCA.Analysis
                                 file.Callback(file);
                             }
                         }
-                        else if (diarioResponse.Data?["status"] == "A")
+                        else if (diarioResponse.Data?["status"] == Analyzed)
                         {
                             file.Prediction = DiarioSDKNet.Diario.GetPredictonFromString(diarioResponse.Data["prediction"]);
                             file.Completed = true;
                             file.Callback(file);
                         }
-                        else if (diarioResponse.Data?["status"] == "P")
+                        else if (diarioResponse.Data?["status"] == Processing)
                         {
                             file.Retries++;
                             await Task.Delay(DelayBetweenRetries);
                             this.CheckMalware(file);
                         }
-                        else if (diarioResponse.Data?["status"] == "F")
+                        else if (diarioResponse.Data?["status"] == Failed)
                         {
                             file.Prediction = DiarioSDKNet.Diario.Prediction.Unknown;
                             file.Callback(file);

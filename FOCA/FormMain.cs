@@ -1406,21 +1406,21 @@ namespace FOCA
 
                 try
                 {
-                    PictureBox pc = new PictureBox();
-                    using (var ms = new MemoryStream(exifMetadata.Thumbnail))
+                    PictureBox pictureBox = new PictureBox();
+                    using (MemoryStream ms = new MemoryStream(exifMetadata.Thumbnail))
                     {
-                        pc.Image = new Bitmap(ms);
+                        pictureBox.Image = new Bitmap(ms);
                     }
 
-                    pc.Height = pc.Image.Height;
+                    pictureBox.Height = pictureBox.Image.Height;
                     panelInformation.lvwInformation.Groups.Add("Thumbnail", "Thumbnail");
-                    var lvi = panelInformation.lvwInformation.Items.Add("Picture");
+                    ListViewItem lvi = panelInformation.lvwInformation.Items.Add("Picture");
                     lvi.SubItems.Add(string.Empty);
                     lvi.Group = panelInformation.lvwInformation.Groups["Thumbnail"];
-                    panelInformation.lvwInformation.AddEmbeddedControl(pc, 1, lvi.Index, DockStyle.None);
+                    panelInformation.lvwInformation.AddEmbeddedControl(pictureBox, 1, lvi.Index, DockStyle.None);
 
-                    var itemHeight = lvi.GetBounds(ItemBoundsPortion.Entire).Height;
-                    for (var i = itemHeight; i < pc.Height; i += itemHeight)
+                    int itemHeight = lvi.GetBounds(ItemBoundsPortion.Entire).Height;
+                    for (int i = itemHeight; i < pictureBox.Height; i += itemHeight)
                     {
                         lvi = panelInformation.lvwInformation.Items.Add("");
                         lvi.Group = panelInformation.lvwInformation.Groups["Thumbnail"];
