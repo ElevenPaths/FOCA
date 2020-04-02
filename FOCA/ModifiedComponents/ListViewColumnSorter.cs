@@ -51,18 +51,18 @@ namespace FOCA.Search
             {
                 compareResult = ((FilesItem)listviewX.Tag).Size - ((FilesItem)listviewY.Tag).Size;
             }
-            else if (SortColumn == 7)
+            else if (SortColumn == 8)
             {
-                if (listviewX.SubItems[7].Text == "-" && listviewY.SubItems[7].Text == "-")
+                if (listviewX.SubItems[8].Text == "-" && listviewY.SubItems[8].Text == "-")
                     return 0;
-                else if (listviewX.SubItems[7].Text != "-" && listviewY.SubItems[7].Text == "-")
+                else if (listviewX.SubItems[8].Text != "-" && listviewY.SubItems[8].Text == "-")
                     return -1;
-                else if (listviewX.SubItems[7].Text == "-" && listviewY.SubItems[7].Text != "-")
+                else if (listviewX.SubItems[8].Text == "-" && listviewY.SubItems[8].Text != "-")
                     return 1;
                 else
                 {
-                    DateTime d1 = DateTime.Parse(listviewX.SubItems[7].Text);
-                    DateTime d2 = DateTime.Parse(listviewY.SubItems[7].Text);
+                    DateTime d1 = DateTime.Parse(listviewX.SubItems[8].Text);
+                    DateTime d2 = DateTime.Parse(listviewY.SubItems[8].Text);
                     if (d1 == d2)
                         compareResult = 0;
                     else if (d1 > d2)
