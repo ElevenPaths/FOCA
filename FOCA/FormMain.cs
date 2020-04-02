@@ -1365,8 +1365,7 @@ namespace FOCA
 
                 panelInformation.lvwInformation.Groups.Add("MalwareDocuments", "Malware Documents");
                 panelInformation.lvwInformation.Groups.Add("GoodwareDocuments", "Goodware Documents");
-                panelInformation.lvwInformation.Groups.Add("AnalyzePending", "Pending Analysis");
-                foreach (var item in Program.data.files.Items)
+                foreach (FilesItem item in Program.data.files.Items)
                 {
                     if (item.DiarioAnalyzed)
                     {
@@ -1374,14 +1373,10 @@ namespace FOCA
                         {
                             NewItemListView("Url", item.URL, "MalwareDocuments");
                         }
-                        else if (item.DiarioPrediction == "Goodware")
+                        else if (item.DiarioPrediction == "Goodware" || item.DiarioPrediction == "NoMacros")
                         {
                             NewItemListView("Url", item.URL, "GoodwareDocuments");
                         }
-                    }
-                    else
-                    {
-                        NewItemListView("Url", item.URL, "AnalyzePending");
                     }
                 }
             }

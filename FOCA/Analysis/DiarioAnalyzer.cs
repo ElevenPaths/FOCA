@@ -10,14 +10,14 @@ namespace FOCA.Analysis
 {
     public class DiarioAnalyzer
     {
-        private const int MaxRetries = 3;
+        private const int MaxRetries = 10;
         private const int FileNotFoundErrorCode = 406;
         private const string Analyzed = "A";
         private const string Processing = "P";
         private const string Queued = "Q";
         private const string Failed = "F";
 
-        private static readonly TimeSpan DelayBetweenRetries = TimeSpan.FromSeconds(3);
+        private static readonly TimeSpan DelayBetweenRetries = TimeSpan.FromSeconds(2);
         private DiarioSDKNet.Diario sdk;
 
         private TaskScheduler currentScheduler;
@@ -75,7 +75,6 @@ namespace FOCA.Analysis
             {
                 if (file.Retries > MaxRetries || file.CancelToken.IsCancellationRequested)
                 {
-                    file.Completed = false;
                     file.Error = file.Retries > MaxRetries ? "Too many retries. Try again later" : "Operation canceled";
                     file.Callback(file);
                 }
@@ -136,13 +135,14 @@ namespace FOCA.Analysis
                     }
                     else
                     {
-                        file.Completed = false;
+                        file.Error = "No response from DIARIO service";
                         file.Callback(file);
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                file.Error = e.Message;
                 file.Completed = false;
                 file.Callback(file);
             }

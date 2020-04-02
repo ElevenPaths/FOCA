@@ -190,19 +190,19 @@ namespace FOCA
 
                 {//All items
                     IEnumerable<FilesItem> allFiles = (from ListViewItem lvi in lv.Items where lvi.Tag != null select (FilesItem)lvi.Tag);
-                    bool someFileDownloadedAndNotProcessed = allFiles.Any(fi => fi.Downloaded && !fi.MetadataExtracted && fi.Size > 0);
+                    bool someFileDownloadedAndNotMetadataProcessed = allFiles.Any(fi => fi.Downloaded && !fi.MetadataExtracted && fi.Size > 0);
                     bool someFilePendingToDownload = allFiles.Any(fi => !fi.Downloaded || !File.Exists(fi.Path));
-                    bool someFileDownloadedAndProcessed = (from ListViewItem lvi in lv.Items where lvi.Tag != null select (FilesItem)lvi.Tag).Any(p => p.Downloaded && p.MetadataExtracted);
-                    bool someFileDownloadedAndNotMalwareAnalyzed = (from ListViewItem lvi in lv.Items where lvi.Tag != null select (FilesItem)lvi.Tag).Any(fi => fi.Downloaded && !fi.DiarioAnalyzed && fi.Size > 0 && DiarioAnalyzer.IsSupportedExtension(fi.Ext));
+                    bool someFileDownloadedAndMetadataProcessed = allFiles.Any(p => p.Downloaded && p.MetadataExtracted);
+                    bool someFileDownloadedAndNotMalwareAnalyzed = allFiles.Any(fi => fi.Downloaded && !fi.DiarioAnalyzed && fi.Size > 0 && DiarioAnalyzer.IsSupportedExtension(fi.Ext));
 
                     this.toolStripMenuItemDownloadAll.Enabled = someFilePendingToDownload;
-                    this.toolStripMenuItemExtractAll.Enabled = someFileDownloadedAndNotProcessed;
+                    this.toolStripMenuItemExtractAll.Enabled = someFileDownloadedAndNotMetadataProcessed;
                     this.toolStripMenuItemDiarioAll.Enabled = someFileDownloadedAndNotMalwareAnalyzed;
                     this.toolStripMenuItemDeleteAll.Enabled = allFiles.Any();
                     this.toolStripMenuItemStopAll.Visible = downloadQueue.Count > 0 || this.downloadingFiles.Count > 0;
 
                     //Validate if the thread for Analysis is running.
-                    this.toolStripMenuItemAnalyzeAll.Enabled = someFileDownloadedAndProcessed && (Program.FormMainInstance.panelMetadataSearch.Analysis == null || !Program.FormMainInstance.panelMetadataSearch.Analysis.IsAlive);
+                    this.toolStripMenuItemAnalyzeAll.Enabled = someFileDownloadedAndMetadataProcessed && (Program.FormMainInstance.panelMetadataSearch.Analysis == null || !Program.FormMainInstance.panelMetadataSearch.Analysis.IsAlive);
                 }
             }
         }
@@ -2726,7 +2726,7 @@ namespace FOCA
             if (!String.IsNullOrWhiteSpace(Program.cfgCurrent.DiarioAPIKey) && !String.IsNullOrWhiteSpace(Program.cfgCurrent.DiarioAPISecret))
             {
                 DiarioAnalyzer diarioAnalyzer = new DiarioAnalyzer(Program.cfgCurrent.DiarioAPIKey, Program.cfgCurrent.DiarioAPISecret);
-                IList<FilesItem> urls = selectedItems.Where(f => f != null && f.Downloaded && !f.DiarioAnalyzed && DiarioAnalyzer.IsSupportedExtension(f.Ext)).ToList();
+                IList<FilesItem> urls = selectedItems.Where(f => f != null && f.Downloaded && f.Size > 0 && !f.DiarioAnalyzed && DiarioAnalyzer.IsSupportedExtension(f.Ext)).ToList();
 
                 if (malwareAnalysisToken == null || malwareAnalysisToken.IsCancellationRequested)
                     malwareAnalysisToken = new CancellationTokenSource();

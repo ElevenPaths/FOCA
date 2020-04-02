@@ -33,6 +33,7 @@ namespace FOCA.Analysis
             this.Callback = callback;
             this.Retries = 0;
             this.CancelToken = token;
+            this.Completed = false;
         }
     }
 }
