@@ -1363,24 +1363,22 @@ namespace FOCA
             {
                 InitializeInformationPanel();
 
-                panelInformation.lvwInformation.Groups.Add("MalwareDocuments", "Malware Documents");
-                panelInformation.lvwInformation.Groups.Add("GoodwareDocuments", "Goodware Documents");
-                foreach (FilesItem item in Program.data.files.Items)
+                panelInformation.lvwInformation.Groups.Add("MalwareDocuments", "Malware documents");
+                panelInformation.lvwInformation.Groups.Add("GoodwareDocuments", "Documents with no malware detected");
+                foreach (FilesItem item in Program.data.files.Items.Where(p => p.DiarioAnalyzed))
                 {
-                    if (item.DiarioAnalyzed)
+                    if (item.DiarioPrediction == "Malware")
                     {
-                        if (item.DiarioPrediction == "Malware")
-                        {
-                            NewItemListView("Url", item.URL, "MalwareDocuments");
-                        }
-                        else if (item.DiarioPrediction == "Goodware" || item.DiarioPrediction == "NoMacros")
-                        {
-                            NewItemListView("Url", item.URL, "GoodwareDocuments");
-                        }
+                        NewItemListView(item.DiarioPrediction, item.URL, "MalwareDocuments");
+                    }
+                    else if (item.DiarioPrediction == "Goodware" || item.DiarioPrediction == "NoMacros")
+                    {
+                        NewItemListView(item.DiarioPrediction, item.URL, "GoodwareDocuments");
                     }
                 }
             }
         }
+
         private void ShowEXIFPanelInformation(FileMetadata exifMetadata)
         {
             InitializePanelInformation();
