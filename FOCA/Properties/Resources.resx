@@ -331,4 +331,13 @@
   <data name="extractMetadata" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\NewFoca\contextual\extractMetadata.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="download" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\NewFoca\contextual\download.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="diario_logo_25" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\NewFoca\Arbol lateral\diario_logo_25.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="diario_logo_37" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\NewFoca\contextual\diario_logo_37.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
 </root>

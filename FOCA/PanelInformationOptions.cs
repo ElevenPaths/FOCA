@@ -85,7 +85,7 @@ namespace FOCA
                                 Ext = fileExtension,
                                 URL = url.ToString(),
                                 Downloaded = false,
-                                Processed = false,
+                                MetadataExtracted = false,
                                 Date = DateTime.MinValue,
                                 ModifiedDate = DateTime.MinValue,
                                 Path = string.Empty,

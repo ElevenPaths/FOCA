@@ -1,6 +1,6 @@
-using System;
 using FOCA.ModifiedComponents;
 using Newtonsoft.Json;
+using System;
 
 namespace FOCA.Database.Entities
 {
@@ -83,6 +83,8 @@ namespace FOCA.Database.Entities
         public DateTime Date { get; set; } = DateTime.Now;
         public int Size { get; set; }
         public bool Downloaded { get; set; }
-        public bool Processed { get; set; }
+        public bool MetadataExtracted { get; set; }
+        public bool DiarioAnalyzed { get; set; }
+        public string DiarioPrediction { get; set; } = "Unanalyzed";
     }
 }

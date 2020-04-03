@@ -18,5 +18,6 @@
       <Passwords/>
       <Servers/>
     </MetadataSummary>
+    <MalwareSummary/>
   </DocumentAnalysis>
 </Project>

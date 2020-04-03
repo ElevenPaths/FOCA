@@ -54,17 +54,20 @@ namespace FOCA
             this.columnHeaderDownload = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeaderDownloadDate = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeaderSize = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeaderAnalyzed = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeaderMetadataExtracted = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeaderMalwareAnalyzed = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeaderModifiedDate = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.contextMenuStripLinks = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.toolStripMenuItemDownload = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItemExtractMetadata = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItemDiario = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItemDelete = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripMenuItemStopAll = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItemDownloadAll = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItemExtractAll = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItemAnalyzeAll = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItemDiarioAll = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItemDeleteAll = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator6 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripMenuItemAddFile = new System.Windows.Forms.ToolStripMenuItem();
@@ -352,7 +355,8 @@ namespace FOCA
             this.columnHeaderDownload,
             this.columnHeaderDownloadDate,
             this.columnHeaderSize,
-            this.columnHeaderAnalyzed,
+            this.columnHeaderMetadataExtracted,
+            this.columnHeaderMalwareAnalyzed,
             this.columnHeaderModifiedDate});
             this.listViewDocuments.ContextMenuStrip = this.contextMenuStripLinks;
             this.listViewDocuments.ForeColor = System.Drawing.SystemColors.WindowText;
@@ -399,10 +403,15 @@ namespace FOCA
             this.columnHeaderSize.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.columnHeaderSize.Width = 62;
             // 
-            // columnHeaderAnalyzed
+            // columnHeaderMetadataExtracted
             // 
-            this.columnHeaderAnalyzed.Text = "Analyzed";
-            this.columnHeaderAnalyzed.Width = 55;
+            this.columnHeaderMetadataExtracted.Text = "Metadata Extracted";
+            this.columnHeaderMetadataExtracted.Width = 80;
+            // 
+            // columnHeaderMalwareAnalyzed
+            // 
+            this.columnHeaderMalwareAnalyzed.Text = "Malware Analyzed";
+            this.columnHeaderMalwareAnalyzed.Width = 80;
             // 
             // columnHeaderModifiedDate
             // 
@@ -415,12 +424,14 @@ namespace FOCA
             this.contextMenuStripLinks.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripMenuItemDownload,
             this.toolStripMenuItemExtractMetadata,
+            this.toolStripMenuItemDiario,
             this.toolStripMenuItemDelete,
             this.toolStripSeparator5,
             this.toolStripMenuItemStopAll,
             this.toolStripMenuItemDownloadAll,
             this.toolStripMenuItemExtractAll,
             this.toolStripMenuItemAnalyzeAll,
+            this.toolStripMenuItemDiarioAll,
             this.toolStripMenuItemDeleteAll,
             this.toolStripSeparator6,
             this.toolStripMenuItemAddFile,
@@ -429,7 +440,7 @@ namespace FOCA
             this.toolStripSeparator7,
             this.toolStripMenuItemLinks});
             this.contextMenuStripLinks.Name = "contextMenuStripEnlaces";
-            this.contextMenuStripLinks.Size = new System.Drawing.Size(194, 382);
+            this.contextMenuStripLinks.Size = new System.Drawing.Size(194, 464);
             this.contextMenuStripLinks.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStripLinks_Opening);
             // 
             // toolStripMenuItemDownload
@@ -447,6 +458,14 @@ namespace FOCA
             this.toolStripMenuItemExtractMetadata.Size = new System.Drawing.Size(193, 30);
             this.toolStripMenuItemExtractMetadata.Text = "Extract &Metadata";
             this.toolStripMenuItemExtractMetadata.Click += new System.EventHandler(this.toolStripMenuItemExtractMetadata_Click);
+            // 
+            // toolStripMenuItemDiario
+            // 
+            this.toolStripMenuItemDiario.Image = global::FOCA.Properties.Resources.diario_logo_37;
+            this.toolStripMenuItemDiario.Name = "toolStripMenuItemDiario";
+            this.toolStripMenuItemDiario.Size = new System.Drawing.Size(193, 30);
+            this.toolStripMenuItemDiario.Text = "Analyze Malware";
+            this.toolStripMenuItemDiario.Click += new System.EventHandler(this.toolStripMenuItemDiario_Click);
             // 
             // toolStripMenuItemDelete
             // 
@@ -494,6 +513,14 @@ namespace FOCA
             this.toolStripMenuItemAnalyzeAll.Size = new System.Drawing.Size(193, 30);
             this.toolStripMenuItemAnalyzeAll.Text = "Analyze All Metadata";
             this.toolStripMenuItemAnalyzeAll.Click += new System.EventHandler(this.analyzeMetadataToolStripMenuItem_Click);
+            // 
+            // toolStripMenuItemDiarioAll
+            // 
+            this.toolStripMenuItemDiarioAll.Image = global::FOCA.Properties.Resources.diario_logo_37;
+            this.toolStripMenuItemDiarioAll.Name = "toolStripMenuItemDiarioAll";
+            this.toolStripMenuItemDiarioAll.Size = new System.Drawing.Size(193, 30);
+            this.toolStripMenuItemDiarioAll.Text = "Analyze All Malware";
+            this.toolStripMenuItemDiarioAll.Click += new System.EventHandler(this.toolStripMenuItemDiarioAll_Click);
             // 
             // toolStripMenuItemDeleteAll
             // 
@@ -631,7 +658,7 @@ namespace FOCA
         private System.Windows.Forms.ColumnHeader columnHeaderDownload;
         private System.Windows.Forms.ColumnHeader columnHeaderDownloadDate;
         private System.Windows.Forms.ColumnHeader columnHeaderSize;
-        private System.Windows.Forms.ColumnHeader columnHeaderAnalyzed;
+        private System.Windows.Forms.ColumnHeader columnHeaderMetadataExtracted;
         private System.Windows.Forms.ColumnHeader columnHeaderModifiedDate;
         private System.Windows.Forms.PictureBox picFOCA;
         private System.Windows.Forms.FolderBrowserDialog fbdMain;
@@ -659,5 +686,8 @@ namespace FOCA
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemOpenInBrowser;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemCopyToClipboard;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemStopAll;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemDiario;
+        private System.Windows.Forms.ColumnHeader columnHeaderMalwareAnalyzed;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemDiarioAll;
     }
 }

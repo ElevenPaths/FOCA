@@ -58,7 +58,7 @@ namespace FOCA
                                                                   F =>
                                                                       F.URL.Equals(lstView.SelectedItems[0].Text,
                                                                           StringComparison.OrdinalIgnoreCase) &&
-                                                                      F.Processed);
+                                                                      F.MetadataExtracted);
         }
 
         private void viewDownloadedDocumentToolStripMenuItem_Click(object sender, EventArgs e)
@@ -66,12 +66,12 @@ namespace FOCA
             if (!Program.data.files.Items.Any(
                 F =>
                     string.Equals(F.URL, lstView.SelectedItems[0].Text, StringComparison.OrdinalIgnoreCase) &&
-                    F.Processed)) return;
+                    F.MetadataExtracted)) return;
             var fi =
                 Program.data.files.Items.First(
                     F =>
                         string.Equals(F.URL, lstView.SelectedItems[0].Text, StringComparison.OrdinalIgnoreCase) &&
-                        F.Processed);
+                        F.MetadataExtracted);
 
             BringToFront();
             var tnSearched = Program.FormMainInstance.TreeViewMetadataSearchDocument(fi.Path);

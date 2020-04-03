@@ -575,16 +575,18 @@ namespace FOCA.GUI
         /// <summary>
         /// Create metadata nodes.
         /// </summary>
-        private static void CreateMetadataNodes()
+        private static void CreateDocumentAnalysisNodes()
         {
             if (treeView.GetNode(Navigation.Project.DocumentAnalysis.ToNavigationPath()).Nodes.Count == 0)
             {
-                TreeNode treeViewMetadata = treeView.GetNode(Navigation.Project.DocumentAnalysis.ToNavigationPath());
-                treeViewMetadata.Nodes.Clear();
-                TreeNode tn_documents = treeViewMetadata.Nodes.Add(Navigation.Project.DocumentAnalysis.Files.Key, "Files (0/0)");
+                TreeNode nodeDocumentAnalysis = treeView.GetNode(Navigation.Project.DocumentAnalysis.ToNavigationPath());
+
+                nodeDocumentAnalysis.Nodes.Clear();
+                TreeNode tn_documents = nodeDocumentAnalysis.Nodes.Add(Navigation.Project.DocumentAnalysis.Files.Key, "Files (0/0)");
                 tn_documents.ImageIndex =
                 tn_documents.SelectedImageIndex = 114;
-                TreeNode tn_data = treeViewMetadata.Nodes.Add(Navigation.Project.DocumentAnalysis.MetadataSummary.Key, "Metadata Summary");
+
+                TreeNode tn_data = nodeDocumentAnalysis.Nodes.Add(Navigation.Project.DocumentAnalysis.MetadataSummary.Key, "Metadata Summary");
                 tn_data.ImageIndex =
                 tn_data.SelectedImageIndex = 115;
 
@@ -635,6 +637,10 @@ namespace FOCA.GUI
                 tn_servers.SelectedImageIndex = 112;
                 var servers = new ConcurrentBag<ServersItem>();
                 tn_servers.Tag = servers;
+
+                tn_data = nodeDocumentAnalysis.Nodes.Add(Navigation.Project.DocumentAnalysis.MalwareSummary.Key, "Malware Summary (DIARIO)");
+                tn_data.ImageIndex =
+                tn_data.SelectedImageIndex = 123;
             }
         }
 
@@ -676,7 +682,7 @@ namespace FOCA.GUI
 
                 tn = tnProject.Nodes.Add(Navigation.Project.DocumentAnalysis.Key, "Document Analysis");
                 tn.ImageIndex = tn.SelectedImageIndex = 109;
-                CreateMetadataNodes();
+                CreateDocumentAnalysisNodes();
 
                 Program.FormMainInstance.TreeView.Nodes[Navigation.Project.Key].Expand();
             }

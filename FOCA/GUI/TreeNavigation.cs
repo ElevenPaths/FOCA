@@ -270,6 +270,22 @@
                 
                 }
             }
+            public static class MalwareSummary
+            {
+                public static string Key
+                {
+                    get
+                    {
+                        return "MalwareSummary";
+                    }
+                }
+            
+                public static string ToNavigationPath()
+                {
+                    return DocumentAnalysis.ToNavigationPath() + "/" + Key;
+                }
+            
+            }
         }
     }
 }

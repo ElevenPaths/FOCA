@@ -1,12 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Windows.Forms;
 using FOCA.Analysis.FingerPrinting;
 using FOCA.Database.Controllers;
 using FOCA.Plugins;
-using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Windows.Forms;
 
 namespace FOCA
 {
@@ -64,6 +62,10 @@ namespace FOCA
         ///     This variable will store the Google API Key that will be used during the search process
         /// </summary>
         public string GoogleApiKey { get; set; }
+
+        public string DiarioAPIKey { get; set; }
+
+        public string DiarioAPISecret { get; set; }
 
         /// <summary>
         ///     Limit max recursivity level during search process

@@ -1,4 +1,5 @@
-﻿using FOCA.Analysis.FingerPrinting;
+﻿using FOCA.Analysis;
+using FOCA.Analysis.FingerPrinting;
 using FOCA.Analysis.Pinger;
 using FOCA.Core;
 using FOCA.Database.Entities;
@@ -297,19 +298,9 @@ namespace FOCA
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        public void SetItemsMenu(object sender, EventArgs e)
+        private void SetItemsMenu(object sender, EventArgs e)
         {
-            toolStripMenuItemSaveProject.Enabled =
-
-            Program.data.Project.ProjectState != Project.ProjectStates.Uninitialized;
-
-            ListView lv = panelMetadataSearch.listViewDocuments;
-            if (programState == ProgramState.ExtractingMetadata || programState == ProgramState.Searching)
-                return;
-
-            var someFileDownloaded = (from ListViewItem lvi in lv.Items select (FilesItem)lvi.Tag).Any(fi => fi != null && fi.Downloaded);
-
-            if (!someFileDownloaded) return;
+            toolStripMenuItemSaveProject.Enabled = Program.data.Project.ProjectState != Project.ProjectStates.Uninitialized;
         }
 
         #region Menu Projects Events
@@ -757,7 +748,7 @@ namespace FOCA
         {
             Program.FormMainInstance.TreeView.BeginUpdate();
             TreeNode documentsNode = Program.FormMainInstance.TreeView.GetNode(GUI.Navigation.Project.DocumentAnalysis.Files.ToNavigationPath());
-            documentsNode.Text = String.Format("Files ({0}/{1})", Program.data.files.Items.Count(F => F.Processed), Program.data.files.Items.Count);
+            documentsNode.Text = String.Format("Files ({0}/{1})", Program.data.files.Items.Count(F => F.Downloaded), Program.data.files.Items.Count);
 
             foreach (TreeNode tn in documentsNode.Nodes)
             {
@@ -768,7 +759,6 @@ namespace FOCA
             }
 
             Program.FormMainInstance.TreeView.EndUpdate();
-
         }
 
         /// <summary>
@@ -781,7 +771,7 @@ namespace FOCA
             var tn = Program.FormMainInstance.TreeView.SelectedNode;
             var fi = (FilesItem)tn.Tag;
             fi.Metadata = null;
-            fi.Processed = false;
+            fi.MetadataExtracted = false;
             panelMetadataSearch.listViewDocuments_Update(fi);
             tn.Remove();
             treeViewMetadata_UpdateDocumentsNumber();
@@ -814,7 +804,7 @@ namespace FOCA
         private bool IsDocumentNode(TreeNode nodeItem)
         {
             TreeNode documentsNode = TreeView.GetNode(GUI.Navigation.Project.DocumentAnalysis.Files.ToNavigationPath());
-            return nodeItem?.Parent?.Parent != null && (nodeItem.Parent.Parent == documentsNode || nodeItem.Parent.Parent.Parent?.Parent != null && nodeItem.Parent.Parent.Parent.Parent == documentsNode);
+            return nodeItem?.Parent?.Parent == documentsNode;
         }
 
         /// <summary>
@@ -823,11 +813,12 @@ namespace FOCA
         /// <param name="itemValue"></param>
         /// <param name="subItemValue"></param>
         /// <param name="groupValue"></param>
-        private void NewItemListView(string itemValue, string subItemValue, string groupValue)
+        private ListViewItem NewItemListView(string itemValue, string subItemValue, string groupValue)
         {
-            var lvi = panelInformation.lvwInformation.Items.Add(itemValue);
+            ListViewItem lvi = panelInformation.lvwInformation.Items.Add(itemValue);
             lvi.SubItems.Add(subItemValue);
             lvi.Group = panelInformation.lvwInformation.Groups[groupValue];
+            return lvi;
         }
 
         /// <summary>
@@ -856,7 +847,6 @@ namespace FOCA
             foreach (TreeNode tn in TreeViewMetadataReturnAllDocuments())
                 tn.ForeColor = metadataColor;
 
-
             TreeNode metadataSummaryNode = TreeView.GetNode(GUI.Navigation.Project.DocumentAnalysis.MetadataSummary.ToNavigationPath());
             if (e.Node == TreeView.GetNode(GUI.Navigation.Project.DocumentAnalysis.Files.ToNavigationPath()))
             {
@@ -868,28 +858,42 @@ namespace FOCA
 
                 panelInformation.lvwInformation.Groups.Add("File Information", "File Information");
 
+                FilesItem currentFile = e.Node.Tag as FilesItem;
+                if (currentFile == null)
+                    currentFile = e.Node.Parent?.Parent?.Tag as FilesItem;
+
                 if (e.Node.Tag != null)
                 {
-                    var fi = (FilesItem)e.Node.Tag;
                     var lvi = panelInformation.lvwInformation.Items.Add("URL");
 
-                    lvi.SubItems.Add(fi.URL);
+                    lvi.SubItems.Add(currentFile.URL);
                     lvi.Group = panelInformation.lvwInformation.Groups["File Information"];
                     lvi = panelInformation.lvwInformation.Items.Add("Local path");
-                    lvi.SubItems.Add(fi.Path);
+                    lvi.SubItems.Add(currentFile.Path);
                     lvi.Group = panelInformation.lvwInformation.Groups["File Information"];
                     lvi = panelInformation.lvwInformation.Items.Add("Download");
-                    lvi.SubItems.Add(fi.Downloaded ? "Yes" : "No");
+                    lvi.SubItems.Add(currentFile.Downloaded ? "Yes" : "No");
                     lvi.Group = panelInformation.lvwInformation.Groups["File Information"];
                     lvi = panelInformation.lvwInformation.Items.Add("Analyzed");
-                    lvi.SubItems.Add(fi.Processed ? "Yes" : "No");
+                    lvi.SubItems.Add(currentFile.MetadataExtracted ? "Yes" : "No");
                     lvi.Group = panelInformation.lvwInformation.Groups["File Information"];
                     lvi = panelInformation.lvwInformation.Items.Add("Download date");
-                    lvi.SubItems.Add(fi.Date.ToString());
+                    lvi.SubItems.Add(currentFile.Date.ToString());
                     lvi.Group = panelInformation.lvwInformation.Groups["File Information"];
                     lvi = panelInformation.lvwInformation.Items.Add("Size");
-                    lvi.SubItems.Add(Functions.GetFileSizeAsString(fi.Size));
+                    lvi.SubItems.Add(Functions.GetFileSizeAsString(currentFile.Size));
                     lvi.Group = panelInformation.lvwInformation.Groups["File Information"];
+
+                    panelInformation.lvwInformation.Groups.Add("MalwareAnalysis", "Malware Analysis (Powered by DIARIO)");
+                    if (currentFile.DiarioAnalyzed)
+                    {
+                        NewItemListView("Prediction", currentFile.DiarioPrediction, "MalwareAnalysis");
+                    }
+                    else if (DiarioAnalyzer.IsSupportedExtension(currentFile.Ext))
+                    {
+                        ListViewItem n = NewItemListView("Malware analysis pending", String.Empty, "MalwareAnalysis");
+                        n.BackColor = Color.Orange;
+                    }
                 }
                 else
                 {
@@ -898,294 +902,275 @@ namespace FOCA
                     lvi.Group = panelInformation.lvwInformation.Groups["File Information"];
                 }
 
-                if (e.Node.Nodes["Users"] != null)
+                if (currentFile.MetadataExtracted)
                 {
-                    panelInformation.lvwInformation.Groups.Add("Users", "Users");
+                    if (e.Node.Nodes["Users"] != null)
+                    {
+                        panelInformation.lvwInformation.Groups.Add("Users", "Users");
 
-                    var u = (Users)e.Node.Nodes["Users"].Tag;
-                    foreach (var ui in u.Items.Where(ui => !string.IsNullOrEmpty(ui.Name)))
-                        NewItemListView("UserName", ui.Name, "Users");
+                        var u = (Users)e.Node.Nodes["Users"].Tag;
+                        foreach (var ui in u.Items.Where(ui => !string.IsNullOrEmpty(ui.Name)))
+                            NewItemListView("UserName", ui.Name, "Users");
+                    }
+                    if (e.Node.Nodes["Passwords"] != null)
+                    {
+                        panelInformation.lvwInformation.Groups.Add("Passwords", "Passwords");
+
+                        var p = (Passwords)e.Node.Nodes["Passwords"].Tag;
+                        foreach (var pi in p.Items.Where(pi => !string.IsNullOrEmpty(pi.Password)))
+                            NewItemListView("Passwords", pi.Password, "Passwords");
+                    }
+                    if (e.Node.Nodes["Servers"] != null)
+                    {
+                        panelInformation.lvwInformation.Groups.Add("Servers", "Servers");
+
+                        var serverItem = (Servers)e.Node.Nodes["Servers"].Tag;
+                        foreach (var si in serverItem.Items.Where(si => !string.IsNullOrEmpty(si.Name)))
+                            NewItemListView("Servers", si.Name, "Servers");
+
+                    }
+                    if (e.Node.Nodes["Folders"] != null)
+                    {
+                        panelInformation.lvwInformation.Groups.Add("Folders", "Folders");
+
+                        var rutaItem = (Paths)e.Node.Nodes["Folders"].Tag;
+                        foreach (var ri in rutaItem.Items.Where(ri => !string.IsNullOrEmpty(ri.Path)))
+                            NewItemListView("Folder", ri.Path, "Folders");
+                    }
+                    if (e.Node.Nodes["Printers"] != null)
+                    {
+                        panelInformation.lvwInformation.Groups.Add("Printers", "Printers");
+
+                        var printerItem = (Printers)e.Node.Nodes["Printers"].Tag;
+                        foreach (var ii in printerItem.Items.Where(ii => !string.IsNullOrEmpty(ii.Printer)))
+                            NewItemListView("Printer", ii.Printer, "Printers");
+                    }
+                    if (e.Node.Nodes["Emails"] != null)
+                    {
+                        panelInformation.lvwInformation.Groups.Add("Emails", "Emails");
+
+                        var emailItem = (Emails)e.Node.Nodes["Emails"].Tag;
+                        foreach (var ei in emailItem.Items.Where(ei => !string.IsNullOrEmpty(ei.Mail)))
+                            NewItemListView("Email", ei.Mail, "Emails");
+                    }
+                    if (e.Node.Nodes["Dates"] != null)
+                    {
+                        panelInformation.lvwInformation.Groups.Add("Dates", "Dates");
+
+                        var f = (Database.Entities.Dates)e.Node.Nodes["Dates"].Tag;
+                        if (f.CreationDateSpecified)
+                            NewItemListView("Creation date", f.CreationDate.ToString(), "Dates");
+
+                        if (f.DatePrintingSpecified)
+                            NewItemListView("Printed date", f.DatePrinting.ToString(), "Dates");
+
+                        if (f.ModificationDateSpecified)
+                            NewItemListView("Modified date", f.ModificationDate.ToString(), "Dates");
+
+                    }
+                    if (e.Node.Nodes["GPS"] != null && e.Node.Nodes["GPS"].Tag is FileMetadata fmd && fmd != null)
+                    {
+                        panelInformation.lvwInformation.Groups.Add("GPS location", "GPS location");
+
+                        NewItemListView("Location", fmd.GPS.Value, "GPS");
+                    }
+
+                    SetOtherMetaParentNode(e);
+
+                    SetOldVersionNodes(e);
+
+                    if (e.Node.Nodes["History"] != null)
+                    {
+                        panelInformation.lvwInformation.Groups.Add("History", "History");
+
+                        var h = (Database.Entities.History)e.Node.Nodes["History"].Tag;
+                        foreach (var hi in h.Items)
+                        {
+                            if (String.IsNullOrWhiteSpace(hi.Author))
+                                NewItemListView("Author", hi.Author, "History");
+
+                            if (String.IsNullOrWhiteSpace(hi.Comments))
+                                NewItemListView("Comments", hi.Comments, "History");
+
+                            if (String.IsNullOrWhiteSpace(hi.Path))
+                                NewItemListView("Path", hi.Path, "History");
+                        }
+                    }
+
+                    if (e.Node.Nodes["Software"] != null)
+                    {
+                        panelInformation.lvwInformation.Groups.Add("Software", "Software");
+
+                        var aplicaciones = (Applications)e.Node.Nodes["Software"].Tag;
+                        foreach (var lvi in from ai in aplicaciones.Items where ai.Name != string.Empty select panelInformation.lvwInformation.Items.Add(ai.Name))
+                            lvi.Group = panelInformation.lvwInformation.Groups["Software"];
+
+                    }
+                    if (e.Node.Nodes["EXIF in pictures"] != null)
+                    {
+                        panelInformation.lvwInformation.Groups.Add("EXIF in pictures", "EXIF in pictures");
+                        foreach (TreeNode tn in e.Node.Nodes["EXIF in pictures"].Nodes)
+                            NewItemListView("File", tn.Text, "EXIF in pictures");
+
+                    }
                 }
-                if (e.Node.Nodes["Passwords"] != null)
+                else
                 {
+                    panelInformation.lvwInformation.Groups.Add("MetadataExtraction", "Metadata Extraction");
+                    ListViewItem n = NewItemListView("Metadata extraction pending", String.Empty, "MetadataExtraction");
+                    n.BackColor = Color.Orange;
+                }
+            }
+            else if (IsDocumentNode(e.Node.Parent))
+            {
+                FilesItem currentFile = e.Node?.Parent?.Tag as FilesItem;
+                if (e.Node.Text == "Users")
+                {
+                    InitializePanelInformation();
+
+                    panelInformation.lvwInformation.Groups.Add("Users", "Users");
+                    var userItem = (Users)e.Node.Tag;
+                    foreach (var ui in userItem.Items)
+                        NewItemListView("Username", ui.Name, "Users");
+
+                }
+                else if (e.Node.Text == "Servers")
+                {
+                    InitializePanelInformation();
+
+                    panelInformation.lvwInformation.Groups.Add("Servers", "Servers");
+                    var serverItem = (Servers)e.Node.Tag;
+                    foreach (var si in serverItem.Items)
+                        NewItemListView("Server", si.Name, "Servers");
+
+                }
+                else if (e.Node.Text == "Folders")
+                {
+                    InitializePanelInformation();
+
+                    panelInformation.lvwInformation.Groups.Add("Folders", "Folders");
+                    var r = (Paths)e.Node.Tag;
+                    foreach (var ri in r.Items)
+                        NewItemListView("Folder", ri.Path, "Folders");
+
+                }
+                else if (e.Node.Text == "Passwords")
+                {
+                    InitializePanelInformation();
+
                     panelInformation.lvwInformation.Groups.Add("Passwords", "Passwords");
 
-                    var p = (Passwords)e.Node.Nodes["Passwords"].Tag;
-                    foreach (var pi in p.Items.Where(pi => !string.IsNullOrEmpty(pi.Password)))
+                    var p = (Passwords)e.Node.Tag;
+                    foreach (var pi in p.Items)
                         NewItemListView("Passwords", pi.Password, "Passwords");
-                }
-                if (e.Node.Nodes["Servers"] != null)
-                {
-                    panelInformation.lvwInformation.Groups.Add("Servers", "Servers");
-
-                    var serverItem = (Servers)e.Node.Nodes["Servers"].Tag;
-                    foreach (var si in serverItem.Items.Where(si => !string.IsNullOrEmpty(si.Name)))
-                        NewItemListView("Servers", si.Name, "Servers");
 
                 }
-                if (e.Node.Nodes["Folders"] != null)
+                else if (e.Node.Text == "Printers")
                 {
-                    panelInformation.lvwInformation.Groups.Add("Folders", "Folders");
+                    InitializePanelInformation();
 
-                    var rutaItem = (Paths)e.Node.Nodes["Folders"].Tag;
-                    foreach (var ri in rutaItem.Items.Where(ri => !string.IsNullOrEmpty(ri.Path)))
-                        NewItemListView("Folder", ri.Path, "Folders");
-                }
-                if (e.Node.Nodes["Printers"] != null)
-                {
                     panelInformation.lvwInformation.Groups.Add("Printers", "Printers");
-
-                    var printerItem = (Printers)e.Node.Nodes["Printers"].Tag;
-                    foreach (var ii in printerItem.Items.Where(ii => !string.IsNullOrEmpty(ii.Printer)))
+                    var printerItem = (Printers)e.Node.Tag;
+                    foreach (var ii in printerItem.Items)
                         NewItemListView("Printer", ii.Printer, "Printers");
+
                 }
-                if (e.Node.Nodes["Emails"] != null)
+                else if (e.Node.Text == "Emails")
                 {
+                    InitializePanelInformation();
+
                     panelInformation.lvwInformation.Groups.Add("Emails", "Emails");
-
-                    var emailItem = (Emails)e.Node.Nodes["Emails"].Tag;
-                    foreach (var ei in emailItem.Items.Where(ei => !string.IsNullOrEmpty(ei.Mail)))
+                    var emailItem = (Emails)e.Node.Tag;
+                    foreach (var ei in emailItem.Items)
                         NewItemListView("Email", ei.Mail, "Emails");
+
                 }
-                if (e.Node.Nodes["Dates"] != null)
+                else if (e.Node.Text == "Dates")
                 {
+                    InitializePanelInformation();
+
                     panelInformation.lvwInformation.Groups.Add("Dates", "Dates");
+                    var f = (Database.Entities.Dates)e.Node.Tag;
 
-                    var f = (Database.Entities.Dates)e.Node.Nodes["Dates"].Tag;
                     if (f.CreationDateSpecified)
+                    {
                         NewItemListView("Creation date", f.CreationDate.ToString(), "Dates");
-
+                    }
                     if (f.DatePrintingSpecified)
                         NewItemListView("Printed date", f.DatePrinting.ToString(), "Dates");
 
                     if (f.ModificationDateSpecified)
                         NewItemListView("Modified date", f.ModificationDate.ToString(), "Dates");
-
                 }
-                if (e.Node.Nodes["GPS"] != null && e.Node.Nodes["GPS"].Tag is FileMetadata fmd && fmd != null)
+                else if (e.Node.Text == "Other Metadata")
                 {
-                    panelInformation.lvwInformation.Groups.Add("GPS location", "GPS location");
-
-                    NewItemListView("Location", fmd.GPS.Value, "GPS");
+                    InitializePanelInformation();
+                    SetOtherMetadataNode(e);
                 }
-
-                SetOtherMetaParentNode(e);
-
-                SetOldVersionNodes(e);
-
-                if (e.Node.Nodes["History"] != null)
+                else if (e.Node.Text == "Old versions")
                 {
-                    panelInformation.lvwInformation.Groups.Add("History", "History");
-
-                    var h = (Database.Entities.History)e.Node.Nodes["History"].Tag;
-                    foreach (var hi in h.Items)
-                    {
-                        if (String.IsNullOrWhiteSpace(hi.Author))
-                            NewItemListView("Author", hi.Author, "History");
-
-                        if (String.IsNullOrWhiteSpace(hi.Comments))
-                            NewItemListView("Comments", hi.Comments, "History");
-
-                        if (String.IsNullOrWhiteSpace(hi.Path))
-                            NewItemListView("Path", hi.Path, "History");
-                    }
+                    InitializePanelInformation();
+                    SetOldVersionNode(e);
                 }
-
-                if (e.Node.Nodes["Software"] != null)
+                else if (e.Node.Text == "History")
                 {
+                    InitializePanelInformation();
+                    SetHistoryNode(e);
+                }
+                else if (e.Node.Text == "Software")
+                {
+                    InitializePanelInformation();
+
                     panelInformation.lvwInformation.Groups.Add("Software", "Software");
-
-                    var aplicaciones = (Applications)e.Node.Nodes["Software"].Tag;
-                    foreach (var lvi in from ai in aplicaciones.Items where ai.Name != string.Empty select panelInformation.lvwInformation.Items.Add(ai.Name))
+                    var aplicaciones = (Applications)e.Node.Tag;
+                    foreach (var lvi in aplicaciones.Items.Select(ai => panelInformation.lvwInformation.Items.Add(ai.Name)))
                         lvi.Group = panelInformation.lvwInformation.Groups["Software"];
 
                 }
-                if (e.Node.Nodes["EXIF in pictures"] != null)
+                else if (e.Node.Text == "EXIF in pictures")
                 {
+                    InitializePanelInformation();
+
                     panelInformation.lvwInformation.Groups.Add("EXIF in pictures", "EXIF in pictures");
-                    foreach (TreeNode tn in e.Node.Nodes["EXIF in pictures"].Nodes)
+                    if (e.Node.Nodes == null) return;
+                    foreach (TreeNode tn in e.Node.Nodes)
                         NewItemListView("File", tn.Text, "EXIF in pictures");
-
                 }
-            }
-
-            else if (IsDocumentNode(e.Node.Parent) && e.Node.Text == "Users")
-            {
-                InitializePanelInformation();
-
-                panelInformation.lvwInformation.Groups.Add("Users", "Users");
-                var userItem = (Users)e.Node.Tag;
-                foreach (var ui in userItem.Items)
-                    NewItemListView("Username", ui.Name, "Users");
-
-            }
-            else if (IsDocumentNode(e.Node.Parent) && e.Node.Text == "Servers")
-            {
-                InitializePanelInformation();
-
-                panelInformation.lvwInformation.Groups.Add("Servers", "Servers");
-                var serverItem = (Servers)e.Node.Tag;
-                foreach (var si in serverItem.Items)
-                    NewItemListView("Server", si.Name, "Servers");
-
-            }
-            else if (IsDocumentNode(e.Node.Parent) && e.Node.Text == "Folders")
-            {
-                InitializePanelInformation();
-
-                panelInformation.lvwInformation.Groups.Add("Folders", "Folders");
-                var r = (Paths)e.Node.Tag;
-                foreach (var ri in r.Items)
-                    NewItemListView("Folder", ri.Path, "Folders");
-
-            }
-            else if (IsDocumentNode(e.Node.Parent) && e.Node.Text == "Passwords")
-            {
-                InitializePanelInformation();
-
-                panelInformation.lvwInformation.Groups.Add("Passwords", "Passwords");
-
-                var p = (Passwords)e.Node.Tag;
-                foreach (var pi in p.Items)
-                    NewItemListView("Passwords", pi.Password, "Passwords");
-
-            }
-            else if (IsDocumentNode(e.Node.Parent) && e.Node.Text == "Printers")
-            {
-                InitializePanelInformation();
-
-                panelInformation.lvwInformation.Groups.Add("Printers", "Printers");
-                var printerItem = (Printers)e.Node.Tag;
-                foreach (var ii in printerItem.Items)
-                    NewItemListView("Printer", ii.Printer, "Printers");
-
-            }
-            else if (IsDocumentNode(e.Node.Parent) && e.Node.Text == "Emails")
-            {
-                InitializePanelInformation();
-
-                panelInformation.lvwInformation.Groups.Add("Emails", "Emails");
-                var emailItem = (Emails)e.Node.Tag;
-                foreach (var ei in emailItem.Items)
-                    NewItemListView("Email", ei.Mail, "Emails");
-
-            }
-            else if (IsDocumentNode(e.Node.Parent) && e.Node.Text == "Dates")
-            {
-                InitializePanelInformation();
-
-                panelInformation.lvwInformation.Groups.Add("Dates", "Dates");
-                var f = (Database.Entities.Dates)e.Node.Tag;
-
-                if (f.CreationDateSpecified)
+                else if (e.Node.Text == "GPS")
                 {
-                    NewItemListView("Creation date", f.CreationDate.ToString(), "Dates");
-                }
-                if (f.DatePrintingSpecified)
-                    NewItemListView("Printed date", f.DatePrinting.ToString(), "Dates");
+                    InitializePanelInformation();
 
-                if (f.ModificationDateSpecified)
-                    NewItemListView("Modified date", f.ModificationDate.ToString(), "Dates");
-            }
-            else if (IsDocumentNode(e.Node.Parent) && e.Node.Text == "Other Metadata")
-            {
-                InitializePanelInformation();
-                SetOtherMetadataNode(e);
-            }
-            else if (IsDocumentNode(e.Node.Parent) && e.Node.Text == "Old versions")
-            {
-                InitializePanelInformation();
-                SetOldVersionNode(e);
-            }
-            else if (IsDocumentNode(e.Node.Parent) && e.Node.Text == "History")
-            {
-                InitializePanelInformation();
-                SetHistoryNode(e);
-            }
-            else if (IsDocumentNode(e.Node.Parent) && e.Node.Text == "Software")
-            {
-                InitializePanelInformation();
-
-                panelInformation.lvwInformation.Groups.Add("Software", "Software");
-                var aplicaciones = (Applications)e.Node.Tag;
-                foreach (var lvi in aplicaciones.Items.Select(ai => panelInformation.lvwInformation.Items.Add(ai.Name)))
-                    lvi.Group = panelInformation.lvwInformation.Groups["Software"];
-
-            }
-            else if (IsDocumentNode(e.Node.Parent) && e.Node.Text == "EXIF in pictures")
-            {
-                InitializePanelInformation();
-
-                panelInformation.lvwInformation.Groups.Add("EXIF in pictures", "EXIF in pictures");
-                if (e.Node.Nodes == null) return;
-                foreach (TreeNode tn in e.Node.Nodes)
-                    NewItemListView("File", tn.Text, "EXIF in pictures");
-            }
-            else if (e.Node.Text == "EXIF" &&
-                     (IsDocumentNode(e.Node.Parent) ||
-                     (e.Node.Parent?.Parent != null && e.Node.Parent.Parent.Text == "EXIF in pictures")))
-            {
-                InitializePanelInformation();
-
-                FileMetadata ed = e.Node.Tag as FileMetadata;
-                if (ed != null)
-                {
-                    var dicExif = ed.Makernotes;
-                    foreach (var dicExifSection in dicExif)
+                    FileMetadata ed = e.Node.Tag as FileMetadata;
+                    if (ed != null)
                     {
-                        panelInformation.lvwInformation.Groups.Add(dicExifSection.Key, dicExifSection.Key);
-                        foreach (var dicExifValue in dicExifSection.Value)
-                            NewItemListView(dicExifValue.Key, dicExifValue.Value, dicExifSection.Key);
-
-                        var lvit = panelInformation.lvwInformation.Items.Add(string.Empty);
-                        lvit.Group = panelInformation.lvwInformation.Groups[dicExifSection.Key];
-                    }
-                    if (ed.Thumbnail == null) return;
-
-                    try
-                    {
-                        PictureBox pc = new PictureBox();
-                        using (var ms = new MemoryStream(ed.Thumbnail))
-                        {
-                            pc.Image = new Bitmap(ms);
-                        }
-
-                        pc.Height = pc.Image.Height;
-                        panelInformation.lvwInformation.Groups.Add("Thumbnail", "Thumbnail");
-                        var lvi = panelInformation.lvwInformation.Items.Add("Picture");
-                        lvi.SubItems.Add(string.Empty);
-                        lvi.Group = panelInformation.lvwInformation.Groups["Thumbnail"];
-                        panelInformation.lvwInformation.AddEmbeddedControl(pc, 1, lvi.Index, DockStyle.None);
-
-                        var itemHeight = lvi.GetBounds(ItemBoundsPortion.Entire).Height;
-                        for (var i = itemHeight; i < pc.Height; i += itemHeight)
-                        {
-                            lvi = panelInformation.lvwInformation.Items.Add("");
-                            lvi.Group = panelInformation.lvwInformation.Groups["Thumbnail"];
-                        }
-                    }
-                    catch
-                    {
-
+                        panelInformation.lvwInformation.Groups.Add("GPS location", "GPS location");
+                        NewItemListView("DMS", ed.GPS.Value, "GPS location");
+                        string longitude = ed.GPS.Longitude.ToString("0.000000", CultureInfo.InvariantCulture);
+                        string latitude = ed.GPS.Latitude.ToString("0.000000", CultureInfo.InvariantCulture);
+                        NewItemListView("Longitude", longitude, "GPS location");
+                        NewItemListView("Latitude", latitude, "GPS location");
+                        NewItemListView("Altitude", ed.GPS.Altitude, "GPS location");
+                        NewItemListView("Google maps url", $"https://www.google.com/maps/search/?api=1&query={latitude},{longitude}", "GPS location");
                     }
                 }
-            }
-            else if (e.Node.Text == "GPS" && IsDocumentNode(e.Node.Parent))
-            {
-                InitializePanelInformation();
-
-                FileMetadata ed = e.Node.Tag as FileMetadata;
-                if (ed != null)
+                else if (e.Node.Text == "Malware Analysis")
                 {
-                    panelInformation.lvwInformation.Groups.Add("GPS location", "GPS location");
-                    NewItemListView("DMS", ed.GPS.Value, "GPS location");
-                    string longitude = ed.GPS.Longitude.ToString("0.000000", CultureInfo.InvariantCulture);
-                    string latitude = ed.GPS.Latitude.ToString("0.000000", CultureInfo.InvariantCulture);
-                    NewItemListView("Longitude", longitude, "GPS location");
-                    NewItemListView("Latitude", latitude, "GPS location");
-                    NewItemListView("Altitude", ed.GPS.Altitude, "GPS location");
-                    NewItemListView("Google maps url", $"https://www.google.com/maps/search/?api=1&query={latitude},{longitude}", "GPS location");
+                    InitializePanelInformation();
+
+                    if (currentFile != null)
+                    {
+                        panelInformation.lvwInformation.Groups.Add("MalwareAnalysis", "Malware Analysis (Powered by DIARIO)");
+                        NewItemListView("Prediction", currentFile.DiarioPrediction, "MalwareAnalysis");
+                    }
                 }
+                else if (e.Node.Text == "EXIF")
+                {
+                    ShowEXIFPanelInformation(e.Node.Tag as FileMetadata);
+                }
+            }
+            else if (e.Node.Text == "EXIF" && e.Node.Parent?.Parent?.Text == "EXIF in pictures")
+            {
+                ShowEXIFPanelInformation(e.Node.Tag as FileMetadata);
             }
             else if (e.Node == metadataSummaryNode.Nodes[GUI.Navigation.Project.DocumentAnalysis.MetadataSummary.Users.Key])
             {
@@ -1372,6 +1357,71 @@ namespace FOCA
                         NewItemListView("Server", s.Name, "ServersFound");
 
                     panelInformation.lvwInformation.ListViewItemSorter = lvcsv;
+                }
+            }
+            else if (e.Node == TreeView.GetNode(GUI.Navigation.Project.DocumentAnalysis.MalwareSummary.ToNavigationPath()))
+            {
+                InitializeInformationPanel();
+
+                panelInformation.lvwInformation.Groups.Add("MalwareDocuments", "Malware documents");
+                panelInformation.lvwInformation.Groups.Add("GoodwareDocuments", "Documents with no malware detected");
+                foreach (FilesItem item in Program.data.files.Items.Where(p => p.DiarioAnalyzed))
+                {
+                    if (item.DiarioPrediction == "Malware")
+                    {
+                        NewItemListView(item.DiarioPrediction, item.URL, "MalwareDocuments");
+                    }
+                    else if (item.DiarioPrediction == "Goodware" || item.DiarioPrediction == "NoMacros")
+                    {
+                        NewItemListView(item.DiarioPrediction, item.URL, "GoodwareDocuments");
+                    }
+                }
+            }
+        }
+
+        private void ShowEXIFPanelInformation(FileMetadata exifMetadata)
+        {
+            InitializePanelInformation();
+
+            if (exifMetadata != null)
+            {
+                var dicExif = exifMetadata.Makernotes;
+                foreach (var dicExifSection in dicExif)
+                {
+                    panelInformation.lvwInformation.Groups.Add(dicExifSection.Key, dicExifSection.Key);
+                    foreach (var dicExifValue in dicExifSection.Value)
+                        NewItemListView(dicExifValue.Key, dicExifValue.Value, dicExifSection.Key);
+
+                    var lvit = panelInformation.lvwInformation.Items.Add(string.Empty);
+                    lvit.Group = panelInformation.lvwInformation.Groups[dicExifSection.Key];
+                }
+                if (exifMetadata.Thumbnail == null) return;
+
+                try
+                {
+                    PictureBox pictureBox = new PictureBox();
+                    using (MemoryStream ms = new MemoryStream(exifMetadata.Thumbnail))
+                    {
+                        pictureBox.Image = new Bitmap(ms);
+                    }
+
+                    pictureBox.Height = pictureBox.Image.Height;
+                    panelInformation.lvwInformation.Groups.Add("Thumbnail", "Thumbnail");
+                    ListViewItem lvi = panelInformation.lvwInformation.Items.Add("Picture");
+                    lvi.SubItems.Add(string.Empty);
+                    lvi.Group = panelInformation.lvwInformation.Groups["Thumbnail"];
+                    panelInformation.lvwInformation.AddEmbeddedControl(pictureBox, 1, lvi.Index, DockStyle.None);
+
+                    int itemHeight = lvi.GetBounds(ItemBoundsPortion.Entire).Height;
+                    for (int i = itemHeight; i < pictureBox.Height; i += itemHeight)
+                    {
+                        lvi = panelInformation.lvwInformation.Items.Add("");
+                        lvi.Group = panelInformation.lvwInformation.Groups["Thumbnail"];
+                    }
+                }
+                catch
+                {
+
                 }
             }
         }
@@ -2122,10 +2172,6 @@ namespace FOCA
             panelInformation.lvwInformation.Items.Clear();
             panelInformation.lvwInformation.Groups.Clear();
             panelInformation.lvwInformation.ListViewItemSorter = null;
-        }
-
-        private void contextMenuStripNetwork_Opening(object sender, CancelEventArgs e)
-        {
         }
 
         #region Events contextMenuStripNetwork

@@ -1,3 +1,4 @@
+using FOCA.Analysis;
 using FOCA.Database.Entities;
 using FOCA.Properties;
 using FOCA.Search;
@@ -38,6 +39,7 @@ namespace FOCA
         private int downloadedFileCount;
         private CancellationTokenSource downloadTaskToken;
         private CancellationTokenSource downloadDelayToken;
+        private CancellationTokenSource malwareAnalysisToken;
 
         // Thread that runs in background and obtains size of files from given URLs
         public HTTPSizeDaemon HttpSizeDaemonInst;
@@ -160,7 +162,7 @@ namespace FOCA
                 {
                     case 0:
                         this.toolStripMenuItemDownload.Text = "&Download";
-                        this.toolStripMenuItemDownload.Image = Resources.page_white_go;
+                        this.toolStripMenuItemDownload.Image = Resources.download;
                         break;
                     case 1:
                         this.toolStripMenuItemDownload.Text = "&Stop Download";
@@ -174,10 +176,12 @@ namespace FOCA
 
                 {//Selected items
                     IEnumerable<FilesItem> selectedFiles = (from ListViewItem lvi in lv.SelectedItems where lvi.Tag != null select (FilesItem)lvi.Tag);
-                    bool someFileDownloadedAndNotProcessed = selectedFiles.Any(fi => fi.Downloaded && !fi.Processed && fi.Size > 0);
+                    bool someFileDownloadedAndNotMetadataProcessed = selectedFiles.Any(fi => fi.Downloaded && !fi.MetadataExtracted && fi.Size > 0);
+                    bool someFileDownloadedAndNotMalwareAnalyzed = selectedFiles.Any(fi => fi.Downloaded && !fi.DiarioAnalyzed && fi.Size > 0 && DiarioAnalyzer.IsSupportedExtension(fi.Ext));
                     bool someFilePendingToDownload = selectedFiles.Any(fi => !fi.Downloaded || !File.Exists(fi.Path));
 
-                    this.toolStripMenuItemExtractMetadata.Enabled = someFileDownloadedAndNotProcessed;
+                    this.toolStripMenuItemExtractMetadata.Enabled = someFileDownloadedAndNotMetadataProcessed;
+                    this.toolStripMenuItemDiario.Enabled = someFileDownloadedAndNotMalwareAnalyzed;
                     this.toolStripMenuItemDownload.Enabled = someFilePendingToDownload;
                     this.toolStripMenuItemDelete.Enabled = selectedFiles.Any();
 
@@ -186,21 +190,22 @@ namespace FOCA
 
                 {//All items
                     IEnumerable<FilesItem> allFiles = (from ListViewItem lvi in lv.Items where lvi.Tag != null select (FilesItem)lvi.Tag);
-                    bool someFileDownloadedAndNotProcessed = allFiles.Any(fi => fi.Downloaded && !fi.Processed && fi.Size > 0);
+                    bool someFileDownloadedAndNotMetadataProcessed = allFiles.Any(fi => fi.Downloaded && !fi.MetadataExtracted && fi.Size > 0);
                     bool someFilePendingToDownload = allFiles.Any(fi => !fi.Downloaded || !File.Exists(fi.Path));
-                    bool someFileDownloadedAndProcessed = (from ListViewItem lvi in lv.Items where lvi.Tag != null select (FilesItem)lvi.Tag).Any(p => p.Downloaded && p.Processed);
+                    bool someFileDownloadedAndMetadataProcessed = allFiles.Any(p => p.Downloaded && p.MetadataExtracted);
+                    bool someFileDownloadedAndNotMalwareAnalyzed = allFiles.Any(fi => fi.Downloaded && !fi.DiarioAnalyzed && fi.Size > 0 && DiarioAnalyzer.IsSupportedExtension(fi.Ext));
 
                     this.toolStripMenuItemDownloadAll.Enabled = someFilePendingToDownload;
-                    this.toolStripMenuItemExtractAll.Enabled = someFileDownloadedAndNotProcessed;
+                    this.toolStripMenuItemExtractAll.Enabled = someFileDownloadedAndNotMetadataProcessed;
+                    this.toolStripMenuItemDiarioAll.Enabled = someFileDownloadedAndNotMalwareAnalyzed;
                     this.toolStripMenuItemDeleteAll.Enabled = allFiles.Any();
                     this.toolStripMenuItemStopAll.Visible = downloadQueue.Count > 0 || this.downloadingFiles.Count > 0;
 
                     //Validate if the thread for Analysis is running.
-                    this.toolStripMenuItemAnalyzeAll.Enabled = someFileDownloadedAndProcessed && (Program.FormMainInstance.panelMetadataSearch.Analysis == null || !Program.FormMainInstance.panelMetadataSearch.Analysis.IsAlive);
+                    this.toolStripMenuItemAnalyzeAll.Enabled = someFileDownloadedAndMetadataProcessed && (Program.FormMainInstance.panelMetadataSearch.Analysis == null || !Program.FormMainInstance.panelMetadataSearch.Analysis.IsAlive);
                 }
             }
         }
-
 
         private void stopAllMenuItem_Click(object sender, EventArgs e)
         {
@@ -240,6 +245,16 @@ namespace FOCA
                     }
                 }
             }
+        }
+
+        private void toolStripMenuItemDiarioAll_Click(object sender, EventArgs e)
+        {
+            AnalyzeFilesWithDiario(Program.FormMainInstance.panelMetadataSearch.listViewDocuments.Items.Cast<ListViewItem>().Select(p => p.Tag as FilesItem));
+        }
+
+        private void toolStripMenuItemDiario_Click(object sender, EventArgs e)
+        {
+            AnalyzeFilesWithDiario(Program.FormMainInstance.panelMetadataSearch.listViewDocuments.SelectedItems.Cast<ListViewItem>().Select(p => p.Tag as FilesItem));
         }
 
         /// <summary>
@@ -307,12 +322,11 @@ namespace FOCA
         /// <param name="fi"></param>
         private void RemoveFileFromTreeNode(FilesItem fi)
         {
-            if (fi != null && fi.Processed)
+            if (fi != null && fi.MetadataExtracted)
             {
                 Program.FormMainInstance.TreeViewMetadataSearchDocument(fi.Path)?.Remove();
             }
         }
-
 
         /// <summary>
         ///     Handle extrect metadata from all files button click event
@@ -429,12 +443,19 @@ namespace FOCA
                     Date = DateTime.Now,
                     Size = (int)new FileInfo(path).Length,
                     Downloaded = true,
-                    Processed = false,
+                    MetadataExtracted = false,
                     Path = path
                 };
                 Program.data.files.Items.Add(fi);
                 listViewDocuments_Update(fi);
-                Program.FormMainInstance.treeViewMetadata_UpdateDocumentsNumber();
+
+                Program.FormMainInstance.TreeView.Invoke(new MethodInvoker(delegate
+                {
+                    TreeNode tnFile = Program.FormMainInstance.TreeViewMetadataAddDocument(fi);
+                    tnFile.Tag = fi;
+                    tnFile.Nodes.Clear();
+                    tnFile.ImageIndex = tnFile.SelectedImageIndex = Program.FormMainInstance.GetImageToExtension(fi.Ext);
+                }));
 
                 Program.LogThis(new Log(Log.ModuleType.MetadataSearch, $"Added document {fi.Path}", Log.LogType.debug));
             }
@@ -465,7 +486,8 @@ namespace FOCA
                     ListViewItem.ListViewSubItem lviDownloaded;
                     ListViewItem.ListViewSubItem lviDownloadedDate;
                     ListViewItem.ListViewSubItem lviSize;
-                    ListViewItem.ListViewSubItem lviAnalyzed;
+                    ListViewItem.ListViewSubItem lviMetadataExtracted;
+                    ListViewItem.ListViewSubItem lviMalwareAnalyzed;
                     ListViewItem.ListViewSubItem lviModifedDate;
 
                     lviCurrent = listViewDocuments.Items.Cast<ListViewItem>().Where(lvi => (FilesItem)lvi.Tag == fi).FirstOrDefault();
@@ -482,7 +504,8 @@ namespace FOCA
                         lviDownloaded = lviCurrent.SubItems.Add(string.Empty);
                         lviDownloadedDate = lviCurrent.SubItems.Add(string.Empty);
                         lviSize = lviCurrent.SubItems.Add(string.Empty);
-                        lviAnalyzed = lviCurrent.SubItems.Add(string.Empty);
+                        lviMetadataExtracted = lviCurrent.SubItems.Add(string.Empty);
+                        lviMalwareAnalyzed = lviCurrent.SubItems.Add(string.Empty);
                         lviModifedDate = lviCurrent.SubItems.Add(string.Empty);
                     }
                     // already existing item
@@ -493,8 +516,9 @@ namespace FOCA
                         lviDownloaded = lviCurrent.SubItems[3];
                         lviDownloadedDate = lviCurrent.SubItems[4];
                         lviSize = lviCurrent.SubItems[5];
-                        lviAnalyzed = lviCurrent.SubItems[6];
-                        lviModifedDate = lviCurrent.SubItems[7];
+                        lviMetadataExtracted = lviCurrent.SubItems[6];
+                        lviMalwareAnalyzed = lviCurrent.SubItems[7];
+                        lviModifedDate = lviCurrent.SubItems[8];
                         //ImageIndex of unknown file
                         if (lviCurrent.ImageIndex == 22)
                         {
@@ -512,16 +536,20 @@ namespace FOCA
 
                     lviSize.Text = fi.Size > -1 ? GetFileSizeAsString(fi.Size) : "-";
 
-                    lviAnalyzed.Font = new Font(Font.FontFamily, 14);
-                    lviAnalyzed.Text = fi.Processed ? "•" : "×";
-                    lviAnalyzed.ForeColor = fi.Processed ? Color.Green : Color.Red;
+                    lviMetadataExtracted.Font = new Font(Font.FontFamily, 14);
+                    lviMetadataExtracted.Text = fi.MetadataExtracted ? "•" : "×";
+                    lviMetadataExtracted.ForeColor = fi.MetadataExtracted ? Color.Green : Color.Red;
+
+                    lviMalwareAnalyzed.Font = new Font(Font.FontFamily, 14);
+                    lviMalwareAnalyzed.Text = fi.DiarioAnalyzed ? "•" : "×";
+                    lviMalwareAnalyzed.ForeColor = fi.DiarioAnalyzed ? Color.Green : Color.Red;
+
                     lviModifedDate.Text = fi.ModifiedDate == DateTime.MinValue ? "-" : fi.ModifiedDate.ToString(CultureInfo.InvariantCulture);
                 }));
             }
             catch (Exception ex)
             {
-                Program.LogThis(new Log(Log.ModuleType.MetadataSearch,
-                    $"Error filling ListViewItemDocuments: {ex.Message}", Log.LogType.error));
+                Program.LogThis(new Log(Log.ModuleType.MetadataSearch, $"Error filling ListViewItemDocuments: {ex.Message}", Log.LogType.error));
             }
             return lviCurrent;
         }
@@ -699,7 +727,7 @@ namespace FOCA
             else
             {
                 List<FilesItem> files = items.Select(p => p.Tag as FilesItem)
-                                            .Where(p => p != null && p.Downloaded && p.Size > 0 && !p.Processed)
+                                            .Where(p => p != null && p.Downloaded && p.Size > 0 && !p.MetadataExtracted)
                                             .ToList();
                 Metadata = new Thread(ExtractMetadata)
                 {
@@ -749,9 +777,8 @@ namespace FOCA
                 }
                 else
                 {
-                    List<FilesItem> filesToExtract = files.Where(p => p != null && p.Downloaded && p.Size > 0 && !p.Processed).ToList();
-                    Program.LogThis(new Log(Log.ModuleType.MetadataSearch,
-                        $"Starting metadata extraction of {filesToExtract.Count} documents", Log.LogType.debug));
+                    List<FilesItem> filesToExtract = files.Where(p => p != null && p.Downloaded && p.Size > 0 && !p.MetadataExtracted).ToList();
+                    Program.LogThis(new Log(Log.ModuleType.MetadataSearch, $"Starting metadata extraction of {filesToExtract.Count} documents", Log.LogType.debug));
                     if (filesToExtract.Count > 0)
                     {
                         Invoke(new MethodInvoker(() =>
@@ -760,9 +787,9 @@ namespace FOCA
                             btnSearch.Enabled = false;
                             btnSearchAll.Enabled = false;
                             Program.FormMainInstance.programState = FormMain.ProgramState.ExtractingMetadata;
-                            Program.FormMainInstance.SetItemsMenu(null, null);
                             Program.FormMainInstance.toolStripDropDownButtonStop.Enabled = true;
                         }));
+
                         int extractedFileCount = 0; // counter
 
                         int chunkSize = Environment.ProcessorCount;
@@ -776,13 +803,13 @@ namespace FOCA
                             Invoke(new MethodInvoker(delegate
                             {
                                 Program.FormMainInstance.toolStripProgressBarDownload.Value = extractedFileCount * 100 / filesToExtract.Count;
-                                Program.FormMainInstance.toolStripStatusLabelLeft.Text = $"Extracting metadata from {extractedFileCount} / {filesToExtract.Count} documents";
+                                Program.FormMainInstance.toolStripStatusLabelLeft.Text = $"Extracting metadata. Completed {extractedFileCount} of {filesToExtract.Count} total files";
                                 Program.FormMainInstance.ReportProgress(extractedFileCount, filesToExtract.Count);
                             }));
 
                             Parallel.ForEach(fileChunk, po, currentFile =>
                             {
-                                currentFile.Processed = true;
+                                currentFile.MetadataExtracted = true;
                                 FileMetadata foundMetadata = null;
                                 if (!String.IsNullOrWhiteSpace(currentFile.Ext))
                                 {
@@ -801,8 +828,7 @@ namespace FOCA
                                                     currentFile.Metadata = new MetaExtractor(foundMetadata);
 
                                                     // Extract primary metadata from the document
-                                                    ExtractGenericMetadata(currentFile.Metadata, users, passwords, servers,
-                                                            folders, printers, emails, software, operatingsystems);
+                                                    ExtractGenericMetadata(currentFile.Metadata, users, passwords, servers, folders, printers, emails, software, operatingsystems);
                                                     // if any date has been found, use it for the 'Last modified' field into the ListView
                                                     if (currentFile.Metadata.FoundDates.ModificationDateSpecified)
                                                         currentFile.ModifiedDate = currentFile.Metadata.FoundDates.ModificationDate;
@@ -831,13 +857,10 @@ namespace FOCA
 
                                 Program.FormMainInstance.TreeView.Invoke(new MethodInvoker(delegate
                                 {
-                                    TreeNode tnFile = Program.FormMainInstance.TreeViewMetadataAddDocument(currentFile);
-                                    tnFile.Tag = currentFile;
-                                    tnFile.Nodes.Clear();
-                                    tnFile.ImageIndex = tnFile.SelectedImageIndex = Program.FormMainInstance.GetImageToExtension(currentFile.Ext);
                                     if (currentFile.Metadata != null)
                                     {
-                                        this.AddDocumentNodes(currentFile.Metadata, tnFile, foundMetadata);
+                                        TreeNode tnSearched = Program.FormMainInstance.TreeViewMetadataSearchDocument(currentFile.Path);
+                                        this.AddMetadataDocumentNodes(currentFile.Metadata, tnSearched, foundMetadata);
                                     }
                                 }));
 
@@ -886,26 +909,15 @@ namespace FOCA
             }
             finally
             {
-                Invoke(new MethodInvoker(delegate
+                this.RestoreProgressBar(String.Empty);
+
+                if (emails.Count != 0)
                 {
-                    Program.FormMainInstance.ReportProgress(0, 100);
-                    Program.FormMainInstance.toolStripProgressBarDownload.Value = 0;
-                    Program.FormMainInstance.toolStripDropDownButtonStop.Enabled = false;
-
-                    if (emails.Count != 0)
-                    {
-                        List<string> emailsValue = emails.Select(x => x.Mail).ToList();
-                        PluginsAPI.SharedValues.FocaEmails = emailsValue;
-                    }
-                    else
-                        PluginsAPI.SharedValues.FocaEmails = new List<string>();
-
-                    // enable interface elements which were disabled previously
-                    btnSearchAll.Enabled = Program.data.Project.ProjectState != Project.ProjectStates.Uninitialized;
-                    btnSearch.Enabled = true;
-                    Program.FormMainInstance.programState = FormMain.ProgramState.Normal;
-                    Metadata = null;
-                }));
+                    List<string> emailsValue = emails.Select(x => x.Mail).ToList();
+                    PluginsAPI.SharedValues.FocaEmails = emailsValue;
+                }
+                else
+                    PluginsAPI.SharedValues.FocaEmails = new List<string>();
             }
         }
 
@@ -982,12 +994,20 @@ namespace FOCA
                 operatingsystems.Add(strOs);
         }
 
+        internal void AddMalwareDocumentNodes(TreeNode trnParentNode)
+        {
+            Program.FormMainInstance.TreeView.Invoke(new MethodInvoker(() =>
+            {
+                trnParentNode.Nodes.Insert(0, "MalwareAnalysis", "Malware Analysis", 123, 123);
+            }));
+        }
+
         /// <summary>
         ///     Add needed nodes to treeViewMetadata to show document's metadata
         /// </summary>
         /// <param name="doc"></param>
         /// <param name="trnParentNode">Parent node to which information will be added</param>
-        internal void AddDocumentNodes(MetaExtractor doc, TreeNode trnParentNode, FileMetadata originalMetadata = null)
+        internal void AddMetadataDocumentNodes(MetaExtractor doc, TreeNode trnParentNode, FileMetadata originalMetadata = null)
         {
             List<Action> methodsToInvoke = new List<Action>();
             if (doc.FoundUsers.Items.Count != 0)
@@ -1140,7 +1160,7 @@ namespace FOCA
                             var tnOldVersion = tnOldVersionsRoot.Nodes.Add(oldVersion.Value, oldVersion.Value);
                             tnOldVersion.ImageIndex =
                                 tnOldVersion.SelectedImageIndex = tnOldVersion.Parent.Parent.SelectedImageIndex;
-                            AddDocumentNodes(new MetaExtractor(oldVersion.Metadata), tnOldVersion, oldVersion.Metadata);
+                            AddMetadataDocumentNodes(new MetaExtractor(oldVersion.Metadata), tnOldVersion, oldVersion.Metadata);
                         }
                     }));
                 }
@@ -1179,6 +1199,7 @@ namespace FOCA
                 return;
             }
 
+            string status = String.Empty;
             try
             {
                 Invoke(new MethodInvoker(() =>
@@ -1194,21 +1215,18 @@ namespace FOCA
                     GroupClientNodes();
                 }
                 IdentifyOsSoftware();
-                Invoke(
-                    new MethodInvoker(
-                        () => Program.FormMainInstance.toolStripStatusLabelLeft.Text = @"Metadata analyzed"));
+
+                status = "Metadata analysis completed";
             }
             catch (ThreadAbortException)
             {
-                Invoke(
-                    new MethodInvoker(
-                        () => { Program.FormMainInstance.toolStripStatusLabelLeft.Text = @"Metadata analysis aborted"; }));
+                status = "Metadata analysis aborted";
             }
             finally
             {
+                this.RestoreProgressBar(status);
                 Invoke(new MethodInvoker(() =>
                 {
-                    Program.FormMainInstance.toolStripDropDownButtonStop.Enabled = false;
                     Program.FormMainInstance.TreeView.GetNode(GUI.Navigation.Project.Network.ToNavigationPath()).Expand();
                     Program.FormMainInstance.TreeView.GetNode(GUI.Navigation.Project.Network.Clients.ToNavigationPath()).Expand();
                     Program.FormMainInstance.TreeView.GetNode(GUI.Navigation.Project.Network.Servers.ToNavigationPath()).Expand();
@@ -2373,7 +2391,7 @@ namespace FOCA
                         Ext = System.IO.Path.GetExtension(link.AbsolutePath).ToLower(),
                         URL = link.ToString(),
                         Downloaded = false,
-                        Processed = false,
+                        MetadataExtracted = false,
                         Date = DateTime.MinValue,
                         ModifiedDate = DateTime.MinValue,
                         Path = string.Empty,
@@ -2456,12 +2474,16 @@ namespace FOCA
             }
             else // successful download
             {
+                ListViewItem lvi = file.Lvi;
+                FilesItem fi = (FilesItem)lvi.Tag;
                 Invoke(new MethodInvoker(() =>
                 {
-                    ListViewItem lvi = file.Lvi;
                     listViewDocuments.RemoveEmbeddedControl(file.Pbar);
-                    FilesItem fi = (FilesItem)lvi.Tag;
-                    if (fi == null) return;
+                    if (fi == null)
+                    {
+                        return;
+                    }
+
                     fi.Downloaded = true;
                     fi.Date = DateTime.Now;
                     fi.Size = (int)new FileInfo(file.PhysicalPath).Length;
@@ -2489,6 +2511,14 @@ namespace FOCA
                     this.downloadingFiles.TryRemove(file.DownloadUrl, out Download value);
                     this.UpdateProgressDownloadControls();
                 }));
+
+                Program.FormMainInstance.TreeView.Invoke(new MethodInvoker(delegate
+                {
+                    TreeNode tnFile = Program.FormMainInstance.TreeViewMetadataAddDocument(fi);
+                    tnFile.Tag = fi;
+                    tnFile.Nodes.Clear();
+                    tnFile.ImageIndex = tnFile.SelectedImageIndex = Program.FormMainInstance.GetImageToExtension(fi.Ext);
+                }));
             }
         }
 
@@ -2497,15 +2527,9 @@ namespace FOCA
             int totalFiles = this.downloadQueue.Count + this.downloadingFiles.Count + this.downloadedFileCount;
             if (this.downloadQueue.IsEmpty && this.downloadingFiles.IsEmpty)
             {
-                Program.FormMainInstance.ReportProgress(0, 100);
-                Program.FormMainInstance.toolStripProgressBarDownload.Value = 0;
-                Program.FormMainInstance.toolStripStatusLabelLeft.Text = @"All documents have been downloaded";
+                this.RestoreProgressBar("All documents have been downloaded");
                 Program.LogThis(new Log(Log.ModuleType.MetadataSearch, "All documents have been downloaded", Log.LogType.debug));
-
-                if (this.IsHandleCreated)
-                {
-                    Invoke(new MethodInvoker(() => { Program.FormMainInstance.toolStripDropDownButtonStop.Enabled = false; }));
-                }
+                Program.FormMainInstance.TreeView.GetNode(GUI.Navigation.Project.DocumentAnalysis.ToNavigationPath()).Expand();
             }
             else if (totalFiles > 0)
             {
@@ -2557,20 +2581,25 @@ namespace FOCA
 
         private void StopAllDownloads()
         {
-            while (!this.downloadQueue.IsEmpty)
+            if (!this.downloadQueue.IsEmpty || downloadingFiles.Count > 0)
             {
-                if (this.downloadQueue.TryDequeue(out Download value))
+                while (!this.downloadQueue.IsEmpty)
                 {
-                    this.StopFileDownload(value);
+                    if (this.downloadQueue.TryDequeue(out Download value))
+                    {
+                        this.StopFileDownload(value);
+                    }
                 }
-            }
 
-            foreach (var item in this.downloadingFiles)
-            {
-                this.StopFileDownload(item.Value);
-            }
+                foreach (var item in this.downloadingFiles)
+                {
+                    this.StopFileDownload(item.Value);
+                }
 
-            this.UpdateProgressDownloadControls();
+                this.RestoreProgressBar("Documents download has been aborted.");
+                Program.LogThis(new Log(Log.ModuleType.MetadataSearch, "Documents download has been aborted.", Log.LogType.debug));
+                Program.FormMainInstance.TreeView.GetNode(GUI.Navigation.Project.DocumentAnalysis.ToNavigationPath()).Expand();
+            }
         }
 
         private void StopFileDownload(Download file)
@@ -2690,12 +2719,118 @@ namespace FOCA
         }
         #endregion
 
+        #region Malware Analysis
+
+        private void AnalyzeFilesWithDiario(IEnumerable<FilesItem> selectedItems)
+        {
+            if (!String.IsNullOrWhiteSpace(Program.cfgCurrent.DiarioAPIKey) && !String.IsNullOrWhiteSpace(Program.cfgCurrent.DiarioAPISecret))
+            {
+                DiarioAnalyzer diarioAnalyzer = new DiarioAnalyzer(Program.cfgCurrent.DiarioAPIKey, Program.cfgCurrent.DiarioAPISecret);
+                IList<FilesItem> urls = selectedItems.Where(f => f != null && f.Downloaded && f.Size > 0 && !f.DiarioAnalyzed && DiarioAnalyzer.IsSupportedExtension(f.Ext)).ToList();
+
+                if (malwareAnalysisToken == null || malwareAnalysisToken.IsCancellationRequested)
+                    malwareAnalysisToken = new CancellationTokenSource();
+
+                malwareAnalysisToken.Token.Register(() =>
+                {
+                    this.RestoreProgressBar("Malware analysys was cancelled");
+                    Program.FormMainInstance.TreeView.GetNode(GUI.Navigation.Project.DocumentAnalysis.ToNavigationPath()).Expand();
+                });
+
+                if (urls.Any())
+                {
+                    Invoke(new MethodInvoker(() =>
+                    {
+                        // Disable interface elements while analyzing
+                        btnSearch.Enabled = false;
+                        btnSearchAll.Enabled = false;
+                        Program.FormMainInstance.programState = FormMain.ProgramState.ExtractingMetadata;
+                        Program.FormMainInstance.toolStripStatusLabelLeft.Text = $"Starting DIARIO malware analysis";
+                        Program.FormMainInstance.toolStripDropDownButtonStop.Enabled = true;
+                    }));
+
+                    int analyzedFileCount = 0;
+
+                    foreach (FilesItem item in urls)
+                    {
+                        diarioAnalyzer.CheckMalware(item.Path, (fileResult) =>
+                        {
+                            if (String.IsNullOrEmpty(fileResult.Error))
+                            {
+                                Program.LogThis(new Log(Log.ModuleType.MetadataSearch, $"Malware analysis complete: {item.URL}.", Log.LogType.debug));
+                                TreeNode fileNode = Program.FormMainInstance.TreeViewMetadataSearchDocument(fileResult.FilePath);
+                                if (fileNode != null)
+                                {
+                                    FilesItem file = fileNode.Tag as FilesItem;
+                                    file.DiarioPrediction = fileResult.Prediction.ToString();
+                                    if (fileResult.Completed)
+                                    {
+                                        file.DiarioAnalyzed = true;
+                                        AddMalwareDocumentNodes(fileNode);
+                                    }
+                                    listViewDocuments_Update(file);
+                                }
+                            }
+                            else
+                            {
+                                Program.LogThis(new Log(Log.ModuleType.MetadataSearch, $"Error analyzing malware with DIARIO. {fileResult.Error}. Document: {item.URL}", Log.LogType.medium));
+                            }
+
+                            Interlocked.Increment(ref analyzedFileCount);
+
+                            Invoke(new MethodInvoker(delegate
+                            {
+                                if (analyzedFileCount >= urls.Count)
+                                {
+                                    this.RestoreProgressBar("All documents were analyzed");
+                                    Program.FormMainInstance.TreeView.GetNode(GUI.Navigation.Project.DocumentAnalysis.ToNavigationPath()).Expand();
+                                }
+                                else if (!malwareAnalysisToken.IsCancellationRequested)
+                                {
+                                    Program.FormMainInstance.toolStripProgressBarDownload.Value = analyzedFileCount * 100 / urls.Count;
+                                    Program.FormMainInstance.toolStripStatusLabelLeft.Text = $"Analyzing malware. Completed {analyzedFileCount} of {urls.Count} total files";
+                                    Program.FormMainInstance.ReportProgress(analyzedFileCount, urls.Count);
+                                }
+                            }));
+                        }, malwareAnalysisToken.Token);
+                    }
+                }
+            }
+            else
+            {
+                MessageBox.Show("Missing DIARIO API key or secret");
+            }
+        }
+
+        #endregion
+
         public void Abort()
         {
             this.searchCancelToken?.Cancel();
+            this.malwareAnalysisToken?.Cancel();
             this.Metadata?.Abort();
             this.Analysis?.Abort();
             this.StopAllDownloads();
+        }
+
+        public void RestoreProgressBar(string message)
+        {
+            Invoke(new MethodInvoker(delegate
+            {
+                Program.FormMainInstance.ReportProgress(0, 100);
+                Program.FormMainInstance.toolStripProgressBarDownload.Value = 0;
+                Program.FormMainInstance.toolStripDropDownButtonStop.Enabled = false;
+                if (!String.IsNullOrEmpty(message))
+                {
+                    Program.LogThis(new Log(Log.ModuleType.MetadataSearch, message, Log.LogType.debug));
+                    Program.FormMainInstance.ChangeStatus(message);
+                }
+
+                // enable interface elements which were disabled previously
+                btnSearchAll.Enabled = Program.data.Project.ProjectState != Project.ProjectStates.Uninitialized;
+                btnSearch.Enabled = true;
+                Program.FormMainInstance.programState = FormMain.ProgramState.Normal;
+            }));
         }
     }
 

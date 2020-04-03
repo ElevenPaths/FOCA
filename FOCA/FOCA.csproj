@@ -131,6 +131,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Analysis\DiarioAnalyzer.cs" />
+    <Compile Include="Analysis\DiarioFileAnalysis.cs" />
     <Compile Include="Analysis\DNSCacheSnooping\DNSCache.cs" />
     <Compile Include="Analysis\FingerPrinting\BannerAnalisys.cs" />
     <Compile Include="Analysis\FingerPrinting\DNS.cs" />
@@ -188,10 +190,19 @@
     <Compile Include="Database\Migrations\201908230648106_RemoveUnusedBackupSupport.Designer.cs">
       <DependentUpon>201908230648106_RemoveUnusedBackupSupport.cs</DependentUpon>
     </Compile>
+    <Compile Include="Database\Migrations\202001200633256_MalwareAnalysis.cs" />
+    <Compile Include="Database\Migrations\202001200633256_MalwareAnalysis.designer.cs">
+      <DependentUpon>202001200633256_MalwareAnalysis.cs</DependentUpon>
+    </Compile>
     <Compile Include="GUI\TreeNavigation.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>TreeNavigation.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Utilities\Log.cs" />
     <Compile Include="Utilities\NetRange.cs" />
@@ -451,11 +462,6 @@
     <Compile Include="Utilities\Functions.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
     <Compile Include="Searcher\HTTPSizeDaemon.cs" />
     <Compile Include="Configuration.cs" />
     <Compile Include="FormOptions.cs">
@@ -474,6 +480,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Database\Migrations\201908230648106_RemoveUnusedBackupSupport.resx">
       <DependentUpon>201908230648106_RemoveUnusedBackupSupport.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Database\Migrations\202001200633256_MalwareAnalysis.resx">
+      <DependentUpon>202001200633256_MalwareAnalysis.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FormAddAltDNSParser.resx">
       <DependentUpon>FormAddAltDNSParser.cs</DependentUpon>
@@ -583,6 +592,7 @@
     <Content Include="resources\market.png" />
     <None Include="resources\NewFoca\Menu principal\options.png" />
     <Content Include="resources\NewFoca\Arbol lateral\Clients.png" />
+    <Content Include="resources\NewFoca\Arbol lateral\diario_logo_25.png" />
     <Content Include="resources\NewFoca\Arbol lateral\documents.png" />
     <Content Include="resources\NewFoca\Arbol lateral\domains.png" />
     <Content Include="resources\NewFoca\Arbol lateral\Emails.png" />
@@ -633,6 +643,7 @@
     <Content Include="resources\NewFoca\contextual\copytToClipboard.png" />
     <Content Include="resources\NewFoca\contextual\delete.png" />
     <Content Include="resources\NewFoca\contextual\deleteAll.png" />
+    <Content Include="resources\NewFoca\contextual\diario_logo_37.png" />
     <Content Include="resources\NewFoca\contextual\DNSSnooping.png" />
     <Content Include="resources\NewFoca\contextual\download.png" />
     <Content Include="resources\NewFoca\contextual\downloadAll.png" />
@@ -849,6 +860,9 @@
     <PackageReference Include="com.rusanu.dataconnectiondialog">
       <Version>1.0.0.1</Version>
     </PackageReference>
+    <PackageReference Include="DIARIOSDK">
+      <Version>1.0.1</Version>
+    </PackageReference>
     <PackageReference Include="EntityFramework">
       <Version>6.4.0</Version>
     </PackageReference>
@@ -860,6 +874,9 @@
     </PackageReference>
     <PackageReference Include="NLog.Config">
       <Version>4.6.8</Version>
+    </PackageReference>
+    <PackageReference Include="ParallelExtensionsExtras">
+      <Version>1.2.0</Version>
     </PackageReference>
     <PackageReference Include="System.Net.Http">
       <Version>4.3.4</Version>

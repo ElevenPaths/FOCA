@@ -123,8 +123,10 @@ namespace FOCA.Core
 
                 foreach (FilesItem fi in Program.data.files.Items)
                 {
+
+                    fi.Downloaded = fi.Downloaded && System.IO.File.Exists(fi.Path);
                     Program.FormMainInstance.panelMetadataSearch.listViewDocuments_Update(fi);
-                    if (fi.Processed)
+                    if (fi.Downloaded)
                     {
                         TreeNode tn_file = Program.FormMainInstance.TreeViewMetadataAddDocument(fi);
                         tn_file.Tag = fi;
@@ -134,7 +136,7 @@ namespace FOCA.Core
                         //Carga los metadatos si los tiene
                         if (fi.Metadata != null)
                         {
-                            Program.FormMainInstance.panelMetadataSearch.AddDocumentNodes(fi.Metadata, tn_file);
+                            Program.FormMainInstance.panelMetadataSearch.AddMetadataDocumentNodes(fi.Metadata, tn_file);
                         }
                     }
                 }
