@@ -1,9 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="SearcherCore.Properties" GeneratedClassName="Settings">
-  <Profiles />
-  <Settings>
-    <Setting Name="SearcherCore_net_bing_api_BingService" Type="(Web Service URL)" Scope="Application">
-      <Value Profile="(Default)">http://api.bing.net:80/soap.asmx</Value>
-    </Setting>
-  </Settings>
-</SettingsFile>

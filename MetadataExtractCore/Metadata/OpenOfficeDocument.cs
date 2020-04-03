@@ -39,7 +39,7 @@ namespace MetadataExtractCore.Extractors
                     {
                         using (Stream stmXML = new MemoryStream())
                         {
-                            zip.Extract(strFile, stmXML);
+                            zip[strFile].Extract(stmXML);
                             stmXML.Seek(0, SeekOrigin.Begin);
                             AnalizeFileMeta(stmXML);
                         }
@@ -49,7 +49,7 @@ namespace MetadataExtractCore.Extractors
                     {
                         using (Stream stmXML = new MemoryStream())
                         {
-                            zip.Extract(strFile, stmXML);
+                            zip[strFile].Extract(stmXML);
                             stmXML.Seek(0, SeekOrigin.Begin);
                             analizeFileSettings(stmXML);
                         }
@@ -59,7 +59,7 @@ namespace MetadataExtractCore.Extractors
                     {
                         using (Stream stmXML = new MemoryStream())
                         {
-                            zip.Extract(strFile, stmXML);
+                            zip[strFile].Extract(stmXML);
                             stmXML.Seek(0, SeekOrigin.Begin);
                             AnalizeFileContent(stmXML);
                         }
@@ -69,7 +69,7 @@ namespace MetadataExtractCore.Extractors
                     {
                         using (Stream stmXML = new MemoryStream())
                         {
-                            zip.Extract(strFile, stmXML);
+                            zip[strFile].Extract(stmXML);
                             stmXML.Seek(0, SeekOrigin.Begin);
                             AnalizeFileVersionList(stmXML, zip);
                         }
@@ -84,7 +84,7 @@ namespace MetadataExtractCore.Extractors
                         {
                             using (Stream stmXML = new MemoryStream())
                             {
-                                zip.Extract(strFileName, stmXML);
+                                zip[strFile].Extract(stmXML);
                                 stmXML.Seek(0, SeekOrigin.Begin);
                                 using (EXIFDocument eDoc = new EXIFDocument(stmXML))
                                 {
@@ -425,7 +425,7 @@ namespace MetadataExtractCore.Extractors
                         {
                             using (Stream stmXML = new MemoryStream())
                             {
-                                zip.Extract(strFile, stmXML);
+                                zip[strFile].Extract(stmXML);
                                 stmXML.Seek(0, SeekOrigin.Begin);
                                 using (OpenOfficeDocument ooDoc = new OpenOfficeDocument(stmXML, strExtlo))
                                 {

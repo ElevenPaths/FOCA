@@ -48,23 +48,10 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Ionic.Zip, Version=1.7.2.12, Culture=neutral, PublicKeyToken=f1a302b3881c2619, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\lib\Ionic.Zip.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
-    <Reference Include="System.Web" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml.Linq">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Data.DataSetExtensions">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="WindowsBase">
       <RequiredTargetFramework>3.0</RequiredTargetFramework>
@@ -152,18 +139,11 @@
     <EmbeddedResource Include="resources\SonyMarkernote.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\lib\Ionic.Zip.dll" />
-    <Content Include="..\lib\PdfSharp.dll" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="HtmlAgilityPack">
-      <Version>1.11.17</Version>
+    <PackageReference Include="DotNetZip">
+      <Version>1.13.7</Version>
     </PackageReference>
     <PackageReference Include="MetadataExtractor">
-      <Version>2.2.0</Version>
-    </PackageReference>
-    <PackageReference Include="Newtonsoft.Json">
-      <Version>12.0.3</Version>
+      <Version>2.3.0</Version>
     </PackageReference>
     <PackageReference Include="PdfSharp">
       <Version>1.50.5147</Version>
