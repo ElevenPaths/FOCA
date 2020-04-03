@@ -56,8 +56,7 @@ namespace FOCA
             if (Program.DesignMode()) return;
             Resolve = new Resolver
             {
-                TimeOut = 1000,
-                SearchWithAllDNS = Program.cfgCurrent.UseAllDns
+                TimeOut = 1000
             };
 
             Program.data.SetResolver(Resolve);
