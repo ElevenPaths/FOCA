@@ -322,7 +322,7 @@ namespace FOCA
         /// <param name="fi"></param>
         private void RemoveFileFromTreeNode(FilesItem fi)
         {
-            if (fi != null && fi.MetadataExtracted)
+            if (fi != null && fi.Downloaded)
             {
                 Program.FormMainInstance.TreeViewMetadataSearchDocument(fi.Path)?.Remove();
             }
@@ -2733,7 +2733,7 @@ namespace FOCA
 
                 malwareAnalysisToken.Token.Register(() =>
                 {
-                    this.RestoreProgressBar("Malware analysys was cancelled");
+                    this.RestoreProgressBar("Malware analysis was cancelled");
                     Program.FormMainInstance.TreeView.GetNode(GUI.Navigation.Project.DocumentAnalysis.ToNavigationPath()).Expand();
                 });
 
