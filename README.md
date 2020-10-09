@@ -24,6 +24,7 @@ To run the solution locally the system will need:
 * Microsoft **Visual C++ 2010 x64** or greater.
 * An instance of **SQL Server** 2014 or greater.
 
+### This script is tested on kali linux , parrot os , ubuntu os
 #### 📝Notes
 
 * When starting the app the system will check if there is a **SQL Server** instance available. If none is found, the system will prompt a window for introducing a connection string.  
