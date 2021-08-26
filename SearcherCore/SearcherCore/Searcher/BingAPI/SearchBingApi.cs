@@ -16,7 +16,7 @@ namespace SearcherCore.Searcher.BingAPI
         public SearchBingApi(string secretKey)
         {
             // V7.0 of the API
-            client = new RestClient("https://api.cognitive.microsoft.com/bing/v7.0");
+            client = new RestClient("https://api.bing.microsoft.com/v7.0");
             // secret key to authenticate requests
             _secretKey = secretKey;
         }
