@@ -7,12 +7,12 @@ namespace FOCA.Utilites
 {
     public static class Functions
     {
-        public static char[] MyInvalidPathChars = {'\\', '/', ':', '*', '?', '"', '<', '>', '|'};
+        public static char[] MyInvalidPathChars = { '\\', '/', ':', '*', '?', '"', '<', '>', '|' };
 
         public static string GetFileSizeAsString(long size)
         {
             double s = size;
-            string[] sizes = {"B", "KB", "MB", "GB", "TB"};
+            string[] sizes = { "B", "KB", "MB", "GB", "TB" };
             int order;
 
             for (order = 0; order < sizes.Length - 1 && s >= 1024; order++)
@@ -137,7 +137,7 @@ namespace FOCA.Utilites
         /// <returns></returns>
         public static ulong IPToInt(string ip)
         {
-            return (ulong) BitConverter.ToInt32(IPAddress.Parse(ip).GetAddressBytes(), 0);
+            return (ulong)BitConverter.ToInt32(IPAddress.Parse(ip).GetAddressBytes(), 0);
         }
 
         public static string SearchBetweenDelimiters(string strSource, string from, string until, ref int startPosition,
@@ -164,6 +164,18 @@ namespace FOCA.Utilites
 
             startPosition = strSource.IndexOf(until, startIndex, comparison) + until.Length;
             return strSource.Substring(startIndex, endIndex - startIndex);
+        }
+
+        public static Heijden.DNS.Resolver Clone(this Heijden.DNS.Resolver resolver)
+        {
+            return new Heijden.DNS.Resolver(resolver.DnsServers)
+            {
+                TimeOut = resolver.TimeOut,
+                Recursion = resolver.Recursion,
+                Retries = resolver.Retries,
+                TransportType = resolver.TransportType,
+                UseCache = resolver.UseCache,
+            };
         }
     }
 }
