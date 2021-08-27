@@ -56,7 +56,9 @@ namespace FOCA
             if (Program.DesignMode()) return;
             Resolve = new Resolver
             {
-                TimeOut = 1000
+                //https://github.com/ghuntley/Heijden.Dns/blob/master/src/Heijden.Dns/Resolver.cs
+                //Summary of this property says 'milliseconds', but in source code always multiplies it by 1000, so it works as seconds
+                TimeOut = 2
             };
 
             Program.data.SetResolver(Resolve);
@@ -260,6 +262,7 @@ namespace FOCA
         {
             if (thrSearch == null) return;
             thrSearch.Abort();
+            Program.LogThis(new Log(Log.ModuleType.DNSSearch, $"DNS search stopped!", Log.LogType.medium));
             ChangeTextCurrentSearch("");
             DisableSkip("Skip");
             this.searchCancelToken?.Cancel();
@@ -407,11 +410,12 @@ namespace FOCA
         /// </summary>
         private void SearchCommonNames()
         {
-            var message = $"Searching subdomains of {strDomain} using common DNS names";
-            Program.LogThis(new Log(Log.ModuleType.DNSCommonNames, message, Log.LogType.debug));
-            Program.ChangeStatus(message);
+            string initialMessage = $"Searching subdomains of {strDomain} using common DNS names.";
+            string progressMessageFormat = initialMessage + " ({0} of {1}) queries";
+            Program.LogThis(new Log(Log.ModuleType.DNSCommonNames, initialMessage, Log.LogType.debug));
+            Program.ChangeStatus(initialMessage);
 
-            var names = new List<string>();
+            List<string> names = new List<string>();
             try
             {
                 names.AddRange(File.ReadAllLines(CommonNamesFileName));
@@ -422,63 +426,89 @@ namespace FOCA
                     $"Error opening file: {CommonNamesFileName}", Log.LogType.error));
                 return;
             }
-
-            List<string> nsServerList = new List<string>();
-            foreach (var item in Resolve.DnsServers)
+            if (names.Count > 0)
             {
-                nsServerList.AddRange(DNSUtil.GetNSServer(Resolve, strDomain, item.Address.ToString()));
-            }
 
-            foreach (var nsServer in nsServerList)
-            {
-                if (DNSUtil.IsDNSAnyCast(Resolve, nsServer, strDomain))
-                    Program.LogThis(new Log(Log.ModuleType.DNSCommonNames,
-                        $"DNS server is Anycast, not used: {nsServer}", Log.LogType.debug));
-                else
+                List<string> nsServerList = new List<string>();
+                foreach (IPEndPoint item in Resolve.DnsServers)
                 {
-                    var op = Partitioner.Create(names);
-                    var po = new ParallelOptions();
-                    if (Program.cfgCurrent.ParallelDnsQueries != 0)
-                        po.MaxDegreeOfParallelism = Program.cfgCurrent.ParallelDnsQueries;
-
-                    try
-                    {
-                        Parallel.ForEach(op, po, delegate (string name)
-                        {
-                            CancelIfSkipRequested();
-
-                            var subdomain = $"{name}.{strDomain}";
-                            Program.LogThis(new Log(Log.ModuleType.DNSCommonNames,
-                                string.Format("[{0}] Trying resolve subdomain: {1} with NameServer {0}", nsServer, subdomain),
-                                Log.LogType.debug));
-
-                            foreach (var ip in DNSUtil.GetHostAddresses(Resolve, subdomain, nsServer))
-                            {
-                                Program.LogThis(new Log(Log.ModuleType.DNSCommonNames,
-                                    $"[{nsServer}] Found subdomain {subdomain}", Log.LogType.medium));
-
-                                CancelIfSkipRequested();
-                                try
-                                {
-                                    Program.data.AddResolution(subdomain, ip.ToString(),
-                                        $"Common Names [{subdomain}]", MaxRecursion, Program.cfgCurrent,
-                                        true);
-                                }
-                                catch (Exception)
-                                {
-                                }
-                            }
-                        });
-                    }
-                    catch (AggregateException)
-                    { }
-                    catch (OperationCanceledException)
-                    {
-                    }
-
-                    if (!bSearchWithAllDNS)
-                        break;
+                    nsServerList.AddRange(DNSUtil.GetNSServer(Resolve, strDomain, item.Address.ToString()));
                 }
+                int totalPossibilities = nsServerList.Count * names.Count;
+
+                int queriedCount = 0;
+
+                foreach (string nsServer in nsServerList)
+                {
+                    if (DNSUtil.IsDNSAnyCast(Resolve, nsServer, strDomain))
+                        Program.LogThis(new Log(Log.ModuleType.DNSCommonNames,
+                            $"DNS server is Anycast, not used: {nsServer}", Log.LogType.debug));
+                    else
+                    {
+                        var op = Partitioner.Create(names);
+                        var po = new ParallelOptions();
+                        if (Program.cfgCurrent.ParallelDnsQueries != 0)
+                            po.MaxDegreeOfParallelism = Program.cfgCurrent.ParallelDnsQueries;
+
+                        try
+                        {
+                            Parallel.ForEach(op, po, delegate (string name)
+                            {
+                                CancelIfSkipRequested();
+
+                                var subdomain = $"{name}.{strDomain}";
+                                Program.LogThis(new Log(Log.ModuleType.DNSCommonNames,
+                                    string.Format("[{0}] Trying resolve subdomain: {1} with NameServer {0}", nsServer, subdomain),
+                                    Log.LogType.debug));
+
+                                foreach (var ip in DNSUtil.GetHostAddresses(Resolve, subdomain, nsServer))
+                                {
+                                    Program.LogThis(new Log(Log.ModuleType.DNSCommonNames,
+                                        $"[{nsServer}] Found subdomain {subdomain}", Log.LogType.medium));
+
+                                    CancelIfSkipRequested();
+                                    try
+                                    {
+                                        Program.data.AddResolution(subdomain, ip.ToString(),
+                                            $"Common Names [{subdomain}]", MaxRecursion, Program.cfgCurrent,
+                                            true);
+                                    }
+                                    catch (Exception)
+                                    {
+                                    }
+                                }
+                                Interlocked.Increment(ref queriedCount);
+
+                                Invoke(new MethodInvoker(delegate
+                                {
+                                    Program.FormMainInstance.toolStripProgressBarDownload.Value = queriedCount * 100 / totalPossibilities;
+                                    Program.FormMainInstance.toolStripStatusLabelLeft.Text = String.Format(progressMessageFormat, queriedCount, totalPossibilities);
+                                    Program.FormMainInstance.ReportProgress(queriedCount, totalPossibilities);
+                                }));
+                            });
+                        }
+                        catch (AggregateException)
+                        { }
+                        catch (OperationCanceledException)
+                        {
+                        }
+
+                        if (!bSearchWithAllDNS)
+                            break;
+                    }
+                }
+
+                Invoke(new MethodInvoker(delegate
+                {
+                    Program.FormMainInstance.toolStripProgressBarDownload.Value = 0;
+                    Program.FormMainInstance.toolStripStatusLabelLeft.Text = String.Empty;
+                    Program.FormMainInstance.ReportProgress(0, 0);
+                }));
+                Program.LogThis(new Log(Log.ModuleType.DNSCommonNames, $"DNS dictionary search finished with {queriedCount} queries!", Log.LogType.medium));
+            }
+            else
+            {
+                Program.LogThis(new Log(Log.ModuleType.DNSCommonNames, "The domain names file is empty.", Log.LogType.error));
             }
         }
 

@@ -559,7 +559,7 @@ namespace FOCA.Database.Entities
                         if (Program.cfgCurrent.UseAllDns)
                         {
                             domains = new List<string>();
-                            List<string> dnsServers = DNSUtil.GetNSServer(resolver, domainSource, DNSUtil.GetLocalNSServer().First().ToString());
+                            ICollection<string> dnsServers = DNSUtil.GetNSServer(resolver, domainSource, DNSUtil.GetLocalNSServer().First().ToString());
 
                             foreach (string dns in dnsServers)
                             {

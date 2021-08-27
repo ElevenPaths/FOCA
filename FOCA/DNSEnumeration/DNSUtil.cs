@@ -5,6 +5,7 @@ using System.Text;
 using System.Net;
 using System.Text.RegularExpressions;
 using Heijden.DNS;
+using FOCA.Utilites;
 
 namespace FOCA
 {
@@ -25,17 +26,17 @@ namespace FOCA
 
         public static List<IPAddress> GetHostAddresses(Resolver r, string domain, string NSServer)
         {
-            List<IPEndPoint> lastNSServers = new List<IPEndPoint>(r.DnsServers);
             try
             {
-                r.DnsServer = NSServer;
+                Resolver currentResolver = r.Clone();
+                currentResolver.DnsServer = NSServer;
                 List<IPAddress> lst = new List<IPAddress>();
-                Response response = r.Query(domain, QType.A, QClass.IN);
+                Response response = currentResolver.Query(domain, QType.A, QClass.IN);
                 foreach (RecordA rA in response.RecordsA)
                 {
                     lst.Add(rA.Address);
                 }
-                response = r.Query(domain, QType.AAAA, QClass.IN);
+                response = currentResolver.Query(domain, QType.AAAA, QClass.IN);
                 foreach (RecordAAAA rAAAA in response.RecordsAAAA)
                 {
                     lst.Add(rAAAA.Address);
@@ -45,10 +46,6 @@ namespace FOCA
             catch
             {
                 return new List<IPAddress>();
-            }
-            finally
-            {
-                r.DnsServers = lastNSServers.ToArray();
             }
         }
 
@@ -96,7 +93,7 @@ namespace FOCA
         /// <returns></returns>
         public static string RemoveLastPoint(string domain)
         {
-            return domain.EndsWith(".") ? domain.Substring(0, domain.Length - 1) : domain;
+            return domain.TrimEnd('.');
         }
 
         /// <summary>
@@ -171,42 +168,42 @@ namespace FOCA
         /// <param name="r"></param>
         /// <param name="domain"></param>
         /// <param name="NSServer"></param>
+        /// <param name="previosNSrecords"></param>
         /// <returns></returns>
-        public static List<string> GetNSServer(Resolver r, string domain, string NSServer)
+        public static ICollection<string> GetNSServer(Resolver r, string domain, string NSServer, ICollection<string> previosNSrecords = null)
         {
-            List<IPEndPoint> lastNSServers = new List<IPEndPoint>(r.DnsServers);
             try
             {
-                r.DnsServer = NSServer;
-                Response response = r.Query(domain, QType.NS);
+                Resolver currentResolver = r.Clone();
+                HashSet<string> ips = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                if (previosNSrecords == null)
+                {
+                    previosNSrecords = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                }
+                previosNSrecords.Add(NSServer);
+
+                currentResolver.DnsServer = NSServer;
+                Response response = currentResolver.Query(domain, QType.NS);
                 if (response.RecordsNS.Length > 0)
                 {
-                    List<string> lst = new List<string>();
+                    HashSet<string> nameservers = new HashSet<string>();
                     //No es autoritativa, volver a preguntar
                     if (!response.header.AA)
                     {
-                        foreach (RecordNS rNS in response.RecordsNS)
+                        nameservers.UnionWith(response.RecordsNS.Where(p => !previosNSrecords.Contains(p.NSDNAME)).Select(p => p.NSDNAME));
+                        foreach (string rNS in nameservers)
                         {
-                            if (NSServer != rNS.NSDNAME)
-                            {
-                                foreach (string ns in GetNSServer(r, domain, rNS.NSDNAME))
-                                    if (!lst.Contains(ns, StringComparer.OrdinalIgnoreCase))
-                                        lst.Add(ns);
-                            }
-                            else
-                            {
-                                lst.Add(NSServer);
-                            }
+                            ips.UnionWith(GetNSServer(currentResolver, domain, rNS, previosNSrecords));
                         }
                     }
                     else
                     {
                         foreach (RecordNS rNS in response.RecordsNS)
-                            lst.Add(RemoveLastPoint(rNS.NSDNAME));
+                            nameservers.Add(RemoveLastPoint(rNS.NSDNAME));
                     }
-                    //Resuleve los dominios de los DNS
-                    List<string> ips = new List<string>();
-                    foreach (string ns in lst)
+
+                    //Resuelve los dominios de los DNS
+                    foreach (string ns in nameservers)
                     {
                         foreach (IPAddress ip in DNSUtil.GetHostAddresses(ns))
                             if (!ips.Contains(ip.ToString()))
@@ -230,9 +227,7 @@ namespace FOCA
                             string dns = RemoveLastPoint(recordSOA.MNAME);
                             if (TestDNS(dns))
                             {
-                                List<string> lst = new List<string>();
-                                lst.Add(dns);
-                                return lst;
+                                return new List<string>() { dns };
                             }
                         }
                         if (response.Authorities[0].RECORD is RecordNS recordNS)
@@ -240,9 +235,7 @@ namespace FOCA
                             string dns = RemoveLastPoint(recordNS.NSDNAME);
                             if (TestDNS(dns))
                             {
-                                List<string> lst = new List<string>();
-                                lst.Add(dns);
-                                return lst;
+                                return new List<string>() { dns };
                             }
                         }
                     }
@@ -250,10 +243,6 @@ namespace FOCA
                 }
             }
             catch { }
-            finally
-            {
-                r.DnsServers = lastNSServers.ToArray();
-            }
             return new List<string>();
         }
 
@@ -275,7 +264,7 @@ namespace FOCA
                     {
                         foreach (RecordNS rNS in response.RecordsNS)
                         {
-                            List<string> NSServers = GetNSServer(r, domain, rNS.NSDNAME);
+                            ICollection<string> NSServers = GetNSServer(r, domain, rNS.NSDNAME);
                             if (NSServers.Count > 0)
                             {
                                 foreach (string dns in NSServers)
@@ -340,14 +329,6 @@ namespace FOCA
             resolver.DnsServer = DNSServer;
             //Response response = resolver.Query("test", QType.ANY);
             Response response = resolver.Query("google.com", QType.NS);
-            return response.Error != "Timeout Error";
-        }
-
-        public static bool TestDNSCustom(string DNSServer, string host)
-        {
-            Resolver resolver = new Resolver();
-            resolver.DnsServer = DNSServer;
-            Response response = resolver.Query(host, QType.A);
             return response.Error != "Timeout Error";
         }
 
