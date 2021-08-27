@@ -12,7 +12,6 @@ namespace FOCA.Searcher
     public class DuckduckgoWebSearcher : LinkSearcher
     {
         private const int MAX_PAGES = 3;
-        private const string userAgent = "Mozilla/5.0 (Linux; U; Android 4.1.1; en-gb; Build/KLP) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Safari/534.30";
         private static readonly string[] supportedFileTypes = new string[] { "pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx" };
 
         public DuckduckgoWebSearcher() : base("DuckDuckGoWeb", supportedFileTypes)
@@ -51,7 +50,7 @@ namespace FOCA.Searcher
         private string SendInitialRequest(string searchString)
         {
             HttpWebRequest request = HttpWebRequest.CreateHttp(string.Format("https://duckduckgo.com/html/?q={0}&t=h_", System.Web.HttpUtility.UrlEncode(searchString)));
-            request.UserAgent = userAgent;
+            request.UserAgent = DefaultUserAgent;
             request.Referer = "https://duckduckgo.com/";
             HttpWebResponse response = (HttpWebResponse)request.GetResponse();
             using (StreamReader responseReader = new StreamReader(response.GetResponseStream()))
@@ -68,7 +67,7 @@ namespace FOCA.Searcher
             request.Headers.Add("Origin: https://duckduckgo.com");
             request.Referer = "https://duckduckgo.com/";
             request.ContentType = "application/x-www-form-urlencoded";
-            request.UserAgent = userAgent;
+            request.UserAgent = DefaultUserAgent;
             request.ContentLength = postParameters.Length;
             request.Headers.Add("Cache-Control: max-age=0");
             request.Headers.Add("Upgrade-Insecure-Requests: 1");
