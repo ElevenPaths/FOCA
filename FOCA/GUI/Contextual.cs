@@ -899,8 +899,7 @@ namespace FOCA.GUI
 
             tsiAddFromDNSDumpster.Click += delegate
             {
-                var p = new DNSDumpsterParser(Program.data.Project.Domain);
-                var subs = p.getSubdomains();
+                ICollection<string> subs = DNSDumpsterParser.GetSubdomains(Program.data.Project.Domain);
                 foreach (
                     var t in
                         subs.Select(
