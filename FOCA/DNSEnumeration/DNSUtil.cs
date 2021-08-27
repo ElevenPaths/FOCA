@@ -165,9 +165,10 @@ namespace FOCA
         /// <summary>
         /// Devuelve todos los DNS que funcionen para un determinado dominio
         /// </summary>
-        /// <param name="currentResolver"></param>
+        /// <param name="r"></param>
         /// <param name="domain"></param>
         /// <param name="NSServer"></param>
+        /// <param name="previosNSrecords"></param>
         /// <returns></returns>
         public static ICollection<string> GetNSServer(Resolver r, string domain, string NSServer, ICollection<string> previosNSrecords = null)
         {
@@ -200,7 +201,7 @@ namespace FOCA
                         foreach (RecordNS rNS in response.RecordsNS)
                             nameservers.Add(RemoveLastPoint(rNS.NSDNAME));
                     }
-                    
+
                     //Resuelve los dominios de los DNS
                     foreach (string ns in nameservers)
                     {
