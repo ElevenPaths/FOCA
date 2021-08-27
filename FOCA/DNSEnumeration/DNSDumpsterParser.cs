@@ -35,8 +35,9 @@ namespace FOCA
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Program.LogThis(new Log(Log.ModuleType.DNSSearch, $"DNSDumpster query has failed: {e.Message}", Log.LogType.error));
                 return new List<string>();
             }
         }
