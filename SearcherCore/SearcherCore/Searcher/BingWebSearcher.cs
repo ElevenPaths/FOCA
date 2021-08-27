@@ -39,7 +39,7 @@ namespace FOCA.Searcher
                 searchString += string.Format(" loc:{0}", RegionToHtmlOption(LocatedInRegion));
             OnSearcherLogEvent(new EventsThreads.ThreadStringEventArgs(string.Format("[{0}] Searching first={2} q={1}", Name, searchString, currentOffset + 1)));
 
-            string requestUrl = String.Format("http://www.bing.com/search?first={1}&q={0}", searchString, currentOffset + 1);
+            string requestUrl = String.Format("https://www.bing.com/search?first={1}&q={0}", searchString, currentOffset + 1);
 
             int retries = 0;
             bool error;
@@ -48,14 +48,16 @@ namespace FOCA.Searcher
             {
                 error = false;
                 HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(requestUrl);
-                if (!string.IsNullOrEmpty(UserAgent))
+                if (!String.IsNullOrEmpty(UserAgent))
+                {
                     request.UserAgent = UserAgent;
-
+                }
+                else
+                {
+                    request.UserAgent = DefaultUserAgent;
+                }
+                request.Accept = "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9";
                 request.Timeout = 5000 + 10000 * retries;
-                request.CookieContainer = new CookieContainer();
-                request.CookieContainer.Add(new Cookie("SRCHHPGUSR", "ADLT=OFF&NRSLT=" + currentResultPerPage, "/", ".bing.com"));
-
-                request.CookieContainer.Add(new Cookie("MUID", "00000000000000000000000000000000", "/", ".bing.com"));
                 try
                 {
                     OnSearcherLogEvent(new EventsThreads.ThreadStringEventArgs(string.Format("[{0}] Requesting URL {1}", this.Name, request.RequestUri.ToString())));

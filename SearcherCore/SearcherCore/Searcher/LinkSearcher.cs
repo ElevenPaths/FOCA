@@ -8,6 +8,7 @@ namespace FOCA.Searcher
 {
     public abstract class LinkSearcher : Searcher<string, Uri>
     {
+        public const string DefaultUserAgent= "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36";
         protected List<string> SupportedExtensions { get; private set; }
 
         public string UserAgent { get; set; }
