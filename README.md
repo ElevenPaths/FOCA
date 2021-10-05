@@ -20,9 +20,9 @@ Check [here](https://github.com/ElevenPaths/FOCA/releases) our latest releases.
 To run the solution locally the system will need:
 
 * **Microsoft Windows** (64 bits). Versions 7, 8, 8.1 and 10.
-* **Microsoft .NET Framework 4.7.1**.
+* [**Microsoft .NET Framework 4.7.1**.](https://dotnet.microsoft.com/download/dotnet-framework/net471)
 * Microsoft **Visual C++ 2010 x64** or greater.
-* An instance of **SQL Server** 2014 or greater.
+* Docker. [Desktop version](https://hub.docker.com/editions/community/docker-ce-desktop-windows)
 
 #### 📝Notes
 
