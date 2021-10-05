@@ -1,6 +1,6 @@
 
 <p align="left">
-<img src="./doc/FOCA_White.jpg"/>
+<img src="./documentation/img/FOCA_White.jpg"/>
 </p>
 
 # FOCA (Fingerprinting Organizations with Collected Archives)
@@ -36,7 +36,7 @@ To run the solution locally the system will need:
 
 Get the news about our latest doings and send us a message. We 💛 hearing from you. 
 
-* [<img src="./doc/Twitter_Social_Icon_Circle_Color.svg" width="30" height="24"/>](https://twitter.com/Fear_the_Foca)  https://twitter.com/Fear_the_Foca
+* [<img src="./documentation/img/Twitter_Social_Icon_Circle_Color.svg" width="30" height="24"/>](https://twitter.com/Fear_the_Foca)  https://twitter.com/Fear_the_Foca
 
 
 ## ☕ Further reading 
