@@ -1,0 +1,19 @@
+version: '3.8'
+services:
+# USUARIO PARA CONECTAR ES: SA
+# CONTRASEÑA PARA CONECTAR: FearTheFoca!
+  sqlserver_foca:
+    container_name: sqlserver_foca
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    restart: always
+    ports:
+      - 1433:1433
+    environment:
+      SA_PASSWORD: FearTheFoca!
+      MSSQL_PID: 'Express'
+      ACCEPT_EULA: Y
+    volumes:
+      - data:/var/opt/mssql
+
+volumes:
+  data:
