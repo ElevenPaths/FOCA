@@ -13,7 +13,7 @@ namespace FOCA
     {
         private static bool Running;
         private const string FocaDatabaseName = "Foca";
-        private const string SQLExpressConnectionString = @"Server=.\SQLEXPRESS;Initial Catalog=" + FocaDatabaseName + ";MultipleActiveResultSets=True;Integrated Security=true;Connection Timeout=3";
+        private static readonly string SQLExpressConnectionString = $"Data Source=localhost;Initial Catalog={FocaDatabaseName};Integrated Security=False;User ID=SA;Password=FearTheFoca!;MultipleActiveResultSets=True;Connect Timeout=3";
         public static string ProgramVersion = Application.ProductVersion;
         public static string ProgramName = Application.ProductName + " " + ProgramVersion;
 
